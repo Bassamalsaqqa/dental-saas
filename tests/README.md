@@ -1,154 +1,30 @@
-# Running Application Tests
+# Running application tests
 
-## Safe Test Execution & Test Database Provisioning (Mandatory)
+Inspect the selected tests before execution. A `tests/unit` location does not guarantee database safety. Business/customer databases and dumps are never test fixtures. Do not edit `.env` or start business MySQL just to run checks.
 
-> [!IMPORTANT]
-> **Strict Fail-Closed Isolation:** Tests must NEVER run against or mutate the business database (`democa_dental_saas`).
-> Always use `scripts/safe_test_runner.php` or ensure exact dotted `database.tests.database=democa_dental_saas_test` is set in the execution environment.
+For an inspected database-free suite:
 
-### 1. Provisioning / Resetting the Isolated Test Database
-
-The disposable test database schema is provisioned from the minimal pre-migration foundation (`tests/_support/Database/LegacyBaseSchema.php`), followed by canonical migrations executed via CodeIgniter's `MigrationRunner::latest()`, and seeded with deterministic synthetic reference fixtures (zero PHI, zero credentials, zero business transaction records).
-
-To verify isolation or provision the disposable test database:
-```console
-# Verify connection, isolation, and disposable target eligibility (no mutations):
-php scripts/provision_test_db.php --check-only
-
-# Normal non-destructive provisioning (applies pending schema/seeds without wiping existing data):
-php scripts/provision_test_db.php
-
-# Explicit guarded reset (requires ownership marker verification, wipes disposable schema, re-provisions):
-php scripts/provision_test_db.php --reset
+```powershell
+php vendor/phpunit/phpunit/phpunit --no-coverage --no-logging --do-not-cache-result tests/unit/FinanceSalaryProviderAccountingTest.php tests/unit/FinanceSettlementProviderCurrencyTest.php tests/unit/FinanceSettlementServiceTest.php tests/unit/FinanceSettlementInputGuardTest.php
 ```
 
-### 2. Running Tests Safely
+For SQL/routed tests, use an explicitly owned disposable local target and `scripts/TestDatabasePreflight.php`. Exact dotted `database.tests.*` configuration must resolve to `democa_dental_saas_test`, remain disjoint from business configuration, and pass both configuration and live identity/ownership checks. A database name alone proves neither ownership nor safety. Run mutation suites serially.
 
-Use `scripts/safe_test_runner.php` which validates preflight isolation (`TestDatabasePreflight`) before invoking PHPUnit:
-```console
-# Run focused containment suite:
-php scripts/safe_test_runner.php --no-coverage tests/unit/TenantBackupContainmentTest.php
+`php scripts/provision_test_db.php --check-only` is read-only. Provisioning applies canonical migrations and synthetic reference fixtures; reset destroys owned test tables. Neither is a routine command to run without target checks and authorization. The test-only foundation supplies the current non-null appointment clinic reference and the verified nullable finance author column required by existing writers; it does not alter populated application tables.
 
-# Run full test suite in a single invocation:
-php scripts/safe_test_runner.php --no-coverage --display-skipped tests/unit tests/database
+Use `scripts/safe_test_runner.php` for inspected database-backed PHPUnit suites. It launches the same PHP directly and forwards the verified test connection through a CLI-only prepend bridge, avoiding lost dotted environment settings in Windows/CI DotEnv. Credentials are passed privately to the child, never written to command arguments or new files. Do not run the entire suite blindly: some historical regressions have target-specific guards or DDL assumptions. No notification dispatch or production requests are part of ordinary test acceptance.
 
-# Automatically provision clean database before running tests:
-php scripts/safe_test_runner.php --provision --no-coverage tests/unit
-```
+`tests/regression/FinanceLocalSettlementSql.php` exercises real settlement services against the owned local test database. It requires `DENTA_REPLAY_TEST_BOOTSTRAP` pointing to an explicitly supplied CLI bootstrap that loads the framework's testing environment with the isolated connection configuration. It validates configuration before connecting and live identity plus the ownership marker before fixture writes. It adds synthetic fixtures, retaining them for inspection; it never imports a customer seed or resets tables. Its SQL/replay assertions do not certify HTTP CSRF/session/RBAC or production.
 
----
+Current dependency versions are pinned in `composer.lock`; do not install or upgrade dependencies to follow an old testing tutorial. `phpunit.xml.dist` is the default configuration. Coverage requires a configured coverage engine and should be requested only when useful. Historical generic setup/tutorial text is available in Git history.
 
-## Resources
+`tests/unit/FinanceSalaryWorkflowHttpTest.php` uses registered routes and the existing shared synthetic tenant fixture, with an additional configuration/live ownership check before fixture writes. Run it serially through the safe runner after the target is proven disposable. It covers salary states/receipts, subsequent settlement/replay, permission/CSRF/tenant rejection, clinic-user/outside-provider cuts, payout/history, invoice receipt/refund preservation and neutral internal transfer. It cleans up only its newly created clinic scopes. No production connection, notification or feature rollout is involved.
 
-* [CodeIgniter 4 User Guide on Testing](https://codeigniter.com/user_guide/testing/index.html)
-* [PHPUnit docs](https://phpunit.de/documentation.html)
-* [Any tutorials on Unit testing in CI4?](https://forum.codeigniter.com/showthread.php?tid=81830)
+## Finance browser regression
 
-## Requirements
+Start `node tests/js/finance-presenter-server.cjs` in the existing checkout. It binds only `127.0.0.1:57526`, renders real PHP presenters/assets using synthetic permission/data helpers, and refuses financial writes. It neither bootstraps the application nor connects to a database. Stop that process when finished.
 
-It is recommended to use the latest version of PHPUnit. At the time of this
-writing, we are running version 9.x. Support for this has been built into the
-**composer.json** file that ships with CodeIgniter and can easily be installed
-via [Composer](https://getcomposer.org/) if you don't already have it installed globally.
-
-```console
-> composer install
-```
-
-If running under macOS or Linux, you can create a symbolic link to make running tests a touch nicer.
-
-```console
-> ln -s ./vendor/bin/phpunit ./phpunit
-```
-
-You also need to install [XDebug](https://xdebug.org/docs/install) in order
-for code coverage to be calculated successfully. After installing `XDebug`, you must add `xdebug.mode=coverage` in the **php.ini** file to enable code coverage.
-
-## Setting Up
-
-A number of the tests use a running database.
-In order to set up the database edit the details for the `tests` group in
-**app/Config/Database.php** or **.env**.
-Make sure that you provide a database engine that is currently running on your machine.
-More details on a test database setup are in the
-[Testing Your Database](https://codeigniter.com/user_guide/testing/database.html) section of the documentation.
-
-## Running the tests
-
-The entire test suite can be run by simply typing one command-line command from the main directory.
-
-```console
-> ./phpunit
-```
-
-If you are using Windows, use the following command.
-
-```console
-> vendor\bin\phpunit
-```
-
-You can limit tests to those within a single test directory by specifying the
-directory name after phpunit.
-
-```console
-> ./phpunit app/Models
-```
-
-## Generating Code Coverage
-
-To generate coverage information, including HTML reports you can view in your browser,
-you can use the following command:
-
-```console
-> ./phpunit --colors --coverage-text=tests/coverage.txt --coverage-html=tests/coverage/ -d memory_limit=1024m
-```
-
-This runs all of the tests again collecting information about how many lines,
-functions, and files are tested. It also reports the percentage of the code that is covered by tests.
-It is collected in two formats: a simple text file that provides an overview as well
-as a comprehensive collection of HTML files that show the status of every line of code in the project.
-
-The text file can be found at **tests/coverage.txt**.
-The HTML files can be viewed by opening **tests/coverage/index.html** in your favorite browser.
-
-## PHPUnit XML Configuration
-
-The repository has a ``phpunit.xml.dist`` file in the project root that's used for
-PHPUnit configuration. This is used to provide a default configuration if you
-do not have your own configuration file in the project root.
-
-The normal practice would be to copy ``phpunit.xml.dist`` to ``phpunit.xml``
-(which is git ignored), and to tailor it as you see fit.
-For instance, you might wish to exclude database tests, or automatically generate
-HTML code coverage reports.
-
-## Test Cases
-
-Every test needs a *test case*, or class that your tests extend. CodeIgniter 4
-provides one class that you may use directly:
-* `CodeIgniter\Test\CIUnitTestCase`
-
-Most of the time you will want to write your own test cases that extend `CIUnitTestCase`
-to hold functions and services common to your test suites.
-
-## Creating Tests
-
-All tests go in the **tests/** directory. Each test file is a class that extends a
-**Test Case** (see above) and contains methods for the individual tests. These method
-names must start with the word "test" and should have descriptive names for precisely what
-they are testing:
-`testUserCanModifyFile()` `testOutputColorMatchesInput()` `testIsLoggedInFailsWithInvalidUser()`
-
-Writing tests is an art, and there are many resources available to help learn how.
-Review the links above and always pay attention to your code coverage.
-
-### Database Tests
-
-Tests can include migrating, seeding, and testing against a mock or live database.
-Be sure to modify the test case (or create your own) to point to your seed and migrations
-and include any additional steps to be run before tests in the `setUp()` method.
-See [Testing Your Database](https://codeigniter.com/user_guide/testing/database.html)
-for details.
+`tests/js/FinanceContextCancellation.browser.js` is a Playwright Page function (run as the browser MCP `browser_run_code_unsafe` filename, or invoke it with an existing Playwright Page). It covers context cancellation, late responses, pending/uncertain submission protection, and unpaid/paid/unknown/void drawers across EN/AR and 1366/768/390/320px. No dependency installation is needed for the connected browser. Mock transport evidence is not SQL persistence or routed authentication acceptance.
 
 ## P0 identity / tenant RBAC regression suite (2026-10-15)
 

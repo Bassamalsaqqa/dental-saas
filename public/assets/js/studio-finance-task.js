@@ -6,7 +6,7 @@
   const labels = JSON.parse(config.textContent);
   const states = new WeakMap();
   function state(form) {
-    if (!states.has(form)) states.set(form, {phase:'idle', baseline:null, opener:null, confirming:false, historyUrl:null, handoff:false});
+    if (!states.has(form)) states.set(form, {phase:'idle', baseline:null, opener:null, confirming:false, historyUrl:null, handoff:false, contextVersion:0});
     return states.get(form);
   }
   function snapshot(form) {
@@ -80,6 +80,7 @@
     document.body.classList.add('overflow-hidden');
     if (task.baseline === null || rebase) task.baseline = snapshot(form);
     task.phase = 'context_loading';
+    const contextVersion = ++task.contextVersion;
     const controls=Array.from(modal.querySelectorAll('input,select,textarea,button')).filter(field=>!field.matches('[data-close],[data-finance-close]')).map(field=>[field,field.disabled]);
     task.contextControls=controls;
     controls.forEach(([field])=>field.disabled=true);
@@ -89,15 +90,17 @@
       const target=form.dataset.settlementUrl||form.dataset.url;
       if(!target||!window.StudioSettlement)throw Error('Missing settlement context');
       const context=await window.StudioSettlement.forUrl(target);
+      if (task.contextVersion !== contextVersion || !modal.open) return;
       window.StudioSettlement.bind(form,context);
       window.StudioSettlement.present(form,context);
       controls.forEach(([field,disabled])=>field.disabled=disabled);
       preparing.hidden=true;task.phase='idle';task.baseline=snapshot(form);
     } catch {
+      if (task.contextVersion !== contextVersion || !modal.open) return;
       task.phase='context_error';
       feedback(form,'financeRequestFailed',true);
       form.querySelector('.finance-task-feedback p').textContent=window.StudioSettlement?.labels.settlementConflictHelp||labels.financeRequestFailed;
-    } finally {form.removeAttribute('aria-busy');}
+    } finally {if (task.contextVersion === contextVersion) form.removeAttribute('aria-busy');}
   }
   async function submit(form, url, prepare) {
     const task = state(form);
@@ -182,7 +185,12 @@
     });
     modal.addEventListener('close', () => {
       const task=state(modal.querySelector('form'));
-      if(task.phase==='context_error'){task.contextControls?.forEach(([field,disabled])=>field.disabled=disabled);task.phase='idle';}
+      if(['context_loading','context_error'].includes(task.phase)){
+        task.contextVersion++;
+        task.contextControls?.forEach(([field,disabled])=>field.disabled=disabled);
+        task.phase='idle';
+        modal.querySelector('form').removeAttribute('aria-busy');
+      }
       modal.classList.add('hidden');
       if (!document.querySelector('dialog[data-finance-modal-root][open]')) document.body.classList.remove('overflow-hidden');
       const opener = state(modal.querySelector('form')).opener;

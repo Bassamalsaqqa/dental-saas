@@ -1,6 +1,6 @@
 # Project State
 
-Last reconciled: 2026-11-02. Historical deployment and development entries remain available in Git history.
+Last reconciled: 2026-11-05. Historical deployment and development entries remain available in Git history.
 
 ## Production authority
 
@@ -18,7 +18,7 @@ Last reconciled: 2026-11-02. Historical deployment and development entries remai
 - Superseded PRs #4, #5, #6, #7, #8 and #12 were closed after proving their heads are release ancestors. Obsolete remote branches were removed; three unique historical tips are retained under `archive/cleanup-20261102/*` tags.
 - All 13 obsolete registered worktrees and 14 stale local branches were retired after verified preservation. One authoritative checkout remains. Owner design kits/prompts, runtime dependencies, durable files and the isolated MariaDB data directory remain preserved. Cleanup archives, historical screenshots and Git bundles are outside the source tree under Owner-restricted private storage.
 - The unused Hostinger `.denta-rehearsal` was retired on 2026-11-01 after encrypted off-host preservation. Additional obsolete synthetic staging clones were retired on 2026-11-02. Production checkpoints and current release tools remain available. Do not treat retired test domains as running rehearsals.
-- PR #23 is Owner-approved housekeeping: release documentation, exact-line guardrail bookkeeping and removal of an obsolete generated debug diff. Integrating it advances repository documentation only; the installed production application remains at `9e1f8558`. The authoritative local checkout uses `release/production-20261017`; runtime application code matches production.
+- PR #23 is Owner-approved housekeeping: release documentation, exact-line guardrail bookkeeping and removal of an obsolete generated debug diff. Integrating it advances repository documentation only; the installed production application remains at `9e1f8558`. The authoritative repository baseline is `release/production-20261017` at `5c047911`. The current finance/booking review candidate changes runtime code locally; it is not installed in production.
 
 ## Remaining real limitations
 
@@ -31,6 +31,8 @@ Last reconciled: 2026-11-02. Historical deployment and development entries remai
 - Local business MySQL on port 3306 was stopped during cleanup. No business database was started, migrated, restored or deleted. Source/dependency/static checks are distinct from a database-backed local workflow test.
 
 ## Future changes
+
+The Owner's 2026-11-05 improvement campaign is tracked in [WORK_PROGRAM.md](WORK_PROGRAM.md): finance workflows first, app-wide UI/UX/DX, dialogs, desktop/tablet/mobile responsiveness, local/GitHub/Hostinger cleanup and aggressive documentation consolidation. Local salary/provider/booking improvements, three reproduced defect fixes, SQL/browser evidence and remaining acceptance are recorded there. The Owner authorized committing and publishing the candidate on `feature/finance-workflows-20261105` for review; integration and production operations remain separately gated. Business/production data remain unchanged; no release or activation is implied. The Owner provided an authenticated live review session and authorized signing in when needed.
 
 Use the deployed source as the baseline. Preserve tenant/RBAC authority, signed evidence, original records, immutable financial history and durable files. Production deployments, migrations and feature activation require separate explicit Owner authorization. No GitHub Actions.
 

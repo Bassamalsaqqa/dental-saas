@@ -20,6 +20,9 @@
     </FilesMatch>
 
     # Block access to potentially dangerous scripts
+    <FilesMatch "^(index_public\.php|redirect\.php|_debug_diff\.txt)$">
+        Require all denied
+    </FilesMatch>
     <FilesMatch "^(install|debug_env|repair_db.*|init_database|simple_login_test)\.php$">
         Require all denied
     </FilesMatch>
@@ -40,6 +43,10 @@
         Deny from all
     </FilesMatch>
     <FilesMatch "^(install|debug_env|repair_db.*|init_database|simple_login_test)\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    <FilesMatch "^(index_public\.php|redirect\.php|_debug_diff\.txt)$">
         Order allow,deny
         Deny from all
     </FilesMatch>

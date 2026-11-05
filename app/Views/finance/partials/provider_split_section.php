@@ -9,7 +9,7 @@ if (is_array($oldTypes)) {
             'provider_user_id' => old('provider_user_id')[$index] ?? '',
             'provider_name_snapshot' => old('provider_name_snapshot')[$index] ?? '',
             'split_mode' => old('provider_split_mode')[$index] ?? 'percent',
-            'split_value' => old('provider_split_value')[$index] ?? '70',
+            'split_value' => old('provider_split_value')[$index] ?? '',
             'notes' => old('provider_split_notes')[$index] ?? '',
             'mark_paid_now' => (old('provider_mark_paid_now')[$index] ?? '0') === '1',
             'provider_paid_amount' => old('provider_paid_amount')[$index] ?? '',
@@ -25,7 +25,7 @@ if (is_array($oldTypes)) {
             'provider_user_id' => $row['provider_user_id'] ?? '',
             'provider_name_snapshot' => $row['provider_name_snapshot'] ?? '',
             'split_mode' => $row['split_mode'] ?? 'percent',
-            'split_value' => $row['split_value'] ?? '70',
+            'split_value' => $row['split_value'] ?? '',
             'notes' => $row['notes'] ?? '',
             'mark_paid_now' => false,
             'provider_paid_amount' => '',
@@ -42,7 +42,7 @@ if (empty($providerRows)) {
         'provider_user_id' => '',
         'provider_name_snapshot' => '',
         'split_mode' => 'percent',
-        'split_value' => '70',
+        'split_value' => '',
         'notes' => '',
         'mark_paid_now' => false,
         'provider_paid_amount' => '',
@@ -83,7 +83,7 @@ foreach (($clinic_providers ?? []) as $provider) {
     </div>
 
     <div id="<?= esc($fieldId('providerSplitFields')) ?>" class="<?= $splitEnabled ? 'context-field-stack' : 'hidden context-field-stack' ?>">
-        <dl class="context-finance-summary"><?php foreach(['splitGrossPreview'=>'grossCollected','splitProviderPreview'=>'totalProviderCompensation','splitClinicPreview'=>'clinicNet'] as $id=>$label): ?><div><dt><?= esc(lang('Finance.'.$label)) ?></dt><dd id="<?= esc($fieldId($id)) ?>">0.00</dd></div><?php endforeach; ?></dl>
+        <dl class="context-finance-summary"><?php foreach(['splitGrossPreview'=>'transactionBasis','splitProviderPreview'=>'totalProviderCompensation','splitClinicPreview'=>'clinicNet'] as $id=>$label): ?><div><dt><?= esc(lang('Finance.'.$label)) ?></dt><dd id="<?= esc($fieldId($id)) ?>">0.00</dd></div><?php endforeach; ?></dl>
 
         <div >
             <p ><?= lang('Finance.providerSplit') ?></p>
@@ -141,7 +141,7 @@ foreach (($clinic_providers ?? []) as $provider) {
                     </div>
                     <div >
                         <label ><?= lang('Finance.splitValue') ?></label>
-                        <input type="number" name="provider_split_value[]" value="0" step="0.01" min="0" class="provider-split-value">
+                        <input type="number" name="provider_split_value[]" value="" step="0.01" min="0" class="provider-split-value">
                     </div>
                 </div>
 
@@ -317,6 +317,8 @@ document.addEventListener('DOMContentLoaded', function () {
             initSelect2(row.querySelector('.provider-paid-method'));
         }
 
+        const splitValueInput = row.querySelector('.provider-split-value');
+        if (splitValueInput) splitValueInput.required = splitToggle.checked;
         const paidAmountInput = row.querySelector('.provider-paid-amount');
         const share = computeRowShare(row);
         if (active && paidAmountInput && String(paidAmountInput.value || '').trim() === '') {
@@ -401,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
             provider_user_id: row.provider_user_id || '',
             provider_name_snapshot: row.provider_name_snapshot || '',
             provider_split_mode: ['percent', 'fixed'].includes(row.split_mode) ? row.split_mode : 'percent',
-            provider_split_value: row.split_value || '0',
+            provider_split_value: row.split_value ?? '',
             provider_split_notes: row.notes || '',
             provider_paid_amount: row.provider_paid_amount || '',
             provider_paid_method: ['cash', 'card', 'bank_transfer', 'check', 'other'].includes(row.provider_paid_method) ? row.provider_paid_method : 'cash',
@@ -436,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     initialRows.forEach((row) => addRow(row));
-    addBtn?.addEventListener('click', () => addRow({ provider_type: 'user', split_mode: 'percent', split_value: '0', provider_paid_method: 'cash', provider_paid_date: '<?= esc(date('Y-m-d')) ?>' }));
+    addBtn?.addEventListener('click', () => addRow({ provider_type: 'user', split_mode: 'percent', split_value: '', provider_paid_method: 'cash', provider_paid_date: '<?= esc(date('Y-m-d')) ?>' }));
     splitToggle?.addEventListener('change', syncSplitToggleState);
     grossInput?.addEventListener('input', updateSummary);
     const recalcTriggers = [

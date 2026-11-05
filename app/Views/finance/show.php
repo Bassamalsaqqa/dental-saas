@@ -504,7 +504,7 @@
                 <?php endif; ?>
 
                 <?php if (!empty($provider_payouts)): ?>
-                <div class="fr-panel">
+                <div id="provider-payouts" class="fr-panel">
                     <div class="fr-panel-heading">
                         <div >
                             <div >
@@ -581,7 +581,7 @@
                                             <?php if (!empty($providerPayout['notes'])): ?>
                                                 <p ><?= esc($providerPayout['notes']) ?></p>
                                             <?php endif; ?>
-                                            <?php if ($providerTypeKey === 'user' && $providerUserId > 0): ?>
+                                            <?php if ($providerTypeKey === 'user' && $providerUserId > 0 && has_permission('users', 'view')): ?>
                                                 <a href="<?= esc(workflow_context_url('users/' . $providerUserId, $return_to ?? null)) ?>" >
 
                                                     <span><?= esc(lang('Finance.openProviderProfile')) ?></span>

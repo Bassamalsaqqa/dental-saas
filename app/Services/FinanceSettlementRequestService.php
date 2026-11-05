@@ -141,11 +141,14 @@ class FinanceSettlementRequestService  {
             if(count($targets)===1) {
                 $parent=array_values($snapshot['parents'])[0];
                 $result['parent_version']=self::parentVersion($parent);
-                $result['currency']=str_starts_with($operation,'provider_')?(string)($parent['currency']??''):(string)settings()->get('currency','ILS');
+                $result['currency']=(string)settings()->get('currency','ILS');
                 $result['finance_id']=(int)$parent['id'];
                 $result['transaction_id']=$parent['transaction_id'];
                 if(str_starts_with($operation,'provider_')) {
-                    foreach($snapshot['state'][0]['payouts'] as $p)if((int)$p['id']===$targets[0])$result['facts']=['paid'=>(string)$p['provider_paid_amount'],'due'=>(string)$p['provider_balance_due'],'total'=>(string)$p['provider_share_amount']];
+                    foreach($snapshot['state'][0]['payouts'] as $p)if((int)$p['id']===$targets[0]){
+                        $result['facts']=['paid'=>(string)$p['provider_paid_amount'],'due'=>(string)$p['provider_balance_due'],'total'=>(string)$p['provider_share_amount']];
+                        $result['currency']=ProviderCurrencySummary::currency($p['currency']??null);
+                    }
                 }
                 else {
                     $canonical=(new FinanceSettlementService($this->db))->getLockedSettlementState($clinic,$parent);

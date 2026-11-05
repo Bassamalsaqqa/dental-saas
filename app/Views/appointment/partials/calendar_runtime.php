@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const appointmentI18n = {
         loadFailed: '<?= esc(lang('UI.appointmentCalendarLoadFailed'), 'js') ?>',
         statusLabel: '<?= esc(lang('UI.appointmentStatusLabel'), 'js') ?>',
-        doctorLabel: '<?= esc(lang('UI.appointmentDoctorLabel'), 'js') ?>',
+        doctorLabel: '<?= esc(lang($dynamicMode?'UI.appointmentDoctorLabel':'UI.appointmentChairLabel'), 'js') ?>',
         durationSuffix: '<?= esc(lang('UI.patientMinutes'), 'js') ?>',
         unknown: '<?= esc(lang('UI.appointmentUnknownCreator'), 'js') ?>',
         statuses: {

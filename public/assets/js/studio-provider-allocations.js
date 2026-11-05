@@ -115,6 +115,8 @@ window.initStudioProviderAllocations=(root=document)=>{root.querySelectorAll('[d
             initSelect2(row.querySelector('.provider-paid-method'));
         }
 
+        const splitValueInput = row.querySelector('.provider-split-value');
+        if (splitValueInput) splitValueInput.required = splitToggle.checked;
         const paidAmountInput = row.querySelector('.provider-paid-amount');
         const share = computeRowShare(row);
         if (active && paidAmountInput && String(paidAmountInput.value || '').trim() === '') {
@@ -199,7 +201,7 @@ window.initStudioProviderAllocations=(root=document)=>{root.querySelectorAll('[d
             provider_user_id: row.provider_user_id || '',
             provider_name_snapshot: row.provider_name_snapshot || '',
             provider_split_mode: ['percent', 'fixed'].includes(row.split_mode) ? row.split_mode : 'percent',
-            provider_split_value: row.split_value || '0',
+            provider_split_value: row.split_value ?? '',
             provider_split_notes: row.notes || '',
             provider_paid_amount: row.provider_paid_amount || '',
             provider_paid_method: ['cash', 'card', 'bank_transfer', 'check', 'other'].includes(row.provider_paid_method) ? row.provider_paid_method : 'cash',
@@ -234,7 +236,7 @@ window.initStudioProviderAllocations=(root=document)=>{root.querySelectorAll('[d
     }
 
     initialRows.forEach((row) => addRow(row));
-    addBtn?.addEventListener('click', () => addRow({ provider_type: 'user', split_mode: 'percent', split_value: '0', provider_paid_method: 'cash', provider_paid_date: section.dataset.providerDate }));
+    addBtn?.addEventListener('click', () => addRow({ provider_type: 'user', split_mode: 'percent', split_value: '', provider_paid_method: 'cash', provider_paid_date: section.dataset.providerDate }));
     splitToggle?.addEventListener('change', syncSplitToggleState);
     grossInput?.addEventListener('input', updateSummary);
     const recalcTriggers = [

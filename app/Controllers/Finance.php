@@ -2559,6 +2559,7 @@ class Finance extends BaseController
             ->select("
                 ppp.id,
                 ppp.provider_payout_id,
+                pp.finance_id,
                 ppp.amount,
                 ppp.payment_method,
                 ppp.liquidity_account,

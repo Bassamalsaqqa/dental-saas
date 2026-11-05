@@ -150,13 +150,10 @@ try {
 }
 
 // 8. Forward execution to PHPUnit with the verified environment
-$phpunitBin = $repoRoot . '/vendor/bin/phpunit';
-if (PHP_OS_FAMILY === 'Windows' && file_exists($repoRoot . '/vendor/bin/phpunit.bat')) {
-    $phpunitBin = $repoRoot . '/vendor/bin/phpunit.bat';
-}
-
-$escapedArgs = array_map('escapeshellarg', $filteredArgs);
-$cmd = escapeshellarg($phpunitBin) . ' ' . implode(' ', $escapedArgs);
+$phpunitBin = $repoRoot . '/vendor/phpunit/phpunit/phpunit';
+// Use the same PHP as preflight, without a shell/batch wrapper. The prepend
+// restores verified dotted settings before PHPUnit/DotEnv can shadow them.
+$cmd = array_merge([PHP_BINARY, '-d', 'auto_prepend_file=' . __DIR__ . '/TestRunnerConnectionBootstrap.php', $phpunitBin], $filteredArgs);
 
 $descriptors = [
     0 => STDIN,
@@ -172,6 +169,10 @@ foreach (array_merge(getenv(), $_SERVER) as $k => $v) {
     }
 }
 $procEnv['database.tests.database'] = TestDatabasePreflight::APPROVED_DISPOSABLE_TEST_DB;
+$connectionKeys = ['hostname','port','database','username','password','DBDriver','DBPrefix'];
+// One portable environment key avoids Windows/PHP normalization of dotted keys.
+// Credentials stay in the child environment, never command arguments or files.
+$procEnv['DENTA_VERIFIED_TEST_CONNECTION'] = json_encode(array_intersect_key($testsConfig, array_flip($connectionKeys)), JSON_THROW_ON_ERROR);
 
 $process = proc_open($cmd, $descriptors, $pipes, $repoRoot, $procEnv);
 

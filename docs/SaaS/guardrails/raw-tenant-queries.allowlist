@@ -21,12 +21,12 @@ app/Controllers/Finance.php:1626:        $rows = $this->db->table('provider_payo
 app/Controllers/Finance.php:2352:        $financeRowsBuilder = $this->db->table('finances f')
 app/Controllers/Finance.php:2456:        $invoicePaymentRowsBuilder = $this->db->table('finance_payments fp')
 app/Controllers/Finance.php:2558:        $payoutPaymentRowsBuilder = $this->db->table('provider_payout_payments ppp')
-app/Controllers/Finance.php:2628:        $transferRowsBuilder = $this->db->table('finance_liquidity_transfers ft')
-app/Controllers/Finance.php:2901:        $rows = $this->db->table('finances f')
-app/Controllers/Finance.php:3300:        return $this->db->query(
-app/Controllers/Finance.php:3542:            $finance = $this->db->query(
-app/Controllers/Finance.php:3712:            $finance = $this->db->query(
-app/Controllers/Finance.php:4042:        return (bool) $this->db->table('finances')
+app/Controllers/Finance.php:2629:        $transferRowsBuilder = $this->db->table('finance_liquidity_transfers ft')
+app/Controllers/Finance.php:2902:        $rows = $this->db->table('finances f')
+app/Controllers/Finance.php:3301:        return $this->db->query(
+app/Controllers/Finance.php:3543:            $finance = $this->db->query(
+app/Controllers/Finance.php:3713:            $finance = $this->db->query(
+app/Controllers/Finance.php:4043:        return (bool) $this->db->table('finances')
 
 # Clinic/item parent locking and scoped history/receipt probes under inventory delete/view authority.
 app/Controllers/Inventory.php:473:                    if ($this->db->tableExists($table) && $this->db->table($table)->where('clinic_id',$clinicId)->where('inventory_id',$id)->countAllResults() > 0) {

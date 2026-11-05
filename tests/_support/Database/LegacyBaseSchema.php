@@ -8,8 +8,11 @@ namespace Tests\Support\Database;
  *
  * Defines ONLY the 18 foundation tables that predated CodeIgniter 4 migrations.
  * This class contains NO business data, NO credentials, and NO DROP TABLE statements.
- * All migrated tables and columns are created exclusively by canonical migrations
- * in app/Database/Migrations/ executed via the CodeIgniter MigrationRunner.
+ * Migrated tables/columns use the canonical MigrationRunner. The empty appointment
+ * foundation includes the deployed non-null clinic reference: the old tenant
+ * migration otherwise adds it nullable, which the strict scheduling migration
+ * correctly refuses. It also retains the verified nullable finance author column
+ * expected by existing writers. This foundation never repairs populated tables.
  */
 final class LegacyBaseSchema
 {
@@ -109,6 +112,7 @@ final class LegacyBaseSchema
 
         "CREATE TABLE IF NOT EXISTS `appointments` (
           `id` int(11) NOT NULL AUTO_INCREMENT,
+            `clinic_id` int(11) unsigned NOT NULL,
           `patient_id` int(11) NOT NULL,
           `appointment_id` varchar(20) NOT NULL,
           `appointment_date` date NOT NULL,
@@ -123,6 +127,7 @@ final class LegacyBaseSchema
           `deleted_at` timestamp NULL DEFAULT NULL,
           PRIMARY KEY (`id`),
           UNIQUE KEY `appointment_id` (`appointment_id`),
+            KEY `clinic_id` (`clinic_id`),
           KEY `idx_patient_id` (`patient_id`),
           KEY `idx_appointment_date` (`appointment_date`),
           KEY `idx_status` (`status`)
@@ -143,6 +148,7 @@ final class LegacyBaseSchema
           `description` text DEFAULT NULL,
           `service_type` enum('consultation','treatment','medication','procedure','other') NOT NULL,
           `service_details` text DEFAULT NULL,
+            `created_by` int(11) DEFAULT NULL,
           `discount_amount` decimal(10,2) DEFAULT 0.00,
           `tax_amount` decimal(10,2) DEFAULT 0.00,
           `due_date` date DEFAULT NULL,

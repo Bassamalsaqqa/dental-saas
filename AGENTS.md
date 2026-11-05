@@ -1,77 +1,56 @@
-# Codex Operating Guide - Dental SaaS
+# Shared agent guide - Dental SaaS
 
-## A) Role
-- Primary mission: execute requested changes cleanly, keep SaaS spec alignment, and avoid regressions.
-- Secondary mission: leave an audit-grade trail (commands, diffs, tests) and enforce tenant isolation.
+## Scope and evidence
 
-## B) Source of Truth
-1) `docs/START_HERE.md` — active documentation map and retention policy
-2) `docs/SaaS/SAAS_PROGRAM.md` governs SaaS scope, priority, and DoD.
-3) `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` governs tenant context mechanics.
-4) `docs/API_CONTRACT.md` governs `/api/v1/*` semantics.
-5) Guardrails: `docs/SaaS/guardrails/*` + repo guardrail scripts.
-6) `docs/WHATSAPP_CURRENT_STATE.md` — WhatsApp current state and Phase 6 resume point.
-7) `docs/FINANCE_CURRENT_STATE.md` — finance current state.
-8) `docs/PROJECT_STATE.md` — current-state dashboard.
+- All coding agents follow this guide. Read [WORK_PROGRAM](docs/WORK_PROGRAM.md) for assigned work, [PROJECT_STATE](docs/PROJECT_STATE.md) for release/activation status, and [START_HERE](docs/START_HERE.md) for relevant contracts. A task ledger never overrides security contracts or release authorization.
+- Documentation can be stale. Verify implementation/status claims against source, tests and runtime when relevant. Record contradictions without weakening safeguards. Read task-relevant contracts, not every historical plan.
+- Reuse authoritative application settings, services, records and shared components. Never invent business rules/data, hardcode configurable values or create a parallel system to patch a loose connection. If no authoritative rule exists, identify the gap instead of guessing.
+- Inspect working changes, branch/HEAD and untracked files before editing. Preserve unrelated work; never reset, stash or clean a tree to prepare a task.
+- Update the existing task register with results, limitations and the next bounded task. Do not create competing master plans or accept an agent report without checking the actual diff.
 
-Removed historical documents remain available through Git history, not the working tree.
+## Single writer and manual AGY
 
-## C) Non-Negotiables
-- Fail-closed doctrine always.
-- No redirects/HTML for `/api/*`.
-- Airlock separation enforced: control plane vs tenant plane.
-- Control plane requires `global_mode=true` (TenantFilter).
-- Evidence-based verification (paths, diffs, rg output, curl output when relevant).
+- Direct Codex work is the default. Only the Owner's explicit `$agy-manual` enables an interactive AGY handoff in this existing checkout.
+- No automatic AGY, headless dispatch, relay/controller, retries or additional worktrees. Codex stops editing while AGY works.
+- At handback, independently inspect the actual diff and untracked files and run focused checks. Do not infer authorization for commits, pushes, PRs, merge, reset, deletion or deployment.
 
-## D) Session Start Checklist
-1) Read active docs for context:
-   - `docs/PROJECT_STATE.md`
-   - `docs/CHANGELOG.md`
-   - `docs/DECISIONS.md`
-   - `docs/WHATSAPP_CURRENT_STATE.md`
-2) Drift scans:
-   - `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`
-   - `php spark routes | findstr /I "controlplane api/v1 api/search"`
-   - `bash scripts/ci/saas_guardrails.sh`
-3) Confirm clean tree: `git status -sb`
+## Business and security invariants
 
-## E) Environment & Infrastructure
-**Local Path:** `C:\xampp\htdocs\dental-saas`
+- Fail closed for missing/invalid auth, tenant context, RBAC and feature entitlement. UI visibility never replaces server authorization.
+- Keep Control Plane and Tenant Plane separate. Control Plane requires `global_mode=true`; tenant requests require validated membership and server-owned clinic context. Preserve impersonation governance.
+- Public `/api/v1/*` uses stateless Bearer auth plus `X-Clinic-Id`; first-party web/session interfaces retain their own CSRF/session contract. Never add redirects or HTML to `/api/*`.
+- Scope tenant reads/writes/files to the authorized clinic using session context or ApiRuntimeContext as appropriate. Preserve existing denial/concealment behavior.
+- Preserve original clinical/signed evidence, financial receipts, calculations, history, replay identity, transaction/locking and audit guarantees. Do not guess missing financial units or rewrite history to simplify presentation.
+- No DOM sinks in `app/Views`; use escaped output and safe DOM APIs. Guardrail inputs, accepted evidence, license notices, backups, customer files and Owner reference assets are not disposable clutter.
+- Keep secrets, dumps, customer records, browser profiles and private recovery material out of Git and public web paths.
 
-1) Local Database (authoritative local source)
-- DB: `democa_dental_saas`
-- Host: `127.0.0.1`
-- Port: `3306`
-- User: `root`
-- Password: blank
-- Source of truth for active connection settings: `.env`
+## Local work and verification
 
-2) Session
-- Cookie: `ci_session_saas`
+- Existing checkout: `C:/xampp/htdocs/dental-saas`. Read environment settings privately; never print credentials. Session cookie: `ci_session_saas`.
+- At the 2026-11-05 checkpoint, local business MySQL was stopped and earlier synthetic environments retired. Recheck readiness; never assume an old fixture/database is disposable or available.
+- Inspect tests before running them: a `tests/unit` path does not prove database safety. Use mocks for pure unit checks. SQL/HTTP mutation tests require a proven isolated synthetic target and repository preflight; never use business data as fixtures.
+- Run relevant checks and `git diff --check`. Common source checks:
 
-## F) Deployment Notes (Hostinger)
-- Hostinger needs the SQL dump **without CREATE DATABASE**. Use UTF-8.
-- Latest dump: `democa_dental_saas_schema_superadmin.sql`.
-- If import errors mention "Unexpected character" at position 1, the file was UTF-16. Re-generate using `cmd` redirection.
-- `.htaccess`: on Hostinger, `RewriteBase /` is required (not `/dental-saas/`).
-- Only manual items after deploy: `.env` + latest SQL dump.
-
-## G) How to Regenerate SQL Dump (UTF-8, no CREATE DATABASE)
-Run from repo root using the local XAMPP MySQL client:
-cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8mb4 --routines --triggers --events --single-transaction --skip-lock-tables --set-charset --no-create-db democa_dental_saas > democa_dental_saas_schema_superadmin.sql"
+```powershell
+rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views
+php spark routes | findstr /I "controlplane api/v1 api/search"
+& "C:/Program Files/Git/bin/bash.exe" scripts/ci/saas_guardrails.sh
 ```
 
-## H) Recent Changes
-See `docs/CHANGELOG.md` for recent implementation history. See `docs/PROJECT_STATE.md` for the current active phase.
+- For an inspected database-free PHPUnit file: `php vendor/phpunit/phpunit/phpunit --no-coverage --no-logging --do-not-cache-result <file>`. Do not run the whole suite without checking database requirements.
+- Migrations, rollback, seeders, permission sync, key regeneration, business exports/restores, notification dispatch and feature activation are not routine setup/test steps. Follow explicit authorization and target checks in [OPERATIONS_RUNBOOK](docs/OPERATIONS_RUNBOOK.md).
+- Preserve pinned `public/assets/css/tailwind.css`. Do not routinely rebuild assets, install new dependencies or upgrade locks. Authorized CSS changes need temporary-output comparison and consumer verification; see README.
 
-## I) Known Requirements / Guardrails
-- Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or bootstrap data changes.
-- Ensure IonAuth default group `members` exists in dumps to avoid "Invalid default group name" errors.
-- No DOM sinks in `app/Views` (guardrails enforce this).
-- After pulling finance or messaging schema changes, run migrations:
-  - `php spark migrate`
+## UI and workflows
 
+- Read `C:/Users/bassa/.agents/skills/ui-design-defaults/SKILL.md` and its BoardUI/shadcn routing. Detect the actual stack before installation; this app uses native CI4/PHP views, Tailwind 3 and Studio components. Do not introduce React/BoardUI into PHP views.
+- Read DESIGN.md and inspect the actual route, forms, scripts and permissions before editing. Preserve semantic tokens, readable type and shared components while questioning task architecture and misleading defaults.
+- Verify relevant desktop/tablet/mobile, EN/AR and RTL, keyboard/focus, dialogs, validation, loading/empty/error and recovery states. Historical coverage claims do not certify new changes.
+- Old rebuild ledgers remain historical evidence; do not restart a pre-release transfer campaign or treat an old visual anchor as current release authority.
 
-## Approved frontend rebuild: mandatory resume gate
+## Production and cleanup
 
-For the Owner-approved dashboard-led frontend campaign, read `docs/UI_REBUILD_EXECUTION.md`, `DESIGN.md`, `docs/UI_REBUILD_LOCK.json` and the next incomplete rows in `docs/UI_REBUILD_COVERAGE.csv` before editing. The approved visual anchor is `99c9ecb`; rejected V3/V4 layouts and prior completion claims are not authority. Do not expand or transfer source until the clean-base dependency gate passes. Update the ledger and exact checkpoint after each internal batch. Preserve all unrelated safeguards. No automatic AGY/delegation: only the Owner's explicit `$agy-manual`. No reset, deletion, merge, migration, deployment, production mutation or feature activation is inferred.
+- Exact installed SHA/tree and approved release ref govern deployment; use current PROJECT_STATE rather than a branch name.
+- On 2026-11-05 SSH inspection, live source matched the approved deployed tree but the checkout was named `main` tracking historical `origin/main`. Do not pull it, rename it or reconfigure production during inspection.
+- Deployment, migrations, feature activation and production mutation require separate explicit Owner authorization. No GitHub Actions. Preserve production environment, rewrite rules, storage and customer data.
+- Cleanup requires ownership/reference checks and preservation of unique work. Consolidate current guidance, repair links and retire obsolete chronology through Git history; preserve contracts and operational recovery instructions.

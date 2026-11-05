@@ -1,3 +1,7 @@
+# Historical development program
+
+This plan predates the deployed PR #22. Its dates, branch/PR pins, pending-release claims and proposed execution order are historical. Use ../PROJECT_STATE.md for release authority and ../WORK_PROGRAM.md for current scope. Retained technical findings are leads to verify against current source, not current instructions. Obsolete root debug/redirect/deploy helpers were removed locally in the 2026-11-05 cleanup.
+
 # Denta+ Modernization, Hardening & Performance Program
 
 **Authoritative Implementation Plan**

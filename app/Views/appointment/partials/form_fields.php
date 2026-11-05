@@ -43,7 +43,7 @@ $schemaReady = !isset($bookingContext['schema_ready']) || !empty($bookingContext
 
 $providers = is_array($bookingContext['providers'] ?? null) ? $bookingContext['providers'] : ($clinic_providers ?? ($providers ?? []));
 $chairOptions = is_array($bookingContext['chair_options'] ?? null) ? $bookingContext['chair_options'] : ($chair_options ?? []);
-$selectedChair = old('chair_name', $chairOptions[0] ?? '');
+$selectedChair = old('chair_name', '');
 $selectedProviderId = old('provider_user_id', $provider_id_prefill ?? ($provider_user_id ?? ''));
 if ($selectedProviderId !== '') {
     $selectedProviderId = (int) $selectedProviderId;
@@ -107,9 +107,9 @@ if ($selectedProviderId !== '') {
             </div>
         <?php else: ?>
             <div>
-                <label for="<?= esc($fieldPrefix) ?>chairSelect" ><?= esc(lang('UI.appointmentDoctorLabel')) ?></label>
+                <label for="<?= esc($fieldPrefix) ?>chairSelect" ><?= esc(lang('UI.appointmentChairLabel')) ?></label>
                 <select name="chair_name" id="<?= esc($fieldPrefix) ?>chairSelect" class="<?= esc($inputClass) ?>" data-appointment-chair data-force-select2 data-allow-clear="false" required>
-                    <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
+                    <option value=""><?= esc(lang('UI.appointmentSelectChair')) ?></option>
                     <?php foreach (($chairOptions ?? []) as $chairOption): ?>
                         <option value="<?= esc($chairOption) ?>" <?= $selectedChair === $chairOption ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
                     <?php endforeach; ?>
@@ -131,7 +131,7 @@ if ($selectedProviderId !== '') {
         <div class="context-field-wide">
             <label for="<?= esc($fieldPrefix) ?>appointmentTime" ><?= esc(lang('UI.appointmentTimeRequired')) ?></label>
             <select name="appointment_time" id="<?= esc($fieldPrefix) ?>appointmentTime" class="<?= esc($inputClass) ?>" data-appointment-time data-force-select2 data-allow-clear="false" required>
-                <option value=""><?= esc(lang('UI.appointmentSelectPrerequisites')) ?></option>
+                <option value=""><?= esc(lang($dynamicMode ? 'UI.appointmentSelectPrerequisites' : 'UI.appointmentChairPrerequisites')) ?></option>
             </select>
         </div>
     </div>

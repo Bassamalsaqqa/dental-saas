@@ -1,21 +1,22 @@
 # Finance Current State
 
-Last updated: 2026-10-29
+Last reconciled: 2026-11-05. Installed release and activation authority: [PROJECT_STATE.md](PROJECT_STATE.md). Current usability findings and work: [WORK_PROGRAM.md](WORK_PROGRAM.md).
 
 ## User Surfaces
 
 - `/finance`: daily clinic finance workspace.
 - `/finance/reports`: owner/accounting summaries.
-- `/finance/payables`: supplier/vendor obligations.
+- `/finance/payables`: unpaid expenses, including salaries and supplier/vendor obligations.
 - `/finance/payouts`: provider obligations and payments.
 - `/finance/transfers`: movement between liquidity accounts.
+- `/finance/expenses/create`: expense entry, including the Salaries category; this is distinct from patient-linked provider shares.
 
 ## Canonical Lanes
 
 | Lane | Owns |
 |---|---|
 | Patient finance | Charges, invoices, payments, refunds, adjustments, balance due |
-| Payables | Supplier/vendor bills and settlements |
+| Payables | Unpaid expense balances (including salaries), supplier/vendor bills and settlements |
 | Provider payouts | Shares owed and paid to clinic/outside providers |
 | Treasury | Safe cash, bank, checks, and internal transfers |
 | Inventory COGS | Material cost posted as an expense with source linkage |
@@ -50,21 +51,18 @@ Provider payouts are not supplier payables. Internal transfers do not change pro
 
 Implementation sequencing is in `refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md`.
 
-## Consolidated development boundary
+## Operational boundaries
 
-M1/M2 are deployed at `f86376a4a6c8f6bf0fe4471f08093af71e76e042`. Invoice corrections in Draft PR #20 remain default OFF and operational-only. See `M2C_INVOICE_CORRECTION_POLICY.md`, `M2C_IMPLEMENTATION_EVIDENCE_20261021.md` and `M2C_RELEASE_PROCEDURE.md`.
+- **Settlement protection is deployed** in PR #22 at `9e1f8558`, including `finance_settlement_requests`. Payment/refund/provider/supplier tasks require server-issued request identities and locked revisions; missing schema/preconditions fail closed. Matching retries return the original result; changed terms or stale state cannot silently produce another payment. Original calculations and receipts remain authoritative. [Recorded implementation evidence](ui-evidence/product-ux/CURRENT_ACCEPTANCE.md) contains historical pre-release status; [PROJECT_STATE.md](PROJECT_STATE.md) governs actual deployment.
+- **Invoice corrections remain OFF.** Original invoices, receipts and provider history are preserved. Incoming replacement applications transfer existing backing; refundable capacity excludes incoming amounts. Full returns, equal-FX applications and no automatic provider clawbacks remain policy limits. An activated correction ledger prevents treating source-only rollback as complete recovery. Policy, implementation evidence and rollout requirements live in [the correction policy](M2C_INVOICE_CORRECTION_POLICY.md), [its evidence](M2C_IMPLEMENTATION_EVIDENCE_20261021.md) and [its release procedure](M2C_RELEASE_PROCEDURE.md).
+- **Combined invoice/receipt checkout remains OFF.** `FinanceCheckout.enabled` requires both `finance:create` and `finance:edit`, separate schema/activation approval and no automatic permission grants. The receipt uses invoice currency and canonical payment/liquidity/FX rules (base currency requires rate 1), with clinic-local dates. Invoice, receipt, explicit provider entries, selected clinical lines, replay identity and audit share one checked transaction. Exact actor/clinic/request terms include uploaded check content, exclude CSRF/return navigation and retain decimal input identity; equivalent completed retries preserve the original receipt even after refunds and never enqueue another creation reminder. Failure rolls back new database writes, without claiming database/filesystem atomicity. Separate invoice/payment entry remains available.
 
-Incoming replacement applications transfer existing backing; local refundable capacity excludes incoming amounts. The external cash-creation finding was retracted, not fixed by changing formulas, and is not final approval. Preserve original invoices, receipts and provider history. Full returns, equal-FX applications and no automatic clawbacks remain documented limits. Source-only rollback after activation cannot ignore the correction ledger.
+No new financial feature, migration or production change is authorized by a usability review. The live currency-disclosure mismatch and remaining salary/share/history usability work are tracked once in [WORK_PROGRAM.md](WORK_PROGRAM.md); no financial mutation was used to inspect them.
 
+## Verified workflow distinctions (2026-11-05 candidate)
 
-### Consolidated cashier development (default OFF)
+Salaries use the existing expense writer, category `salaries` and a free-text payee. They are not linked to employee user IDs, do not recur automatically, and are not included in the provider history on user detail. Record salary -> paid/unpaid/partial -> settle remaining balance in Bills & payables -> dated history on the expense detail.
 
-`FinanceCheckout.enabled` controls an explicit initial-receipt option on invoice creation. Existing separate invoice and payment actions remain available. The option requires both `finance:create` and `finance:edit`; no new production grants are installed. Invoice, initial receipt, replay identity, selected clinical lines, explicit provider entries and audit writes share one checked transaction. No nested settlement commit is used. The submitted receipt amount is in the invoice currency, with the existing payment method/liquidity/FX rules; base-currency checkout requires rate 1. Default receipt dates use the canonical clinic timezone.
+Provider shares are entered on their patient transaction as fixed amounts or percentages of its total in base currency. The financial selector lists active clinic members; named outside providers are supported separately. It is not the scheduling doctor directory. There is no verified automatic compensation agreement/default: the candidate leaves new rates blank and requires explicit entry, preserving stored/validation values. Pay a share through Provider balances; dated history is on transaction detail `#provider-payouts` and the existing user payout view. Do not enter the same outflow again as a salary expense. Existing no-automatic-clawback policy is unchanged.
 
-`2026-10-22-170000_CreateFinanceCheckoutRequests` is additive and requires InnoDB parents. The unique clinic/request identity is bound to the actor and exact submitted financial terms (recursively ordered object keys; decimal formatting is not silently reinterpreted). CSRF and return navigation are excluded; uploaded check-scan content identity is included. Equivalent completed retries return the original invoice/receipt, even after later refunds, and never enqueue another creation reminder. Different terms require a new explicit request. Failure rolls back the identity and all new database writes. Existing durable-file rollback limitations remain; this is not DB/filesystem atomicity.
-
-The feature is development-only until final review and separate release/schema/activation approval. No customer records or historical payment/clinical evidence are rewritten.
-
-## PR22 development-only settlement envelope
-
-Owner review5701870044 authorizes durable clinic-scoped request identities and locked settlement revisions. See [current acceptance](ui-evidence/product-ux/CURRENT_ACCEPTANCE.md) for actual SQL/HTTP/browser evidence, request transport, additive migration and mixed-version/rollback limits. The feature branch now fails closed for settlement clients without the new request table and preconditions. This is pending independent exact-head acceptance and separately authorized schema rollout; it is not a production/source-only deployment instruction. Existing financial calculations, original receipts and disabled feature policies remain authoritative.
+Active cash reporting is `Finance::buildFinancialLedger()/summarizeCashReport()`, not the legacy Reports helper. Separate accumulators do not, by themselves, prove correct SQL provenance or prevent an operator from entering the same payment twice. Current focused unit/SQL evidence and limits are recorded in WORK_PROGRAM.
