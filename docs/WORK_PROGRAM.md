@@ -77,6 +77,8 @@ Completion requires actual journey evidence and justified cleanup, not render co
 
 ## Handoff checkpoint
 
+Published for review: [draft PR #24](https://github.com/Bassamalsaqqa/dental-saas/pull/24), branch feature/finance-workflows-20261105, base release/production-20261017. Implementation commit: 859b38c349474ea9f009973383fc45bc0e2fc87c. The publication checkpoint adds documentation only; the test results above apply to that implementation. No merge or production action was performed.
+
 Temporary presenter and newly owned SQL services were shut down after verification; no listeners remained on 57526/3307/3306. Their synthetic files/fixtures are retained under writable, without touching the local business database. The browser remains available for the Owner.
 
 Production cleanup proof: the installed _debug_diff.txt matches its tracked blob 48ff502f2586257f58e6d3378afa1573ced3d11b exactly. Protected live .htaccess SHA256 is af27aced255b9699855d28a108bac66f7a985f09256295b00080a592b6764086. A future approved cleanup must recheck these identities, preserve the existing Hostinger rewrite changes, and apply only the reviewed targeted denial/removal. No remote deletion/configuration change has been made.
