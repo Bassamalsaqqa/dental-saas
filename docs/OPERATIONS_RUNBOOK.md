@@ -83,7 +83,7 @@ Owner authorizes source integration and production deployment separately. Do not
 
 ### Rollback Guidance
 
-Prepare a source-only rollback commit whose parent is the candidate and whose tree is the exact previous release. Publish/install it only within the separately authorized recovery procedure; verify installed source and release ref agree. Never automatically restore or alter production DB/configuration/storage, run generic migration rollback, reset Git or force-push. A schema-changing release requires its own reviewed recovery/fix-forward design.
+Prepare a source-only rollback commit whose parent is the candidate and whose tree is the previous release, retaining any subsequently required security containment. For PR24, keep index_public.php, redirect.php and _debug_diff.txt absent: restoring the exact old tree would re-expose quarantined helpers. Verify the complete recovery-tree diff and protected overlay preservation before publication. Publish/install it only within the separately authorized recovery procedure; verify installed source and release ref agree. Never automatically restore or alter production DB/configuration/storage, run generic migration rollback, reset Git or force-push. A schema-changing release requires its own reviewed recovery/fix-forward design.
 
 ## Troubleshooting
 
