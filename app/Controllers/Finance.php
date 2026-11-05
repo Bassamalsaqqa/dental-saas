@@ -1077,7 +1077,8 @@ class Finance extends BaseController
             if (!$this->financeModel->insert($financeData)) {
                 $this->db->transRollback();
                 $transactionStarted = false;
-                return redirect()->back()->withInput()->with('error', implode(', ', $this->financeModel->errors()));
+                log_message('error', 'Expense insert failed: ' . json_encode($this->financeModel->errors()));
+                return redirect()->back()->withInput()->with('error', lang('Finance.expenseSaveFailed'));
             }
 
             $financeId = (int) $this->financeModel->getInsertID();
@@ -1144,7 +1145,7 @@ class Finance extends BaseController
                 $this->db->transRollback();
             }
             log_message('error', 'Expense create failed: ' . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
+            return redirect()->back()->withInput()->with('error', lang('Finance.expenseSaveFailed'));
         }
     }
 

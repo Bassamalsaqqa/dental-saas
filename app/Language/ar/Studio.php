@@ -107,7 +107,7 @@ return [
 'dateTo'=>'إلى تاريخ',
 'selectedCount'=>'تم تحديد {count}',
 'bookingPatient'=>'المريض والزيارة',
-'bookingChairWhen'=>'???? ????? ???????',
+'bookingChairWhen'=>'عمود الحجز والموعد',
 'bookingWhen'=>'الطبيب والموعد',
 'patientNumber'=>'المريض رقم {id}',
 'dayboard'=>'لوحة اليوم',

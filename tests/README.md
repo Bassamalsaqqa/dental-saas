@@ -2,6 +2,8 @@
 
 Inspect the selected tests before execution. A `tests/unit` location does not guarantee database safety. Business/customer databases and dumps are never test fixtures. Do not edit `.env` or start business MySQL just to run checks.
 
+The application tool metadata points to this repository. `npm test` / `npm run test:unit` runs the named database-free finance, Arabic integrity, booking and runner checks; it does not build assets. `npm run test:finance:http` uses the guarded SQL runner and requires an explicitly configured, owned isolated target. No dependency or pinned CSS changes are part of these commands.
+
 For an inspected database-free suite:
 
 ```powershell
@@ -24,7 +26,7 @@ Current dependency versions are pinned in `composer.lock`; do not install or upg
 
 Start `node tests/js/finance-presenter-server.cjs` in the existing checkout. It binds only `127.0.0.1:57526`, renders real PHP presenters/assets using synthetic permission/data helpers, and refuses financial writes. It neither bootstraps the application nor connects to a database. Stop that process when finished.
 
-`tests/js/FinanceContextCancellation.browser.js` is a Playwright Page function (run as the browser MCP `browser_run_code_unsafe` filename, or invoke it with an existing Playwright Page). It covers context cancellation, late responses, pending/uncertain submission protection, and unpaid/paid/unknown/void drawers across EN/AR and 1366/768/390/320px. No dependency installation is needed for the connected browser. Mock transport evidence is not SQL persistence or routed authentication acceptance.
+`tests/js/FinanceContextCancellation.browser.js` is a Playwright Page function (run as the browser MCP `browser_run_code_unsafe` filename, or invoke it with an existing Playwright Page). It covers context cancellation, late responses, pending/uncertain submission protection, and unpaid/paid/unknown/void drawers across EN/AR and 1366/768/390/320px. No dependency installation is needed for the connected browser. Mock transport evidence is not SQL persistence or routed authentication acceptance. `FinanceAuditPresentation.browser.js` checks actual mixed-currency spacing/delimiters and localized booking settings in EN/AR at 320/390px against the same presenter server.
 
 ## P0 identity / tenant RBAC regression suite (2026-10-15)
 

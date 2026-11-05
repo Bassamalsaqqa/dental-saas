@@ -96,6 +96,22 @@ final class FinanceSalaryWorkflowHttpTest extends \Tests\Support\PhaseBFixture
         self::assertSame(0,$this->db->table('finances')->where('clinic_id',$this->clinic)->countAllResults());
     }
 
+    public function testUnexpectedExpenseFailureKeepsDiagnosticsOutOfOperatorMessage(): void
+    {
+        $trigger=$this->prefix.'_expense_failure';
+        $safeName=$this->db->escapeIdentifiers($trigger);
+        $this->db->query('CREATE TRIGGER '.$safeName.' BEFORE INSERT ON finances FOR EACH ROW BEGIN IF NEW.clinic_id = '.(int)$this->clinic." THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SYNTHETIC_RESTRICTED_DATABASE_DETAIL'; END IF; END");
+        try {
+            $result=$this->postFinance('/finance/expenses/store',['counterparty_name'=>'Synthetic failure payee','expense_category'=>'salaries','amount_original'=>'1000.00','currency'=>'ILS','exchange_rate'=>'1','payment_method'=>'cash','payment_status'=>'pending']);
+            $result->assertRedirect();
+            self::assertSame(lang('Finance.expenseSaveFailed'),session()->getFlashdata('error'));
+            self::assertStringNotContainsString('SYNTHETIC_RESTRICTED_DATABASE_DETAIL',(string)$result->getBody());
+            self::assertSame(0,$this->db->table('finances')->where('clinic_id',$this->clinic)->countAllResults());
+        } finally {
+            $this->db->query('DROP TRIGGER '.$safeName);
+        }
+    }
+
     public function testSalaryCreationRejectsInvalidCsrfWithoutWriting(): void
     {
         $config=config('Security');

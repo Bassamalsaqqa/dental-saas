@@ -16,17 +16,17 @@ app/Controllers/FileController.php:316:            $setting = $db->table('settin
 app/Controllers/FileController.php:387:        return $db->table('patients')
 
 # Scoped report/history projections and clinic-id-bound settlement locks/updates under routed finance view/edit authority and checked transactions.
-app/Controllers/Finance.php:1558:            $billedInventoryUsageRows = $this->db->table('inventory_usage iu')
-app/Controllers/Finance.php:1626:        $rows = $this->db->table('provider_payout_payments ppp')
-app/Controllers/Finance.php:2352:        $financeRowsBuilder = $this->db->table('finances f')
-app/Controllers/Finance.php:2456:        $invoicePaymentRowsBuilder = $this->db->table('finance_payments fp')
-app/Controllers/Finance.php:2558:        $payoutPaymentRowsBuilder = $this->db->table('provider_payout_payments ppp')
-app/Controllers/Finance.php:2629:        $transferRowsBuilder = $this->db->table('finance_liquidity_transfers ft')
-app/Controllers/Finance.php:2902:        $rows = $this->db->table('finances f')
-app/Controllers/Finance.php:3301:        return $this->db->query(
-app/Controllers/Finance.php:3543:            $finance = $this->db->query(
-app/Controllers/Finance.php:3713:            $finance = $this->db->query(
-app/Controllers/Finance.php:4043:        return (bool) $this->db->table('finances')
+app/Controllers/Finance.php:1559:            $billedInventoryUsageRows = $this->db->table('inventory_usage iu')
+app/Controllers/Finance.php:1627:        $rows = $this->db->table('provider_payout_payments ppp')
+app/Controllers/Finance.php:2353:        $financeRowsBuilder = $this->db->table('finances f')
+app/Controllers/Finance.php:2457:        $invoicePaymentRowsBuilder = $this->db->table('finance_payments fp')
+app/Controllers/Finance.php:2559:        $payoutPaymentRowsBuilder = $this->db->table('provider_payout_payments ppp')
+app/Controllers/Finance.php:2630:        $transferRowsBuilder = $this->db->table('finance_liquidity_transfers ft')
+app/Controllers/Finance.php:2903:        $rows = $this->db->table('finances f')
+app/Controllers/Finance.php:3302:        return $this->db->query(
+app/Controllers/Finance.php:3544:            $finance = $this->db->query(
+app/Controllers/Finance.php:3714:            $finance = $this->db->query(
+app/Controllers/Finance.php:4044:        return (bool) $this->db->table('finances')
 
 # Clinic/item parent locking and scoped history/receipt probes under inventory delete/view authority.
 app/Controllers/Inventory.php:473:                    if ($this->db->tableExists($table) && $this->db->table($table)->where('clinic_id',$clinicId)->where('inventory_id',$id)->countAllResults() > 0) {

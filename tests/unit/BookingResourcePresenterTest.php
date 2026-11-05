@@ -24,8 +24,7 @@ final class BookingResourcePresenterTest extends TestCase
             self::assertSame(0,$xp->query('//select[@name="provider_user_id"]')->length);
             self::assertSame(0,$xp->query('//select[@name="chair_name"]/option[@selected]')->length);
             self::assertSame(0,$xp->query('//a[contains(@href,"settings")]')->length,'Unauthorized settings navigation stays hidden.');
-            $ui = require APPPATH.'Language/'.$locale.'/UI.php';
-            self::assertSame($ui['appointmentChairLabel'],trim(str_replace(' *','',$xp->query('//label[@for="chairName"]')->item(0)->textContent)));
+            self::assertSame($locale==='ar'?'عمود الحجز:':'Booking column:',trim(str_replace(' *','',$xp->query('//label[@for="chairName"]')->item(0)->textContent)));
         }
     }
 
@@ -34,6 +33,17 @@ final class BookingResourcePresenterTest extends TestCase
         foreach (['edit'=>'Historical column','reentry'=>'Column B'] as $scenario=>$expected) {
             $xp = new \DOMXPath($this->render('en',$scenario));
             self::assertSame($expected,$xp->query('//select[@name="chair_name"]/option[@selected]')->item(0)->getAttribute('value'));
+        }
+    }
+
+    public function testBookingSettingsLinkIsLocalizedForAuthorizedReaders(): void
+    {
+        foreach (['en'=>'Booking settings','ar'=>'إعدادات الحجز'] as $locale=>$text) {
+            $xp=new \DOMXPath($this->render($locale,'settings'));
+            $links=$xp->query('//a[contains(@href,"settings?tab=hours")]');
+            self::assertSame(1,$links->length);
+            self::assertSame($text,$links->item(0)->textContent);
+            self::assertSame($locale==='ar'?'rtl':'ltr',$xp->query('//html')->item(0)->getAttribute('dir'));
         }
     }
 

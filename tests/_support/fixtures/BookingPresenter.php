@@ -10,10 +10,10 @@ function lang($key, $args = []) { [$group,$name] = explode('.', $key, 2); $value
 function esc($value, $context = null) { return htmlspecialchars((string)$value, ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8'); }
 function old($key, $default = null) { return $GLOBALS['scenario']==='reentry' && $key==='chair_name' ? 'Column B' : $default; }
 function getAppointmentDuration() { return 30; }
-function has_permission($module, $action) { return false; }
+function has_permission($module, $action) { return $GLOBALS['scenario']==='settings' && $module==='settings' && $action==='view'; }
 function base_url($path) { return 'http://synthetic.invalid/'.$path; }
 require APPPATH.'Libraries/ProviderDisplayLabel.php';
 $editing = $scenario==='edit';
 $appointment = $editing ? ['chair_name'=>'Historical column','duration'=>45] : [];
 $booking_context = ['enabled'=>in_array($scenario,['dynamic','unavailable'],true),'schema_ready'=>$scenario!=='unavailable','providers'=>[['user_id'=>11,'name'=>'Synthetic Doctor']],'chair_options'=>['Column A','Column B']];
-?><!doctype html><html lang="<?= $locale ?>" dir="<?= $locale==='ar'?'rtl':'ltr' ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><form><?php require APPPATH.'Views/appointment/partials/studio_booking_fields.php'; ?></form></body></html>
+?><!doctype html><html lang="<?= $locale ?>" dir="<?= $locale==='ar'?'rtl':'ltr' ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><?php foreach(['studio','studio-theme','studio-scale','studio-forms','studio-care'] as $css): ?><link rel="stylesheet" href="/assets/css/<?= $css ?>.css"><?php endforeach; ?></head><body class="studio"><main style="padding:16px"><form class="studio-form booking-form"><?php require APPPATH.'Views/appointment/partials/studio_booking_fields.php'; ?></form></main></body></html>
