@@ -37,3 +37,9 @@ The Owner's 2026-11-05 improvement campaign is tracked in [WORK_PROGRAM.md](WORK
 Use the deployed source as the baseline. Preserve tenant/RBAC authority, signed evidence, original records, immutable financial history and durable files. Production deployments, migrations and feature activation require separate explicit Owner authorization. No GitHub Actions.
 
 Module contracts remain linked from [START_HERE.md](START_HERE.md). Historic acceptance reports describe their recorded source/time, not automatic certification of future code.
+
+## Authorized containment, source release still pending (2026-11-05)
+
+The Owner authorized the established containment/release process. Codex independently reviewed/corrected the AGY helper and performed reversible quarantine of exactly index_public.php, redirect.php and _debug_diff.txt outside webroot. Both GET and HEAD now return404 for those paths; login and checked CSS/JS remain200. Original source HEAD9e1f8558, .env, both .htaccess files, storage and DB remain unchanged. Live Git status includes these three intentional tracked deletions plus the pre-existing root .htaccess modification. Private recovery copies retain exact bytes and metadata. Do not restore the legacy files during source recovery.
+
+Two earlier root-denial attempts failed live postflight and were restored byte-for-byte; no successful .htaccess containment is claimed. The connector confirmed the actual document root. New helper source needs independent review; full integration/deployment still requires native rehearsal, fresh recoverable checkpoint, trigger/schema checks and a verified transition preserving the host overlay and quarantine. See WORK_PROGRAM.md for exact evidence and remaining work; generic approval is no longer the blocker.
