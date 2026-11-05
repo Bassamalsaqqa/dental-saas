@@ -5,46 +5,15 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-Set-Location $repoRoot
-
 $cssPath = Join-Path $repoRoot 'public/assets/css/tailwind.css'
-$beforeHash = ''
+$pinnedHash = '3A51D2FFFB54AE89FBB4188E3B1DDFC2BCE09C7E81148ADBA78CE750B7FD801A'
 
 if (Test-Path $cssPath) {
-    $beforeHash = (Get-FileHash $cssPath -Algorithm SHA256).Hash
+    $currentHash = (Get-FileHash $cssPath -Algorithm SHA256).Hash
+    if ($currentHash -ne $pinnedHash) {
+        Write-Error "CRITICAL: Pinned Tailwind CSS hash mismatch! Expected $pinnedHash, found $currentHash"
+    }
 }
 
-Write-Host 'Building Tailwind for Hostinger deployment...' -ForegroundColor Cyan
-& npm.cmd run build
-
-if ($LASTEXITCODE -ne 0) {
-    throw "Tailwind build failed with exit code $LASTEXITCODE."
-}
-
-$afterHash = ''
-if (Test-Path $cssPath) {
-    $afterHash = (Get-FileHash $cssPath -Algorithm SHA256).Hash
-}
-
-Write-Host ''
-Write-Host 'Release Prep Summary' -ForegroundColor Green
-Write-Host "CSS file: public/assets/css/tailwind.css"
-
-if ($beforeHash -and $afterHash -and $beforeHash -ne $afterHash) {
-    Write-Host 'Compiled CSS changed in this run.' -ForegroundColor Yellow
-} elseif ($afterHash) {
-    Write-Host 'Compiled CSS is up to date. No content change detected.' -ForegroundColor DarkYellow
-} else {
-    Write-Host 'Compiled CSS file was not found after build.' -ForegroundColor Red
-}
-
-Write-Host ''
-Write-Host 'Deploy these together to Hostinger:' -ForegroundColor Cyan
-Write-Host '  1. PHP/view/controller changes'
-Write-Host '  2. public/assets/css/tailwind.css'
-
-if (-not $SkipGitStatus) {
-    Write-Host ''
-    Write-Host 'Git status:' -ForegroundColor Cyan
-    & git status -sb
-}
+Write-Error "Unsafe release shortcut disabled. Automated Tailwind builds and direct release shortcuts are prohibited per AGENTS.md, README.md, and docs/OPERATIONS_RUNBOOK.md. The production Tailwind stylesheet is pinned (SHA256 $pinnedHash) and must not be rebuilt or overwritten. Deployment, migrations, and feature activation require explicit, separate Owner authorization. Follow the controlled release procedure in docs/OPERATIONS_RUNBOOK.md."
+exit 1
