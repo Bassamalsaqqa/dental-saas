@@ -1,4 +1,4 @@
-// Isolated presenter server. No database, authentication or successful financial POSTs.
+// Isolated finance/patient presenter server. No database, authentication or successful application writes.
 'use strict';
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
 const root=path.resolve(__dirname,'../..'),publicRoot=path.join(root,'public');
@@ -114,6 +114,17 @@ http.createServer((req,res)=>{
  const json=body=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(body));};
  if(req.method==='POST'&&url.pathname==='/finance/payouts/data'){req.resume();json({draw:1,recordsTotal:syntheticPayouts.length,recordsFiltered:syntheticPayouts.length,data:syntheticPayouts,csrf_token:'synthetic'});return;}
  if(req.method!=='GET'){res.writeHead(405);res.end('Presenter server never writes financial records.');return;}
+ const patientPage=url.pathname.match(/^\/patient-workflow\/(en|ar)\/(workspace|examination|treatment_create|money_trail)\.html$/);
+ if(patientPage){
+  const permissions=url.searchParams.get('permissions')||'all';
+  const money=url.searchParams.get('money')||'missing';
+  if(!['all','none','treatment-only'].includes(permissions)||!['missing','malformed','empty','mixed'].includes(money)){res.writeHead(400);res.end();return;}
+  try{
+   const html=execFileSync('php',[path.join(root,'tests/_support/fixtures/PatientWorkflowPresenter.php'),patientPage[1],patientPage[2],permissions,money],{windowsHide:true,encoding:'utf8'});
+   res.setHeader('Content-Type','text/html;charset=utf-8');res.end(html);
+  }catch(error){console.error('Patient presenter render failed:',error.message);res.writeHead(500);res.end('Synthetic presenter failed.');}
+  return;
+ }
  if(url.pathname==='/finance/settlement-context'){
   const row=syntheticPayouts.find(row=>row.id===Number(url.searchParams.get('targets')));
   if(!row){res.writeHead(404);res.end();return;}
@@ -126,4 +137,4 @@ http.createServer((req,res)=>{
   fs.readFile(file,(error,data)=>{if(error){res.writeHead(404);res.end();return;}res.setHeader('Content-Type',({'.css':'text/css','.js':'text/javascript','.woff2':'font/woff2'})[path.extname(file)]||'application/octet-stream');res.end(data);});return;
  }
  res.writeHead(404);res.end();
-}).listen(57526,'127.0.0.1',()=>console.log('Synthetic finance presenter on 127.0.0.1:57526; no DB or financial writes.'));
+}).listen(57526,'127.0.0.1',()=>console.log('Synthetic workflow presenter on 127.0.0.1:57526; no DB or application writes.'));

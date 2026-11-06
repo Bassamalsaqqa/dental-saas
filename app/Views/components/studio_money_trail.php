@@ -1,6 +1,10 @@
 <?php
 $trail = $money_trail ?? [];
 $summary = $trail['summary'] ?? [];
+$providerSummary = $summary['provider_currency_summary'] ?? null;
+$providerRemainingDisplay = is_array($providerSummary) && is_array($providerSummary['currency_buckets'] ?? null)
+    ? \App\Services\ProviderCurrencySummary::format($providerSummary, 'provider_remaining')
+    : lang('Finance.providerCurrencyUnavailable');
 $chargeLines = $trail['charge_lines'] ?? [];
 $financeRows = $trail['finance_rows'] ?? [];
 $paymentRows = $trail['payment_rows'] ?? [];
@@ -59,7 +63,7 @@ if ((float) ($summary['inventory_cost'] ?? 0) > 0.009) {
     $stats[] = ['key' => 'inventory_cost', 'label' => $moneyLabel('moneyTrailInventoryCost'), 'value' => $summary['inventory_cost'], 'tone' => 'rose'];
 }
 ?>
-<section class="record-panel clinical-money-trail"><header class="clinical-panel-heading"><div><h2><?= esc($moneyLabel('moneyTrailTitle')) ?></h2><p><?= esc($moneyLabel('moneyTrailSubtitle')) ?></p></div><?php if(!empty($patient_id)&&has_permission('finance','view')): ?><a class="button secondary" href="<?= esc(workflow_context_url('patient/'.(int)$patient_id.'?tab=finances',$returnTo),'attr') ?>"><?= esc(lang('UI.menuFinance')) ?></a><?php endif; ?></header><dl class="workspace-counts clinical-money-counts"><?php foreach($stats as $stat): ?><div><dt><?= esc($stat['label']) ?></dt><dd><?= esc($stat['key']==='provider_remaining'?\App\Services\ProviderCurrencySummary::format($summary['provider_currency_summary'],'provider_remaining'):$formatMoney($stat['value'])) ?></dd></div><?php endforeach; ?></dl><?php if($payoutRows!==[]): ?><p class="clinical-money-help"><?= esc(lang('Finance.providerVoidBalanceHelp').' '.lang('Finance.providerCurrencyWarning')) ?></p><?php endif; ?>
+<section class="record-panel clinical-money-trail"><header class="clinical-panel-heading"><div><h2><?= esc($moneyLabel('moneyTrailTitle')) ?></h2><p><?= esc($moneyLabel('moneyTrailSubtitle')) ?></p></div><?php if(!empty($patient_id)&&has_permission('finance','view')): ?><a class="button secondary" href="<?= esc(workflow_context_url('patient/'.(int)$patient_id.'?tab=finances',$returnTo),'attr') ?>"><?= esc(lang('UI.menuFinance')) ?></a><?php endif; ?></header><dl class="workspace-counts clinical-money-counts"><?php foreach($stats as $stat): ?><div><dt><?= esc($stat['label']) ?></dt><dd><?= esc($stat['key']==='provider_remaining'?$providerRemainingDisplay:$formatMoney($stat['value'])) ?></dd></div><?php endforeach; ?></dl><?php if($payoutRows!==[]): ?><p class="clinical-money-help"><?= esc(lang('Finance.providerVoidBalanceHelp').' '.lang('Finance.providerCurrencyWarning')) ?></p><?php endif; ?>
 <?php if(!$hasRecords): ?><p class="clinical-empty"><?= esc($moneyLabel('moneyTrailEmpty')) ?></p><p class="clinical-money-help"><?= esc($moneyLabel('moneyTrailEmptyHint')) ?></p><?php else: ?>
 <?php foreach([['moneyTrailChargeLines',$chargeLines,6,'charges'],['moneyTrailFinanceRecords',$financeRows,6,'finance'],['moneyTrailPaymentsAndProviders',$paymentRows,4,'payments'],['moneyTrailProvider',$payoutRows,4,'providers'],['moneyTrailInventoryUsage',$inventoryRows,4,'inventory']] as [$title,$entries,$window,$kind]):if(!$entries)continue; ?>
 <section class="clinical-trail-group"><header class="clinical-panel-heading"><h3><?= esc($moneyLabel($title)) ?></h3><span><?= esc(lang('Studio.loadedWindow',['shown'=>min($window,count($entries)),'count'=>count($entries)])) ?></span></header>
