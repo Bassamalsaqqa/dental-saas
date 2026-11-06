@@ -68,3 +68,14 @@ This is a scoped production acceptance, not universal accounting, role, physical
 5. Keep PROJECT_STATE/START_HERE and this register aligned. Further cleanup requires ownership/reference checks; preserve unique work, private recovery, reference assets and historical main. Do not delete a file merely because it is old or ignored.
 
 The release is complete; the broader improvement campaign is still active. Manual AGY briefs are bounded assignments, not competing master plans or acceptance authority.
+
+## Reception/registration audit follow-up (2026-11-06)
+
+Codex verified the read-only AGY handback at clean c5df938a. PR26 remains unchanged awaiting independent review; its patient/clinical changes are not deployed. The separate registration-search candidate starts from repository release 5e4697c1, avoiding an unreviewed PR26 dependency.
+
+- Existing search already uses the authenticated clinic-scoped api/search/patients route with patient-view permission. Registration now exposes that SAME Studio search dialog through a non-submit action in the shared create-fields header, present on full-page and quick intake forms; it is absent on edit and without view permission. Existing scripts preserve typed fields and return focus when search closes. No new lookup endpoint, duplicate-detection authority, unique phone rule, default or schema change.
+- Shared names/phone numbers cannot establish patient identity. Search remains advisory, with canonical profile links. AGY's claim that deployed email uniqueness is clinic-scoped is not established by source migration presence; scoped-email migration was previously recorded unapplied. Do not label it a verified live index or alter it in this UI task.
+- Retained RegistrationSearchPresenter and RegistrationSearch.browser.js reproduce 16 EN/AR x4width x2surface cases plus 6 permission/editing cases. Tests use synthetic results and real shared fields/search/intake scripts: draft preservation, focus restoration, nested intake retention, canonical result link, action viewport fit and no registration request. No DB or production submission. A 320px fixture form overflow also occurs without this new action; full-shell fit is not certified by this suite and must be independently checked before treating it as a new production defect.
+- Booking columns already link authorized operators to existing scheduling settings; no extra explanatory notice or automatic doctor naming was added. Escape closes the existing combobox suggestions before the dialog; no change is needed solely for that behavior.
+
+Next: independent exact-head review of PR26 and the registration-search candidate, then a bounded full-shell registration fit/error/uncertain-state check and inventory workflow pass. Production remains 6505bac3. Existing salary/schema, wider role/device and concurrency limitations remain open.

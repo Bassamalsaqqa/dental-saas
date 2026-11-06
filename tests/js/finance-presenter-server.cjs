@@ -114,6 +114,15 @@ http.createServer((req,res)=>{
  const json=body=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(body));};
  if(req.method==='POST'&&url.pathname==='/finance/payouts/data'){req.resume();json({draw:1,recordsTotal:syntheticPayouts.length,recordsFiltered:syntheticPayouts.length,data:syntheticPayouts,csrf_token:'synthetic'});return;}
  if(req.method!=='GET'){res.writeHead(405);res.end('Presenter server never writes financial records.');return;}
+ const registration=url.pathname.match(/^\/registration-search\/(en|ar)\/(page|dialog|edit)\.html$/);
+ if(registration){
+  const permission=url.searchParams.get('permission')==='denied'?'denied':'allowed';
+  try{
+   const html=execFileSync('php',[path.join(root,'tests/_support/fixtures/RegistrationSearchPresenter.php'),registration[1],registration[2],permission],{windowsHide:true,encoding:'utf8'});
+   res.setHeader('Content-Type','text/html;charset=utf-8');res.end(html);
+  }catch(error){console.error('Registration presenter failed:',error.message);res.writeHead(500);res.end('Synthetic presenter failed');}
+  return;
+ }
  if(url.pathname==='/finance/settlement-context'){
   const row=syntheticPayouts.find(row=>row.id===Number(url.searchParams.get('targets')));
   if(!row){res.writeHead(404);res.end();return;}

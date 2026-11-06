@@ -1167,4 +1167,5 @@ return [
     'financeRefundHelp'=>'Record a refund of money already collected.',
     'financeProviderHelp'=>'Record payment of this provider obligation.',
     'financeRequestFailed'=>'The request was rejected. Review the message and correct the details.',
+    'existingPatientSearch'=>'Search existing patients',
 ];

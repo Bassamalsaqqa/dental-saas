@@ -1167,4 +1167,5 @@ return [
     'financeRefundHelp'=>'سجّل استرداداً لمبلغ تم تحصيله بالفعل.',
     'financeProviderHelp'=>'سجّل دفعة لهذا الاستحقاق المهني.',
     'financeRequestFailed'=>'رُفض الطلب. راجع الرسالة وصحّح التفاصيل.',
+    'existingPatientSearch'=>'مسجّل من قبل؟ ابحث عن المريض',
 ];
