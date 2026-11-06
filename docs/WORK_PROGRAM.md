@@ -79,3 +79,20 @@ Codex verified the read-only AGY handback at clean c5df938a. PR26 remains unchan
 - Booking columns already link authorized operators to existing scheduling settings; no extra explanatory notice or automatic doctor naming was added. Escape closes the existing combobox suggestions before the dialog; no change is needed solely for that behavior.
 
 Next: independent exact-head review of PR26 and the registration-search candidate, then a bounded full-shell registration fit/error/uncertain-state check and inventory workflow pass. Production remains 6505bac3. Existing salary/schema, wider role/device and concurrency limitations remain open.
+
+## Owner-approved continuation and delivery sequence
+
+The Owner explicitly approved continuation through all original notes, supervised manual AGY tasks, proper commits/pushes and deployment after checks pass. This is continuing authorization for this campaign, not permission to invent policy, weaken safeguards, overwrite customer records or activate optional features. Codex owns review/integration/release; AGY returns reviewable changes in the existing checkout and stops. No generic permission loop is needed for already authorized delivery.
+
+Current candidates: PR26 patient/clinical c5df938a and PR27 registration search b1556233. Both are draft, mergeable and have no independent review posted at this checkpoint; do not claim external approval. Production remains 6505bac3. Reconcile overlapping work-register/presenter-server edits during integration, then test their combined tree rather than assuming two separate passing branches compose safely.
+
+Delivery queue (bounded batches, preserve this register rather than creating another master plan):
+
+1. Finish registration full-shell fit and search/validation/dirty/pending/uncertain recovery using synthetic failure injection; audit and repair confirmed inventory/stock workflow defects through existing components. This is the next manual AGY assignment.
+2. Review team/provider/settings/reporting journeys and close the original ?where do I enter/find/pay/history?? questions with actual discoverable actions and verified permission states. Keep salary versus provider obligations and booking columns versus doctors truthful. No employee payroll linkage or agreement defaults may be implied when absent.
+3. Complete bounded Control Plane/kiosk/role coverage and cross-module dialog/loading/error/empty/recovery behavior. Verify EN/AR, desktop/tablet/mobile, keyboard/touch and available zoom evidence. Identify physical-device/assistive-technology checks requiring actual access; do not certify them from emulation.
+4. Resolve or explicitly disposition the remaining financial questions: pending salary method requires compatible schema/writer/report semantics; FX/refund/correction/treasury/replay/concurrency coverage must use canonical services on proven synthetic targets. Inspect existing policy first; missing business rules require a concrete Owner decision, not fabricated behavior. No automatic feature activation or production mutation as a test.
+5. Reconcile root/GitHub/Hostinger cleanup and documentation against ownership/reference evidence. Preserve private recovery, signed/clinical evidence, unique work, secrets, customer storage and historical main. Keep current guidance concise and remove superseded chronology through Git history.
+6. For each accepted release, inspect final combined diff/untracked files and review findings, run relevant tests, publish exact source, prepare fresh recoverable checkpoint and tested source-only recovery, preserve protected hosting overlays/pinned assets, deploy exact approved SHA and verify authenticated EN/AR postflight before reopening. Record installed SHA separately from repository-only documentation commits.
+
+Campaign completion requires evidence or an explicit disposition for every F/U/R/X/C/D row and original operator question. Do not label broad code audits, entry screenshots or AGY success reports as all-workflow certification. Each handback must identify fixed, tested, pending, policy-decision and access-limited items separately without erasing scope.
