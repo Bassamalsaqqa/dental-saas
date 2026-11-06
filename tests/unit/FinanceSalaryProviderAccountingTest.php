@@ -50,6 +50,28 @@ final class FinanceSalaryProviderAccountingTest extends CIUnitTestCase
         return $controller;
     }
 
+    public function testIncompleteProviderSummariesDoNotInventZero(): void
+    {
+        $originalLocale = service('language')->getLocale();
+        try {
+        $class = \App\Services\ProviderCurrencySummary::class;
+            foreach (['en', 'ar'] as $locale) {
+                service('language')->setLocale($locale);
+                foreach ([[], ['currency_buckets' => []], ['currency_buckets' => null]] as $summary) {
+                    $this->assertSame(lang('Finance.providerCurrencyUnavailable'), $class::format($summary, 'provider_remaining'));
+                }
+                $this->assertSame('0.00', $class::format($class::summarize([]), 'provider_remaining'));
+                $mixed = $class::summarize([
+                    ['finance_id' => 1, 'currency' => 'ILS', 'provider_balance_due' => 125],
+                    ['finance_id' => 2, 'currency' => 'USD', 'provider_balance_due' => 50],
+                ]);
+                $this->assertSame('125.00 ILS / 50.00 USD', $class::format($mixed, 'provider_remaining'));
+            }
+        } finally {
+            service('language')->setLocale($originalLocale);
+        }
+    }
+
     /**
      * Journey (a): Salary expense payment-state normalization only, not persisted lifecycle.
      * Scenario: 1,000 total expense with 400 paid leaves 600 balance due.

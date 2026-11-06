@@ -106,8 +106,17 @@ final class ProviderCurrencySummary
 
     public static function format(array $summary, string $key): string
     {
+        $buckets = $summary['currency_buckets'] ?? null;
+        if (!is_array($buckets)) {
+            return lang('Finance.providerCurrencyUnavailable');
+        }
+        if ($buckets === []) {
+            return $summary === self::summarize([])
+                ? '0.00'
+                : lang('Finance.providerCurrencyUnavailable');
+        }
         $parts = [];
-        foreach ($summary['currency_buckets'] ?? [] as $currency => $bucket) {
+        foreach ($buckets as $currency => $bucket) {
             $parts[] = self::native($bucket[$key] ?? null, $currency);
         }
         return $parts ? implode(' / ', $parts) : '0.00';

@@ -22,14 +22,13 @@ $primaryButtonClass = 'patient-command-action button primary';
 $footer = static function (string $drawerId, string $submitLabel, string $fullPageUrl, string $formId): string {
     ob_start();
     ?>
-    <div >
-        <a href="<?= esc($fullPageUrl) ?>" data-patient-context-link>
-
+    <div>
+        <a href="<?= esc($fullPageUrl) ?>" class="button secondary" data-patient-context-link>
             <span><?= esc(lang('UI.openFullPage')) ?></span>
         </a>
-        <div >
-            <button type="button"  data-app-drawer-close="<?= esc($drawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
-            <button type="submit" form="<?= esc($formId) ?>" ><?= esc($submitLabel) ?></button>
+        <div>
+            <button type="button" class="button secondary" data-app-drawer-close="<?= esc($drawerId) ?>"><?= esc(lang('UI.cancel')) ?></button>
+            <button type="submit" class="button primary" form="<?= esc($formId) ?>"><?= esc($submitLabel) ?></button>
         </div>
     </div>
     <?php
@@ -53,10 +52,15 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
         <div >
             <h2 ><?= esc(lang('UI.patientCommandActions')) ?></h2>
         </div>
-        <div >
+        <div>
             <?php if (has_permission('examinations', 'create')): ?>
                 <button type="button" class="<?= esc($primaryButtonClass) ?>" data-app-drawer-open="patientExamDrawer">
                     <span><?= esc(lang('UI.addExamination')) ?></span>
+                </button>
+            <?php endif; ?>
+            <?php if (has_permission('treatments', 'create')): ?>
+                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientTreatmentDrawer">
+                    <span><?= esc(lang('UI.addTreatment')) ?></span>
                 </button>
             <?php endif; ?>
             <?php if (has_permission('appointments', 'create')): ?>
@@ -64,13 +68,8 @@ $formWrap = static function (string $formId, string $action, string $body, ?stri
                     <span><?= esc(lang('UI.newAppointment')) ?></span>
                 </button>
             <?php endif; ?>
-            <?php if(has_permission('treatments','create')||has_permission('finance','create')||($attachmentsEnabled&&has_permission('patients','edit'))): ?>
+            <?php if(has_permission('finance','create')||($attachmentsEnabled&&has_permission('patients','edit'))): ?>
             <div class="workspace-action-menu patient-more-actions"><button type="button" class="button secondary" popovertarget="patient-more-actions-panel"><?= esc(lang('Studio.patientMoreActions')) ?></button><nav id="patient-more-actions-panel" popover="auto" data-studio-menu-panel aria-label="<?= esc(lang('Studio.patientMoreActions'),'attr') ?>">
-            <?php if (has_permission('treatments', 'create')): ?>
-                <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientTreatmentDrawer">
-                    <span><?= esc(lang('UI.addTreatment')) ?></span>
-                </button>
-            <?php endif; ?>
             <?php if (has_permission('finance', 'create')): ?>
                 <button type="button" class="<?= esc($buttonClass) ?>" data-app-drawer-open="patientPaymentDrawer">
                     <span><?= esc(lang('UI.recordPayment')) ?></span>
