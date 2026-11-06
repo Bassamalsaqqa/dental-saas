@@ -542,4 +542,20 @@ final class FinanceSalaryProviderAccountingTest extends CIUnitTestCase
         $this->assertStringContainsString('"guestProvider":"' . lang('Finance.guestProvider') . '"', $html);
         $this->assertStringContainsString('"transactionBasis":"' . lang('Finance.transactionBasis') . '"', $html);
     }
+
+    public function testPayablesPresenterConfigProvidesLocalizedExpenseCategories(): void
+    {
+        $fixture = dirname(__DIR__) . '/_support/fixtures/MoneyConfigPresenter.php';
+        $html = shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($fixture) . ' ar payables');
+        $this->assertIsString($html);
+        $doc = new \DOMDocument();
+        @$doc->loadHTML($html);
+        $config = json_decode($doc->getElementsByTagName('script')->item(0)->textContent, true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertSame('payables', $config['mode']);
+        $this->assertArrayHasKey('expenseCategories', $config);
+        $this->assertSame('رواتب', $config['expenseCategories']['salaries'] ?? null);
+        $this->assertCount(1, $config['localRows']);
+        $this->assertSame('salaries', $config['localRows'][0]['expense_category']);
+    }
 }
