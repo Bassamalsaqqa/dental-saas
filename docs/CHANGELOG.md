@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-06 ? PR24 finance and booking workflow release
+
+- Merged/deployed 6505bac3: explicit staff salary entry, clearer expense states, provider-share basis/entry, balances/history navigation and legacy booking-column language. Existing financial writers/settings remain authoritative.
+- Fixed provider settlement currency disclosure, late/cancelled settlement-context recovery and provider parent linkage in cash reporting; corrected EN/AR labels and mixed-currency separation.
+- Preserved host rewrite overlays, pinned CSS, environment/storage, financial history and optional-feature boundaries. No migrations, dependency rebuild or live transaction test submissions. Obsolete public helpers remain privately quarantined/absent.
+- Authenticated HTTP and EN/AR desktop/tablet/mobile entry/dialog postflight passed. This is scoped release evidence; remaining campaign work is in WORK_PROGRAM.
+
 ## 2026-11-02 — Post-release workspace and infrastructure housekeeping
 
 - Reconciled the main local checkout with deployed PR #22, preserving unfinished September source in a named stash, verified private archives and Git bundles. Owner assets and all databases remain preserved.

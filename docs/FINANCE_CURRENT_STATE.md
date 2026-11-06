@@ -1,6 +1,6 @@
 # Finance Current State
 
-Last reconciled: 2026-11-05. Installed release and activation authority: [PROJECT_STATE.md](PROJECT_STATE.md). Current usability findings and work: [WORK_PROGRAM.md](WORK_PROGRAM.md).
+Last reconciled: 2026-11-06. Installed release and activation authority: [PROJECT_STATE.md](PROJECT_STATE.md). Current usability findings and work: [WORK_PROGRAM.md](WORK_PROGRAM.md).
 
 ## User Surfaces
 
@@ -57,12 +57,12 @@ Implementation sequencing is in `refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md`
 - **Invoice corrections remain OFF.** Original invoices, receipts and provider history are preserved. Incoming replacement applications transfer existing backing; refundable capacity excludes incoming amounts. Full returns, equal-FX applications and no automatic provider clawbacks remain policy limits. An activated correction ledger prevents treating source-only rollback as complete recovery. Policy, implementation evidence and rollout requirements live in [the correction policy](M2C_INVOICE_CORRECTION_POLICY.md), [its evidence](M2C_IMPLEMENTATION_EVIDENCE_20261021.md) and [its release procedure](M2C_RELEASE_PROCEDURE.md).
 - **Combined invoice/receipt checkout remains OFF.** `FinanceCheckout.enabled` requires both `finance:create` and `finance:edit`, separate schema/activation approval and no automatic permission grants. The receipt uses invoice currency and canonical payment/liquidity/FX rules (base currency requires rate 1), with clinic-local dates. Invoice, receipt, explicit provider entries, selected clinical lines, replay identity and audit share one checked transaction. Exact actor/clinic/request terms include uploaded check content, exclude CSRF/return navigation and retain decimal input identity; equivalent completed retries preserve the original receipt even after refunds and never enqueue another creation reminder. Failure rolls back new database writes, without claiming database/filesystem atomicity. Separate invoice/payment entry remains available.
 
-No new financial feature, migration or production change is authorized by a usability review. The live currency-disclosure mismatch and remaining salary/share/history usability work are tracked once in [WORK_PROGRAM.md](WORK_PROGRAM.md); no financial mutation was used to inspect them.
+No new financial feature, migration or production change is authorized by a usability review. PR24 deployed the currency-disclosure correction and salary/share/history entry improvements; remaining limits and acceptance scope are tracked in [WORK_PROGRAM.md](WORK_PROGRAM.md). No live financial form submission was used as a postflight test.
 
-## Verified workflow distinctions (2026-11-05 candidate)
+## Deployed workflow distinctions (PR24, 2026-11-06)
 
 Salaries use the existing expense writer, category `salaries` and a free-text payee. They are not linked to employee user IDs, do not recur automatically, and are not included in the provider history on user detail. Record salary -> paid/unpaid/partial -> settle remaining balance in Bills & payables -> dated history on the expense detail.
 
-Provider shares are entered on their patient transaction as fixed amounts or percentages of its total in base currency. The financial selector lists active clinic members; named outside providers are supported separately. It is not the scheduling doctor directory. There is no verified automatic compensation agreement/default: the candidate leaves new rates blank and requires explicit entry, preserving stored/validation values. Pay a share through Provider balances; dated history is on transaction detail `#provider-payouts` and the existing user payout view. Do not enter the same outflow again as a salary expense. Existing no-automatic-clawback policy is unchanged.
+Provider shares are entered on their patient transaction as fixed amounts or percentages of its total in base currency. The financial selector lists active clinic members; named outside providers are supported separately. It is not the scheduling doctor directory. There is no verified automatic compensation agreement/default: the deployed interface leaves new rates blank and requires explicit entry, preserving stored/validation values. Pay a share through Provider balances; dated history is on transaction detail `#provider-payouts` and the existing user payout view. Do not enter the same outflow again as a salary expense. Existing no-automatic-clawback policy is unchanged.
 
 Active cash reporting is `Finance::buildFinancialLedger()/summarizeCashReport()`, not the legacy Reports helper. Separate accumulators do not, by themselves, prove correct SQL provenance or prevent an operator from entering the same payment twice. Current focused unit/SQL evidence and limits are recorded in WORK_PROGRAM.
