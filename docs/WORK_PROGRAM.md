@@ -93,6 +93,17 @@ AGY returned five tracked files modified at ebd2cb33; Codex inspected the actual
 
 Next bounded assignment: Control Plane/kiosk/role-path audit and the remaining pending-expense UI wording gap using only existing semantics (no migrations). Follow with isolated FX/refund/treasury/concurrency acceptance and final combined-source/release reconciliation. Codex retains integration/deployment ownership under the Owner's existing authorization.
 
+## Platform/kiosk/roles and expense clarity: Codex review (2026-11-06)
+
+AGY returned eight tracked files plus one browser test at 87b57f1b. Production stays 6505bac3; PR26/27 remain local/published candidates. Codex reviewed the diff and source; no external PR review is posted at this checkpoint.
+
+- Accepted a presentation-only compatibility mitigation for the required unpaid-expense payment method: linked EN/AR help explains that no payment is recorded while unpaid and that settlement chooses the actual method. Server rendering uses persisted/old status and native status changes update the help. Validation/enum/writers/history remain unchanged. This does NOT remove the underlying method requirement or implement payroll.
+- Codex corrected the paid help from ?expense date? to selected payment date, made partial wording applicable to the recorded paid portion, and removed an unnecessary jQuery/Select2 hook from the native form. Chosen values, required method and existing locked-payment behavior remain authoritative.
+- Retained ExpenseMethodWording.browser.js: eight EN/AR viewport groups cover paid/pending/partial/back, help association, preserved method selection and pending re-entry; two real JavaScript-disabled locale cases verify initial pending text. Focused accounting/Arabic tests 23/133 and PayablesCategorySearch eight groups pass; lint/guardrails/whitespace checks recorded. This is synthetic form behavior, not live financial submission or full routed validation-reopen certification.
+- Platform findings are scoped: inspected ControlPlaneFilter requires a super-admin and global-mode authority; reported live gate redirects only show the gate path, not authenticated global-mode workflow acceptance. Role-view visibility is not server authorization. AGY reports EN/AR four-width role/kiosk-entry fit and PIN/privacy disclosure, with no mode/impersonation/PIN/role mutation. Actual role-changing handlers, kiosk unlock/session timeout and physical device behavior remain distinct source/test/access-limited evidence; do not certify them from entry screenshots.
+
+Next: canonical financial edge-case acceptance (FX, refunds/provider preservation, treasury neutrality and real multi-connection request races), then combined PR26/27 integration, final ownership-based cleanup/documentation reconciliation and controlled release. Existing clinical provenance, employee-linkage and physical/AT limitations must be dispositioned explicitly rather than erased.
+
 ## Owner-approved continuation and delivery sequence
 
 The Owner explicitly approved continuation through all original notes, supervised manual AGY tasks, proper commits/pushes and deployment after checks pass. This is continuing authorization for this campaign, not permission to invent policy, weaken safeguards, overwrite customer records or activate optional features. Codex owns review/integration/release; AGY returns reviewable changes in the existing checkout and stops. No generic permission loop is needed for already authorized delivery.

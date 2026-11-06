@@ -4,6 +4,10 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
 const root=path.resolve(__dirname,'../..'),publicRoot=path.join(root,'public');
 const pages=Object.fromEntries(['en','ar'].map(locale=>['/payouts-'+locale+'.html',execFileSync('php',[path.join(root,'tests/_support/fixtures/FinanceDrawerPresenter.php'),locale],{windowsHide:true,encoding:'utf8'})]));
 for(const locale of ['en','ar'])pages['/payables-'+locale+'.html']=execFileSync('php',[path.join(root,'tests/_support/fixtures/FinanceDrawerPresenter.php'),locale,'payables'],{windowsHide:true,encoding:'utf8'});
+for(const locale of ['en','ar']){
+ pages['/expense-'+locale+'.html']=execFileSync('php',[path.join(root,'tests/_support/fixtures/FinanceDrawerPresenter.php'),locale,'expense'],{windowsHide:true,encoding:'utf8'});
+ pages['/expense-pending-'+locale+'.html']=execFileSync('php',[path.join(root,'tests/_support/fixtures/FinanceDrawerPresenter.php'),locale,'expense-pending'],{windowsHide:true,encoding:'utf8'});
+}
 for(const locale of ['en','ar'])pages['/booking-'+locale+'.html']=execFileSync('php',[path.join(root,'tests/_support/fixtures/BookingPresenter.php'),locale,'settings'],{windowsHide:true,encoding:'utf8'});
 const syntheticPayouts = [
     {

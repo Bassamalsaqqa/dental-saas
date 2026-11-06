@@ -3,7 +3,10 @@
 if(PHP_SAPI!=='cli')exit(2);
 define('APPPATH',dirname(__DIR__,3).'/app/');
 $locale=($argv[1]??'en')==='ar'?'ar':'en';
-$reviewMode=($argv[2]??'payouts')==='payables'?'payables':'payouts';
+$reviewMode=$argv[2]??'payouts';
+if(!in_array($reviewMode,['payouts','payables','expense','expense-pending'],true))exit(2);
+$reviewOld=[];
+if($reviewMode==='expense-pending')$reviewOld['payment_status']='pending';
 $translations=[];
 foreach(['Finance','Studio','UI','Provider'] as $group)$translations[$group]=require APPPATH.'Language/'.$locale.'/'.$group.'.php';
 function helper($name) {}
@@ -12,6 +15,9 @@ function lang($key,$args=[]){[$group,$name]=explode('.',$key,2);$value=$GLOBALS[
 function base_url($path=''){return 'http://127.0.0.1:57526/'.ltrim($path,'/');}
 function asset_version($path){return 'synthetic-review';}
 function workflow_context_url($path,$return=null){return base_url($path);}
+function workflow_cancel($path,$return=null){return base_url($path);}
+function old($key,$fallback=''){return $GLOBALS['reviewOld'][$key]??$fallback;}
+function session($key=null){return null;}
 function formatCurrency($amount){return 'ILS '.number_format((float)$amount,2);}
 function has_permission($module,$action){return true;}
 function csrf_field(){return '<input type="hidden" name="csrf_test_name" value="synthetic">';}
@@ -28,7 +34,7 @@ class FinanceReviewView {
     public function render($path,$data){$this->data=$data;extract($data);ob_start();include APPPATH.'Views/'.$path.'.php';return ob_get_clean();}
 }
 function view($path,$data=[]){return (new FinanceReviewView())->render($path,$data);}
-function service($name){return new class {public function getUri(){return new class {public function getPath(){return 'finance/'.($GLOBALS['reviewMode']??'payouts');}};}};}
+function service($name){return new class {public function getGet($k=null){return null;} public function getUri(){return new class {public function getPath(){return 'finance/'.($GLOBALS['reviewMode']??'payouts');}};}};}
 require APPPATH.'Services/ProviderCurrencySummary.php';
 $stats=\App\Services\ProviderCurrencySummary::summarize([
  ['id'=>1,'finance_id'=>101,'currency'=>'ILS','gross_amount'=>1000,'provider_share_amount'=>400,'provider_paid_amount'=>0,'provider_balance_due'=>400,'status'=>'unpaid'],
@@ -42,8 +48,8 @@ function settings() {
         }
     };
 }
-?><!doctype html><html lang="<?= $locale ?>" dir="<?= $locale==='ar'?'rtl':'ltr' ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="csrf-name" content="csrf_test_name"><meta name="csrf-token" content="synthetic"><meta name="csrf-header" content="X-CSRF-TOKEN"><?php foreach(['studio','studio-theme','studio-workspace','studio-scale','studio-forms','studio-money'] as $css): ?><link rel="stylesheet" href="/assets/css/<?= $css ?>.css"><?php endforeach; ?></head><body class="studio"><main style="padding:24px"><?= $reviewMode==='payables'?view('finance/payables',['rows'=>[
+?><!doctype html><html lang="<?= $locale ?>" dir="<?= $locale==='ar'?'rtl':'ltr' ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="csrf-name" content="csrf_test_name"><meta name="csrf-token" content="synthetic"><meta name="csrf-header" content="X-CSRF-TOKEN"><?php foreach(['studio','studio-theme','studio-workspace','studio-scale','studio-forms','studio-money','studio-finance-entry'] as $css): ?><link rel="stylesheet" href="/assets/css/<?= $css ?>.css"><?php endforeach; ?></head><body class="studio"><main style="padding:24px"><?= $reviewMode==='payables'?view('finance/payables',['rows'=>[
  ['id'=>901,'transaction_id'=>'SAL-SYN','expense_category'=>'salaries','counterparty_name'=>'Synthetic staff','total_amount'=>1000,'balance_due'=>600,'amount_paid'=>400,'payment_status'=>'partial','transaction_date'=>'2026-11-06'],
  ['id'=>902,'transaction_id'=>'RENT-SYN','expense_category'=>'rent','counterparty_name'=>'Synthetic landlord','total_amount'=>500,'balance_due'=>500,'amount_paid'=>0,'payment_status'=>'pending','transaction_date'=>'2026-11-06'],
  ['id'=>903,'transaction_id'=>'OTHER-SYN','expense_category'=>'legacy <b>category</b>','counterparty_name'=>'Synthetic legacy payee','total_amount'=>10,'balance_due'=>10,'amount_paid'=>0,'payment_status'=>'pending','transaction_date'=>'2026-11-06'],
- ]]):view('finance/payouts',['stats'=>$stats]) ?><?= view('components/studio_settlement_assets') ?></main><script src="/assets/js/studio-loading.js" defer></script><script src="/assets/js/studio-grid.js" defer></script><?= $GLOBALS['reviewScripts']??'' ?></body></html>
+ ]]):(str_starts_with($reviewMode,'expense')?view('finance/partials/studio_transaction_form',['studioExpense'=>true,'studioInDialog'=>true,'base_currency'=>'ILS','expense_category_options'=>['salaries'=>$translations['Finance']['expenseCategory.salaries']??'Salaries','rent'=>'Rent'],'supplier_directory'=>[['id'=>1,'name'=>'Synthetic Vendor']],'currency_options'=>['ILS'],'liquidity_account_options'=>['safe_cash'=>'Safe Cash','bank'=>'Bank']]):view('finance/payouts',['stats'=>$stats])) ?><?= view('components/studio_settlement_assets') ?></main><script src="/assets/js/studio-loading.js" defer></script><script src="/assets/js/studio-grid.js" defer></script><?php if(str_starts_with($reviewMode,'expense')): ?><script src="/assets/js/finance-calc.js" defer></script><script src="/assets/js/studio-finance-entry.js" defer></script><?php endif; ?><?= $GLOBALS['reviewScripts']??'' ?></body></html>
