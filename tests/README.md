@@ -4,8 +4,10 @@ Inspect the selected tests before execution. A `tests/unit` location does not gu
 
 The application tool metadata points to this repository. `npm test` / `npm run test:unit` runs the named database-free finance, Arabic integrity, booking and runner checks; it does not build assets. `npm run test:finance:http` uses the guarded SQL runner and requires an explicitly configured, owned isolated target. No dependency or pinned CSS changes are part of these commands.
 
-For an inspected database-free suite:
+For the isolated patient registration interaction proof, run `node tests/js/run-design-proof.cjs`. It uses an existing Playwright installation (local module, shared MCP installation, or `PLAYWRIGHT_PATH`), launches fresh headless Chrome and an owned loopback presenter on `127.0.0.1:57526`, and refuses an occupied port. No database, live session, dependency install or asset build is involved. The runner has startup and suite deadlines and closes its owned browser/server. `DesignProofInteraction.browser.js` is a function fixture; running that file directly with Node does not execute its assertions. Its dispatched `pageshow` check tests handler restoration, not physical-device or native BFCache certification.
 
+
+For an inspected database-free suite:
 ```powershell
 php vendor/phpunit/phpunit/phpunit --no-coverage --no-logging --do-not-cache-result tests/unit/FinanceSalaryProviderAccountingTest.php tests/unit/FinanceSettlementProviderCurrencyTest.php tests/unit/FinanceSettlementServiceTest.php tests/unit/FinanceSettlementInputGuardTest.php
 ```

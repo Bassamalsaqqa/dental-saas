@@ -118,7 +118,28 @@ http.createServer((req,res)=>{
  res.setHeader('Cache-Control','no-store');
  const json=body=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(body));};
  if(req.method==='POST'&&url.pathname==='/finance/payouts/data'){req.resume();json({draw:1,recordsTotal:syntheticPayouts.length,recordsFiltered:syntheticPayouts.length,data:syntheticPayouts,csrf_token:'synthetic'});return;}
- if(req.method!=='GET'){res.writeHead(405);res.end('Presenter server never writes financial records.');return;}
+ if(req.method==='POST'&&url.pathname==='/patient/store'){req.resume();json({success:true,message:'Simulated patient registration accepted; no database mutation.',patient_id:999,redirect_url:'/patient/999'});return;}
+ if(req.method==='GET'&&url.pathname==='/api/search/patients'){
+  const q=(url.searchParams.get('q')||'').toLowerCase();
+  const list=[
+   {id:101,first_name:'Ahmad',last_name:'Khalil',name:'Ahmad Khalil',phone:'0599123456',date_of_birth:'1985-04-12',url:'/patient/101'},
+   {id:102,first_name:'Sara',last_name:'Mansour',name:'Sara Mansour',phone:'0599765432',date_of_birth:'1992-09-20',url:'/patient/102'},
+   {id:103,first_name:'Omar',last_name:'Yousef',name:'Omar Yousef',phone:'0598112233',date_of_birth:'1978-11-05',url:'/patient/103'}
+  ].filter(p=>!q||p.name.toLowerCase().includes(q)||p.phone.includes(q));
+  json({results:list.map(p=>({id:p.id,text:p.name+' · '+p.phone}))});return;
+ }
+ if(req.method!=='GET'){res.writeHead(405);res.end('Presenter server never writes financial or clinical records.');return;}
+ const designProof=url.pathname.match(/^\/design-proof\/(en|ar)\/(direction-[123])(?:\/([a-z-]+))?\.html$/);
+ if(designProof){
+  const locale=designProof[1];
+  const direction=designProof[2];
+  const state=designProof[3]||'default';
+  try{
+   const html=execFileSync('php',[path.join(root,'tests/_support/fixtures/DesignProofPresenter.php'),locale,direction,state],{windowsHide:true,encoding:'utf8'});
+   res.setHeader('Content-Type','text/html;charset=utf-8');res.end(html);
+  }catch(error){console.error('Design proof presenter failed:',error.message);res.writeHead(500);res.end('Design proof presenter failed');}
+  return;
+ }
  const registration=url.pathname.match(/^\/registration-search\/(en|ar)\/(page|dialog|edit|inventory|fullshell|fullshell-edit)\.html$/);
  if(registration){
   const permission=url.searchParams.get('permission')==='denied'?'denied':'allowed';

@@ -11,7 +11,7 @@ if($validation instanceof \CodeIgniter\Validation\Validation)$studioFormErrors=a
 ?>
 <header class="page-title-row registration-heading"><div><h1><?= esc(lang('UI.patientCreateTitle')) ?></h1></div><a class="button secondary" href="<?= esc(workflow_cancel('patient',$return_to??null)) ?>"><?= esc(lang('Studio.registry')) ?></a></header>
 <?php if(session('error') || $studioFormErrors): ?><section class="form-notice form-notice--error" role="alert" aria-labelledby="form-error-title"><h2 id="form-error-title"><?= esc(lang('Studio.checkFields')) ?></h2><?php if(session('error')): ?><p><?= esc(session('error')) ?></p><?php endif; ?><?php if($studioFormErrors): ?><ul><?php foreach($studioFormErrors as $key=>$message): ?><li><a href="#<?= esc($key,'attr') ?>"><?= esc($message) ?></a></li><?php endforeach; ?></ul><?php endif; ?></section><?php endif; ?>
-<form action="<?= base_url('patient/store') ?>" method="POST" class="studio-form" data-patient-create-form data-unsaved-form>
+<form action="<?= base_url('patient/store') ?>" method="POST" class="studio-form" data-patient-create-form data-unsaved-form data-pending-text="<?= esc(lang('Studio.submittingForm'),'attr') ?>">
 <?= csrf_field() ?>
 <?php if(!empty($return_to)): ?><input type="hidden" name="return_to" value="<?= esc($return_to,'attr') ?>"><?php endif; ?>
 <?= view('patient/partials/studio_create_fields',['validation'=>$validation,'studioFormErrors'=>$studioFormErrors,'is_rtl'=>$is_rtl??false]) ?>
