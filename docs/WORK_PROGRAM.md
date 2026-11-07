@@ -1,5 +1,17 @@
 # Current improvement work
 
+## New campaign: repository cleanup and whole-app design study (2026-11-07)
+
+Owner requests repository-wide documentation compression/update, ownership-based local and GitHub cleanup, outstanding-branch reconciliation, and a complete component/workflow/theme/responsiveness/performance modernization study followed by reviewed implementation batches. This extends delivered PR27 work; production remains `5b7c0688` until a separately verified release. Campaign branch: `feature/app-design-cleanup-20261107`, starting from `ed22d34e`.
+
+- **N1 Documentation and DX:** inventory every first-party documentation/instruction surface; reconcile source/runtime, remove duplicate obsolete narrative, preserve contracts/licenses/recovery instructions, repair links and simplify agent entry points. Record before/after counts and bytes; compression must preserve useful meaning.
+- **N2 Local and GitHub cleanup:** classify tracked/ignored/untracked artifacts by ownership, references and unique/recovery value; retire only proven obsolete material. Recheck open PRs, reviews, issues, alerts and branch ancestry; preserve unique historical `main` license work. No blanket clean, backup deletion or live-host cleanup.
+- **N3 Agent capability readiness:** verify shared AGY skills and MCP availability, install missing relevant trusted capabilities through supported global configuration, preserve existing configuration and auth, and smoke-test visibility. Installed folders do not prove tool access.
+- **N4 Whole-app study and component coverage:** inspect every route/task family, screenshot workflows, map every shared component to an evaluated catalog reference and disposition, propose coherent visual directions, and deliver a representative working design proof. Business actions require meaningful icons plus visible labels; cover semantic color hierarchy, EN/AR, keyboard, recovery and PC/tablet/mobile dialogs. Existing colors and workflows are evidence to question, not presumed preferences.
+- **N5 Performance and delivery:** establish repeatable baseline measurements, remove evidenced bottlenecks, migrate coherent vertical slices through shared components and retire duplicates; verify all consumers and material states. Native CI4/PHP/Studio remains the implementation baseline; incompatible React/Tailwind 4 catalogs require honest adaptation or a concrete architecture proposal, never incidental framework installation.
+
+**Next bounded task:** manual AGY packet at ignored `writable/AGY_HANDOFF.md`: capability verification, safe documentation/artifact cleanup, full coverage inventories and evidence-backed design/performance study with one representative prototype. Return actual diffs, screenshots, measurements and unresolved decisions for Codex review before broad component rollout. No commits/pushes/merges/deployments or customer mutations during this handoff. The existing scope/status table and money journeys below remain binding acceptance coverage; update this register in place rather than create another master plan.
+
 Owner scope: 2026-11-05. Current checkpoint: 2026-11-07, PR27 deployed at5b7c0688 (tree b1ec2c3e), maintenance OFF. This is the single task register. Release/activation authority remains in [PROJECT_STATE](PROJECT_STATE.md); security/domain contracts remain binding. The app is deployed and working: improve it, find bugs and simplify existing workflows. Do not restart a frontend rebuild or invent another accounting/payroll system.
 
 ## Working rules
