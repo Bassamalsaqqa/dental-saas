@@ -16,10 +16,12 @@ let activeSubmission=null,submissionEvent=null;
 const restoreAttribute=(element,name,value)=>{if(value===null)element.removeAttribute(name);else element.setAttribute(name,value);};
 const restorePendingState=()=>{
     if(!activeSubmission)return;
-    const {button,nodes,disabled,busy}=activeSubmission;
-    if(button){
-        button.replaceChildren(...nodes);
-        restoreAttribute(button,'aria-disabled',disabled);
+    const {buttons,busy}=activeSubmission;
+    if(Array.isArray(buttons)){
+        buttons.forEach(({button,nodes,disabled})=>{
+            button.replaceChildren(...nodes);
+            restoreAttribute(button,'aria-disabled',disabled);
+        });
     }
     restoreAttribute(form,'aria-busy',busy);
     activeSubmission=null;
@@ -37,14 +39,24 @@ form.addEventListener('submit',e=>{
         if(e.defaultPrevented)return;
         leaving=true;
         if(!nativePending)return;
-        const button=e.submitter;
-        activeSubmission={button,nodes:button?[...button.childNodes]:[],disabled:button?.getAttribute('aria-disabled')??null,busy:form.getAttribute('aria-busy')};
+        const buttons=Array.from(form.querySelectorAll('button[type="submit"]'));
+        const submitter=e.submitter||buttons[0]||null;
+        activeSubmission={
+            buttons:buttons.map(btn=>({
+                button:btn,
+                nodes:[...btn.childNodes],
+                disabled:btn.getAttribute('aria-disabled')
+            })),
+            busy:form.getAttribute('aria-busy')
+        };
         form.setAttribute('aria-busy','true');
-        if(button){
-            button.setAttribute('aria-disabled','true');
+        buttons.forEach(btn=>{
+            btn.setAttribute('aria-disabled','true');
             // Keep name/value enabled so the clicked action remains a successful control.
-            if(!button.querySelector('input,select,textarea'))button.replaceChildren(document.createTextNode(pendingText));
-        }
+            if(btn===submitter&&!btn.querySelector('input,select,textarea')){
+                btn.replaceChildren(document.createTextNode(pendingText));
+            }
+        });
     });
 });
 form.addEventListener('click',e=>{
@@ -52,6 +64,15 @@ form.addEventListener('click',e=>{
     if(nativePending&&btn&&(activeSubmission||submissionEvent)){
         e.preventDefault();
         e.stopImmediatePropagation();
+    }
+},true);
+form.addEventListener('keydown',e=>{
+    if((e.key==='Enter'||e.key===' ')&&nativePending&&(activeSubmission||submissionEvent)){
+        const btn=e.target.closest('button[type="submit"]');
+        if(btn){
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
     }
 },true);
 document.querySelectorAll('[data-form-cancel]').forEach(a=>a.addEventListener('click',e=>{if(!dirty()||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();cancelTarget=a.href;cancelTrigger=a;dialog.showModal();}));

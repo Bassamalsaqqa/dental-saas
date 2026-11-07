@@ -85,4 +85,30 @@ final class BookingResourcePresenterTest extends TestCase
             );
         }
     }
+
+    public function testDesignProofPresenterAnnotatesOnlyCanonicalPatientForm(): void
+    {
+        $fixture = dirname(__DIR__) . '/_support/fixtures/DesignProofPresenter.php';
+        foreach (['en', 'ar'] as $locale) {
+            foreach (['direction-1', 'direction-2', 'direction-3'] as $dir) {
+                $html = shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($fixture) . ' ' . escapeshellarg($locale) . ' ' . escapeshellarg($dir) . ' default');
+                self::assertIsString($html);
+                $dom = new \DOMDocument();
+                @$dom->loadHTML($html);
+                $xp = new \DOMXPath($dom);
+
+                // Assert exactly one form carries data-proof-direction
+                $annotated = $xp->query('//form[@data-proof-direction]');
+                self::assertSame(1, $annotated->length, "Exactly 1 form must carry data-proof-direction for {$locale} {$dir}");
+
+                // Assert it is the canonical form carrying data-patient-create-form
+                $patientForm = $xp->query('//form[@data-patient-create-form and @data-proof-direction="' . $dir . '"]');
+                self::assertSame(1, $patientForm->length, "data-proof-direction must be attached to form[data-patient-create-form] for {$locale} {$dir}");
+
+                // Assert zero dialog forms carry data-proof-direction
+                $dialogForms = $xp->query('//dialog//form[@data-proof-direction]');
+                self::assertSame(0, $dialogForms->length, "Dialog forms must never receive data-proof-direction for {$locale} {$dir}");
+            }
+        }
+    }
 }

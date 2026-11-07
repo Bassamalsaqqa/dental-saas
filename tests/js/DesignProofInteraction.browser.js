@@ -120,6 +120,7 @@ async (page) => {
             assert(writesAttempted === 0, `[${locale}] Later submit cancellation sends no POST`);
             assert(await form.getAttribute('aria-busy') !== 'true', `[${locale}] Later cancellation does not leave pending feedback`);
             assert(await submitBtn.getAttribute('aria-disabled') !== 'true', `[${locale}] Later cancellation leaves submitter available`);
+            assert(await form.locator('button[type="submit"][value="save_only"]').getAttribute('aria-disabled') !== 'true', `[${locale}] Later cancellation leaves secondary button available`);
             await p.unroute('**/patient/store');
 
             // 2c. Server validation re-entry state
@@ -202,21 +203,46 @@ async (page) => {
             await p.locator('#date_of_birth').fill('1990-01-01');
             await p.locator('#gender').selectOption('male');
 
+            const origSaveOnlyText = (await secondaryBtn.textContent()).trim();
+            const origSaveAndBookText = (await primaryBtn.textContent()).trim();
+
             // Click primary submit button (held navigation fulfilled with 204 to preserve client inspection)
             await primaryBtn.click();
             await p.waitForFunction(() => document.querySelector('form[data-patient-create-form]').getAttribute('aria-busy') === 'true');
+
+            // BOTH actions announce unavailable and show pending/disabled state
             assert(await primaryBtn.getAttribute('aria-disabled') === 'true', `[${locale}] Primary submitter is aria-disabled while pending`);
+            assert(await secondaryBtn.getAttribute('aria-disabled') === 'true', `[${locale}] Alternative submitter (Save Only) is ALSO aria-disabled while pending`);
+            for (const action of [primaryBtn, secondaryBtn]) {
+                assert(await action.evaluate(el => getComputedStyle(el).cursor) === 'progress', `[${locale}] Production form CSS exposes a pending visual state on both actions`);
+                assert(await action.evaluate(el => getComputedStyle(el).opacity) === '1', `[${locale}] Pending state preserves text opacity and contrast`);
+            }
             assert((await primaryBtn.textContent()).trim() === expectedPendingText, `[${locale}] Primary submitter shows localized pending text: "${expectedPendingText}"`);
+            assert((await secondaryBtn.textContent()).trim() === origSaveOnlyText, `[${locale}] Alternative submitter preserves its meaningful label: "${origSaveOnlyText}"`);
+
+            // Tab / focus to alternative button (Save Only) and attempt keyboard submission (Enter and Space)
+            await secondaryBtn.focus();
+            await p.keyboard.press('Enter');
+            await p.keyboard.press('Space');
+            await p.waitForTimeout(50);
 
             // Attempt duplicate click while in-flight
             await primaryBtn.click({ force: true, timeout: 500 }).catch(() => {});
-            await p.waitForTimeout(100);
+            await p.waitForTimeout(50);
 
-            // Attempt duplicate submit via secondary button while in-flight
+            // Attempt duplicate submit via secondary button click while in-flight
             await secondaryBtn.click({ force: true, timeout: 500 }).catch(() => {});
-            await p.waitForTimeout(100);
+            await p.waitForTimeout(50);
 
-            assert(submitCount1 === 1, `[${locale}] Exactly one POST request occurred; duplicate submits blocked`);
+            // Programmatic requestSubmit repeat attempt while pending must be suppressed
+            await p.evaluate(() => {
+                try {
+                    document.querySelector('form[data-patient-create-form]').requestSubmit();
+                } catch (_) {}
+            });
+            await p.waitForTimeout(50);
+
+            assert(submitCount1 === 1, `[${locale}] Exactly one POST request occurred; duplicate click, keyboard, and programmatic submits blocked`);
             assert(capturedParams1 !== null, `[${locale}] POST data was captured`);
             assert(capturedParams1.get('post_submit_action') === 'save_and_book', `[${locale}] Primary submit sent post_submit_action=save_and_book`);
             assert(capturedParams1.get('first_name') === 'John', `[${locale}] Primary submit sent first_name=John`);
@@ -242,25 +268,48 @@ async (page) => {
             await p.locator('#gender').selectOption('female');
 
             const secBtn = p.locator('form[data-patient-create-form] button[type="submit"][value="save_only"]');
+            const primBtnSecondaryTest = p.locator('form[data-patient-create-form] button[type="submit"].primary');
+            const origSecText = (await secBtn.textContent()).trim();
+            const origPrimLabel = (await primBtnSecondaryTest.textContent()).trim();
 
             // Click secondary submit
             await secBtn.click();
             await p.waitForFunction(() => document.querySelector('form[data-patient-create-form]').getAttribute('aria-busy') === 'true');
+
+            // BOTH actions announce unavailable
             assert(await secBtn.getAttribute('aria-disabled') === 'true', `[${locale}] Secondary submitter is aria-disabled while pending`);
+            assert(await primBtnSecondaryTest.getAttribute('aria-disabled') === 'true', `[${locale}] Primary action is ALSO aria-disabled while secondary is pending`);
             assert((await secBtn.textContent()).trim() === expectedPendingText, `[${locale}] Secondary submitter shows localized pending text: "${expectedPendingText}"`);
+            assert((await primBtnSecondaryTest.textContent()).trim() === origPrimLabel, `[${locale}] Primary action preserves its meaningful label: "${origPrimLabel}"`);
+
+            // Tab / focus to primary button and attempt keyboard submission (Enter and Space)
+            await primBtnSecondaryTest.focus();
+            await p.keyboard.press('Enter');
+            await p.keyboard.press('Space');
+            await p.waitForTimeout(50);
 
             // Attempt duplicate click while in-flight
             await secBtn.click({ force: true, timeout: 500 }).catch(() => {});
-            await p.waitForTimeout(100);
+            await p.waitForTimeout(50);
+            await primBtnSecondaryTest.click({ force: true, timeout: 500 }).catch(() => {});
+            await p.waitForTimeout(50);
 
-            assert(submitCount2 === 1, `[${locale}] Exactly one POST request occurred for save_only`);
+            // Programmatic requestSubmit repeat attempt
+            await p.evaluate(() => {
+                try {
+                    document.querySelector('form[data-patient-create-form]').requestSubmit();
+                } catch (_) {}
+            });
+            await p.waitForTimeout(50);
+
+            assert(submitCount2 === 1, `[${locale}] Exactly one POST request occurred for save_only; alternate click, keyboard, and programmatic submits blocked`);
             assert(capturedParams2 !== null, `[${locale}] POST data was captured for save_only`);
             assert(capturedParams2.get('post_submit_action') === 'save_only', `[${locale}] Secondary submit sent post_submit_action=save_only`);
             assert(capturedParams2.get('first_name') === 'Jane', `[${locale}] Secondary submit sent first_name=Jane`);
             await p.unroute('**/patient/store');
 
             // 4c. Back/forward-cache pageshow recovery
-            // Test that pageshow restores form aria-busy, button aria-disabled, and original text
+            // Test that pageshow restores form aria-busy, button aria-disabled, and original text on BOTH buttons
             await p.goto(`http://127.0.0.1:57526/design-proof/${locale}/direction-3/default.html`);
             await p.locator('#first_name').fill('Temp');
             await p.locator('#last_name').fill('User');
@@ -272,18 +321,28 @@ async (page) => {
                 return route.fulfill({ status: 204 });
             });
 
-            const primBtn = p.locator('form[data-patient-create-form] button[type="submit"].primary');
-            const originalPrimText = (await primBtn.textContent()).trim();
-            await primBtn.click();
+            const primBtnRecover = p.locator('form[data-patient-create-form] button[type="submit"].primary');
+            const secBtnRecover = p.locator('form[data-patient-create-form] button[type="submit"][value="save_only"]');
+            const originalPrimText = (await primBtnRecover.textContent()).trim();
+            const originalSecText = (await secBtnRecover.textContent()).trim();
+            const originalPrimDisabled = await primBtnRecover.getAttribute('aria-disabled');
+            const originalSecDisabled = await secBtnRecover.getAttribute('aria-disabled');
+
+            await primBtnRecover.click();
             await p.waitForFunction(() => document.querySelector('form[data-patient-create-form]').getAttribute('aria-busy') === 'true');
+            assert(await primBtnRecover.getAttribute('aria-disabled') === 'true', `[${locale}] Primary is aria-disabled before pageshow`);
+            assert(await secBtnRecover.getAttribute('aria-disabled') === 'true', `[${locale}] Secondary is aria-disabled before pageshow`);
 
             // Now simulate back navigation via pageshow event
             await p.evaluate(() => window.dispatchEvent(new Event('pageshow')));
 
             assert(await form.getAttribute('aria-busy') === null, `[${locale}] pageshow event clears form aria-busy`);
-            assert(await primBtn.getAttribute('aria-disabled') === null, `[${locale}] pageshow event clears submitter aria-disabled`);
-            const restoredPrimText = (await primBtn.textContent()).trim();
-            assert(restoredPrimText === originalPrimText, `[${locale}] pageshow restores label: expected ${JSON.stringify(originalPrimText)}, got ${JSON.stringify(restoredPrimText)}`);
+            assert(await primBtnRecover.getAttribute('aria-disabled') === originalPrimDisabled, `[${locale}] pageshow event restores primary submitter aria-disabled to initial value`);
+            assert(await secBtnRecover.getAttribute('aria-disabled') === originalSecDisabled, `[${locale}] pageshow event restores secondary submitter aria-disabled to initial value`);
+            const restoredPrimText = (await primBtnRecover.textContent()).trim();
+            const restoredSecText = (await secBtnRecover.textContent()).trim();
+            assert(restoredPrimText === originalPrimText, `[${locale}] pageshow restores primary label: expected ${JSON.stringify(originalPrimText)}, got ${JSON.stringify(restoredPrimText)}`);
+            assert(restoredSecText === originalSecText, `[${locale}] pageshow restores secondary label: expected ${JSON.stringify(originalSecText)}, got ${JSON.stringify(restoredSecText)}`);
 
             await p.unroute('**/patient/store');
 
@@ -375,6 +434,36 @@ async (page) => {
                 assert(metrics.cardSectionWidth <= vp.width, `[${locale}/${vp.name}] Card width (${metrics.cardSectionWidth}px) <= viewport width (${vp.width}px)`);
 
                 results.push({ test: 'TypographyAndBounds', locale, viewport: vp.name, passed: true, metrics });
+            }
+        }
+
+        // =========================================================================
+        // 7. Exclusive patient form proof annotation check (Task B)
+        // =========================================================================
+        for (const dir of ['direction-1', 'direction-2', 'direction-3']) {
+            for (const locale of ['en', 'ar']) {
+                await p.goto(`http://127.0.0.1:57526/design-proof/${locale}/${dir}/default.html`);
+
+                // Assert exactly one form carries data-proof-direction
+                const annotatedFormsCount = await p.evaluate(() => document.querySelectorAll('form[data-proof-direction]').length);
+                assert(annotatedFormsCount === 1, `[${locale}][${dir}] Exactly 1 form carries data-proof-direction, found ${annotatedFormsCount}`);
+
+                // Assert it is the canonical patient create form
+                const canonicalAnnotated = await p.evaluate(() => {
+                    const f = document.querySelector('form[data-patient-create-form]');
+                    return f && f.hasAttribute('data-proof-direction');
+                });
+                assert(canonicalAnnotated, `[${locale}][${dir}] The canonical form[data-patient-create-form] carries data-proof-direction`);
+
+                // Assert zero dialog forms carry data-proof-direction
+                const dialogAnnotatedCount = await p.evaluate(() => document.querySelectorAll('dialog form[data-proof-direction]').length);
+                assert(dialogAnnotatedCount === 0, `[${locale}][${dir}] Zero dialog forms carry data-proof-direction, found ${dialogAnnotatedCount}`);
+
+                // Assert all non-patient forms carry no data-proof-direction
+                const nonPatientAnnotatedCount = await p.evaluate(() => document.querySelectorAll('form:not([data-patient-create-form])[data-proof-direction]').length);
+                assert(nonPatientAnnotatedCount === 0, `[${locale}][${dir}] Non-patient forms have no data-proof-direction, found ${nonPatientAnnotatedCount}`);
+
+                results.push({ test: 'ExclusivePatientFormProofAnnotation', locale, direction: dir, passed: true });
             }
         }
 

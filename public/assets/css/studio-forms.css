@@ -1,4 +1,6 @@
 /* Shared form components in the Owner-approved Studio system. */
+/* Native patient navigation keeps named submitters enabled for POST serialization. */
+.studio form[data-patient-create-form][aria-busy="true"] .button[aria-disabled="true"]{background:var(--color-surface-strong);color:var(--color-ink-muted);box-shadow:none;cursor:progress}
 .studio .hidden{display:none!important}
 .studio-form{display:grid;gap:18px}
 .form-section{background:var(--paper);border-radius:16px;padding:var(--ui-panel-space,24px)}

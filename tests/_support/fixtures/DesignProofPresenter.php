@@ -409,8 +409,13 @@ $html = view('patient/create', [
     'return_to' => 'patient'
 ]);
 
-// Scope direction styles strictly to the form element
-$html = str_replace('<form ', '<form data-proof-direction="' . esc($direction) . '" ', $html);
+// Scope direction styles strictly to the canonical patient create form element
+$html = preg_replace(
+    '/(<form\b[^>]*\bdata-patient-create-form\b)/i',
+    '$1 data-proof-direction="' . esc($direction, 'attr') . '"',
+    $html,
+    1
+);
 
 // Inject direction styles before </head>
 if ($directionStyles) {
