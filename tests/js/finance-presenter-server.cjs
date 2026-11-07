@@ -119,7 +119,7 @@ http.createServer((req,res)=>{
  const json=body=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(body));};
  if(req.method==='POST'&&url.pathname==='/finance/payouts/data'){req.resume();json({draw:1,recordsTotal:syntheticPayouts.length,recordsFiltered:syntheticPayouts.length,data:syntheticPayouts,csrf_token:'synthetic'});return;}
  if(req.method!=='GET'){res.writeHead(405);res.end('Presenter server never writes financial records.');return;}
- const registration=url.pathname.match(/^\/registration-search\/(en|ar)\/(page|dialog|edit|inventory)\.html$/);
+ const registration=url.pathname.match(/^\/registration-search\/(en|ar)\/(page|dialog|edit|inventory|fullshell|fullshell-edit)\.html$/);
  if(registration){
   const permission=url.searchParams.get('permission')==='denied'?'denied':'allowed';
   try{

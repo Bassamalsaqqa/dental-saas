@@ -4,7 +4,7 @@ async(page)=>{
  p.on('dialog',dialog=>dialog.type()==='beforeunload'?dialog.accept():dialog.dismiss());
  const assert=(ok,message)=>{if(!ok)throw Error(message);};
  try{
-  for(const locale of ['en','ar'])for(const width of [1366,768,390,320])for(const mode of ['page','dialog']){
+  for(const locale of ['en','ar'])for(const width of [1366,768,390,320])for(const mode of ['page','dialog','fullshell']){
    await p.setViewportSize({width,height:844});
    let writes=0;
    await p.route('**/patient/store',route=>{writes++;return route.abort();});
@@ -19,7 +19,7 @@ async(page)=>{
    assert(await trigger.getAttribute('type')==='button','Search can submit registration');
    await trigger.click();
    const search=p.locator('#search-dialog');await search.waitFor({state:'visible'});
-   assert(await p.locator('#patient-search').evaluate(n=>n===document.activeElement),'Search focus missing');
+   await p.waitForFunction(()=>document.activeElement===document.querySelector('#patient-search'),{},{timeout:2000});
    await p.locator('#patient-search').fill('Synthetic');
    await p.locator('#search-results a').waitFor();
    assert((await p.locator('#search-results a').getAttribute('href')).endsWith('/patient/901'),'Canonical patient link lost');
