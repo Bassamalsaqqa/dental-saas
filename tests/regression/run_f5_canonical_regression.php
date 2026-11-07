@@ -41,48 +41,59 @@ function f5_resolve_process_exit_code(?int $statusExitCode, int $procCloseCode):
  */
 function f5_run_bounded_command(array $cmd, ?string $stdinData = null, float $timeoutSeconds = 30.0, ?array $env = null): array
 {
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-
-    $proc = proc_open($cmd, $descriptors, $pipes, null, $env);
-    if (!is_resource($proc)) {
-        return [
-            'exitcode' => -1,
-            'stdout' => '',
-            'stderr' => 'Failed to spawn process: ' . ($cmd[0] ?? 'unknown'),
-            'timed_out' => false
-        ];
-    }
-
-    if ($stdinData !== null && is_resource($pipes[0])) {
-        fwrite($pipes[0], $stdinData);
-        fclose($pipes[0]);
-    } elseif (is_resource($pipes[0])) {
-        fclose($pipes[0]);
-    }
-
+    // Install deadline BEFORE any blocking operations
+    $deadline = microtime(true) + $timeoutSeconds;
     $isPosix = (DIRECTORY_SEPARATOR === '/');
+
     if ($isPosix) {
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w']
+        ];
+
+        $proc = proc_open($cmd, $descriptors, $pipes, null, $env);
+        if (!is_resource($proc)) {
+            return [
+                'exitcode' => -1,
+                'stdout' => '',
+                'stderr' => 'Failed to spawn process: ' . ($cmd[0] ?? 'unknown'),
+                'timed_out' => false
+            ];
+        }
+
         stream_set_blocking($pipes[1], false);
         stream_set_blocking($pipes[2], false);
-    }
 
-    $stdout = '';
-    $stderr = '';
-    $capturedExitCode = null;
-    $timedOut = false;
-    $deadline = microtime(true) + $timeoutSeconds;
+        $stdinLen = $stdinData !== null ? strlen($stdinData) : 0;
+        $stdinOffset = 0;
+        if ($stdinLen > 0) {
+            stream_set_blocking($pipes[0], false);
+        } else {
+            fclose($pipes[0]);
+        }
 
-    while (true) {
-        if ($isPosix) {
+        $stdout = '';
+        $stderr = '';
+        $capturedExitCode = null;
+        $timedOut = false;
+
+        while (true) {
             $r = [$pipes[1], $pipes[2]];
-            $w = null;
+            $w = (is_resource($pipes[0]) && $stdinOffset < $stdinLen) ? [$pipes[0]] : null;
             $e = null;
-            $n = @stream_select($r, $w, $e, 0, 20000);
+            $n = @stream_select($r, $w, $e, 0, 15000);
+
             if ($n > 0) {
+                if ($w !== null && in_array($pipes[0], $w, true)) {
+                    $written = @fwrite($pipes[0], substr($stdinData, $stdinOffset, 8192));
+                    if ($written !== false && $written > 0) {
+                        $stdinOffset += $written;
+                    }
+                    if ($stdinOffset >= $stdinLen) {
+                        fclose($pipes[0]);
+                    }
+                }
                 foreach ($r as $pipe) {
                     if ($pipe === $pipes[1]) {
                         $chunk = fread($pipes[1], 8192);
@@ -97,42 +108,120 @@ function f5_run_bounded_command(array $cmd, ?string $stdinData = null, float $ti
                     }
                 }
             }
-        } else {
-            // Windows process pipes: stream_select is not reliable; check unread_bytes
-            $meta1 = stream_get_meta_data($pipes[1]);
-            if (($meta1['unread_bytes'] ?? 0) > 0) {
-                $chunk = fread($pipes[1], 8192);
-                if ($chunk !== false && $chunk !== '') {
-                    $stdout .= $chunk;
+
+            $status = proc_get_status($proc);
+            if (!$status['running']) {
+                if ($capturedExitCode === null && isset($status['exitcode']) && $status['exitcode'] !== -1) {
+                    $capturedExitCode = $status['exitcode'];
                 }
-            }
-            $meta2 = stream_get_meta_data($pipes[2]);
-            if (($meta2['unread_bytes'] ?? 0) > 0) {
-                $chunk = fread($pipes[2], 8192);
-                if ($chunk !== false && $chunk !== '') {
-                    $stderr .= $chunk;
+                if (is_resource($pipes[1])) {
+                    $left1 = stream_get_contents($pipes[1]);
+                    if ($left1 !== false && $left1 !== '') $stdout .= $left1;
                 }
+                if (is_resource($pipes[2])) {
+                    $left2 = stream_get_contents($pipes[2]);
+                    if ($left2 !== false && $left2 !== '') $stderr .= $left2;
+                }
+                break;
             }
-            usleep(20000);
+
+            if (microtime(true) > $deadline) {
+                $timedOut = true;
+                @proc_terminate($proc, 15);
+                $termDeadline = microtime(true) + 1.0;
+                while (microtime(true) < $termDeadline) {
+                    $s = proc_get_status($proc);
+                    if (!$s['running']) break;
+                    usleep(15000);
+                }
+                $s = proc_get_status($proc);
+                if ($s['running']) {
+                    @proc_terminate($proc, 9);
+                    $killDeadline = microtime(true) + 1.0;
+                    while (microtime(true) < $killDeadline) {
+                        $s2 = proc_get_status($proc);
+                        if (!$s2['running']) break;
+                        usleep(15000);
+                    }
+                }
+                break;
+            }
         }
 
+        if (is_resource($pipes[0])) fclose($pipes[0]);
+        if (is_resource($pipes[1])) fclose($pipes[1]);
+        if (is_resource($pipes[2])) fclose($pipes[2]);
+
+        $closeCode = proc_close($proc);
+        $finalExitCode = $timedOut ? -1 : f5_resolve_process_exit_code($capturedExitCode, $closeCode);
+
+        return [
+            'exitcode' => $finalExitCode,
+            'stdout' => $stdout,
+            'stderr' => $stderr,
+            'timed_out' => $timedOut
+        ];
+    }
+
+    // Windows PHP 8.2: anonymous pipes do not support stream_set_blocking and stream_select
+    // falsely signals readiness, causing blocking fread/fwrite hangs on large stdin or stderr pressure.
+    // Use private temporary files in a private, Git-ignored scratch directory (strictly not general Temp).
+    $scratchParent = getenv('DENTA_F5_PRIVATE_SCRATCH')
+        ?: 'C:/Users/bassa/DentaRecoveryKeys/denta-pr24-final-20261105';
+    $resolvedParent = realpath($scratchParent);
+    $repoPath = str_replace('\\', '/', (string) realpath(dirname(__DIR__, 2)));
+    $normalizedParent = str_replace('\\', '/', (string) $resolvedParent);
+    if ($resolvedParent === false || !is_dir($resolvedParent) || is_link($scratchParent)
+        || strcasecmp($normalizedParent, $repoPath) === 0
+        || str_starts_with(strtolower($normalizedParent), strtolower($repoPath) . '/')) {
+        return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Configure a private process I/O directory outside the checkout.', 'timed_out' => false];
+    }
+    // Operator-provisioned private storage inherits its existing restrictive ACL.
+    // Never put credential-bearing descriptors under the application web tree.
+    $privateScratchDir = $resolvedParent . '/f5_bounded_' . bin2hex(random_bytes(6));
+    if (!mkdir($privateScratchDir, 0700)) {
+        return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Could not create exclusive process I/O storage.', 'timed_out' => false];
+    }
+
+    $stdinFile = $privateScratchDir . '/stdin.dat';
+    $stdoutFile = $privateScratchDir . '/stdout.dat';
+    $stderrFile = $privateScratchDir . '/stderr.dat';
+
+    if ($stdinData !== null && $stdinData !== '') {
+        file_put_contents($stdinFile, $stdinData);
+        $desc0 = ['file', $stdinFile, 'r'];
+    } else {
+        $desc0 = ['file', 'NUL', 'r'];
+    }
+
+    $descriptors = [
+        0 => $desc0,
+        1 => ['file', $stdoutFile, 'w'],
+        2 => ['file', $stderrFile, 'w']
+    ];
+
+    $proc = proc_open($cmd, $descriptors, $pipes, null, $env);
+    if (!is_resource($proc)) {
+        @unlink($stdinFile);
+        @rmdir($privateScratchDir);
+        return [
+            'exitcode' => -1,
+            'stdout' => '',
+            'stderr' => 'Failed to spawn process: ' . ($cmd[0] ?? 'unknown'),
+            'timed_out' => false
+        ];
+    }
+
+    $status = proc_get_status($proc);
+    $pid = (int)($status['pid'] ?? 0);
+    $capturedExitCode = null;
+    $timedOut = false;
+
+    while (true) {
         $status = proc_get_status($proc);
         if (!$status['running']) {
             if ($capturedExitCode === null && isset($status['exitcode']) && $status['exitcode'] !== -1) {
                 $capturedExitCode = $status['exitcode'];
-            }
-            // Read any leftover bytes
-            if (is_resource($pipes[1])) {
-                $left1 = stream_get_contents($pipes[1]);
-                if ($left1 !== false && $left1 !== '') {
-                    $stdout .= $left1;
-                }
-            }
-            if (is_resource($pipes[2])) {
-                $left2 = stream_get_contents($pipes[2]);
-                if ($left2 !== false && $left2 !== '') {
-                    $stderr .= $left2;
-                }
             }
             break;
         }
@@ -140,19 +229,38 @@ function f5_run_bounded_command(array $cmd, ?string $stdinData = null, float $ti
         if (microtime(true) > $deadline) {
             $timedOut = true;
             @proc_terminate($proc);
+            $termDeadline = microtime(true) + 1.0;
+            while (microtime(true) < $termDeadline) {
+                $s = proc_get_status($proc);
+                if (!$s['running']) break;
+                usleep(15000);
+            }
+            $s = proc_get_status($proc);
+            if ($s['running'] && $pid > 0) {
+                exec("taskkill /F /T /PID {$pid} 2>&1");
+                $killDeadline = microtime(true) + 1.0;
+                while (microtime(true) < $killDeadline) {
+                    $s2 = proc_get_status($proc);
+                    if (!$s2['running']) break;
+                    usleep(15000);
+                }
+            }
             break;
         }
-    }
 
-    if (is_resource($pipes[1])) {
-        fclose($pipes[1]);
-    }
-    if (is_resource($pipes[2])) {
-        fclose($pipes[2]);
+        usleep(15000);
     }
 
     $closeCode = proc_close($proc);
     $finalExitCode = $timedOut ? -1 : f5_resolve_process_exit_code($capturedExitCode, $closeCode);
+
+    $stdout = is_file($stdoutFile) ? (string)file_get_contents($stdoutFile) : '';
+    $stderr = is_file($stderrFile) ? (string)file_get_contents($stderrFile) : '';
+
+    @unlink($stdinFile);
+    @unlink($stdoutFile);
+    @unlink($stderrFile);
+    @rmdir($privateScratchDir);
 
     return [
         'exitcode' => $finalExitCode,
@@ -197,7 +305,7 @@ function f5_ssh_cmd(string $sshHost, string $remoteCommand, ?string $stdinData =
 /**
  * Prepares fresh exclusive remote execution directory under canonical parent.
  *
- * @return array{success: bool, remote_dir?: string, error?: string}
+ * @return array{success: bool, created: bool, remote_dir: ?string, marker_verified: bool, partial: bool, error?: string}
  */
 function f5_remote_prepare_dir(string $sshHost, string $canonicalParent, string $runUuid, float $timeout = 15.0, ?callable $cmdRunner = null): array
 {
@@ -207,6 +315,10 @@ function f5_remote_prepare_dir(string $sshHost, string $canonicalParent, string 
     if ($parentRes['exitcode'] !== 0 || trim($parentRes['stdout']) !== 'PARENT_OK') {
         return [
             'success' => false,
+            'created' => false,
+            'remote_dir' => null,
+            'marker_verified' => false,
+            'partial' => false,
             'error' => "Remote parent directory {$canonicalParent} invalid, symlink, or unowned by u556956644"
         ];
     }
@@ -219,10 +331,15 @@ function f5_remote_prepare_dir(string $sshHost, string $canonicalParent, string 
     if ($mkdirRes['exitcode'] !== 0 || trim($mkdirRes['stdout']) !== 'MKDIR_OK') {
         return [
             'success' => false,
+            'created' => false,
+            'remote_dir' => $remoteDir,
+            'marker_verified' => false,
+            'partial' => false,
             'error' => "Failed fresh exclusive mkdir (without -p) for {$remoteDir} (exists or permission denied)"
         ];
     }
 
+    // Directory is created!
     // Step 3: Write exclusive owner marker and verify directory status, non-symlink, and token match
     $markerFile = "{$remoteDir}/.owner_marker";
     $verifyMarkerCmd = "printf '%s' '{$runUuid}' > '{$markerFile}' && chmod 600 '{$markerFile}' && " .
@@ -234,13 +351,20 @@ function f5_remote_prepare_dir(string $sshHost, string $canonicalParent, string 
     if ($verifyRes['exitcode'] !== 0 || trim($verifyRes['stdout']) !== 'VERIFY_OK') {
         return [
             'success' => false,
+            'created' => true,
+            'remote_dir' => $remoteDir,
+            'marker_verified' => false,
+            'partial' => true,
             'error' => "Remote directory verification failed (symlink or marker mismatch)"
         ];
     }
 
     return [
         'success' => true,
-        'remote_dir' => $remoteDir
+        'created' => true,
+        'remote_dir' => $remoteDir,
+        'marker_verified' => true,
+        'partial' => false
     ];
 }
 
@@ -361,6 +485,9 @@ function runCanonicalSuite(array $options = []): int
     $tmpTar = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "candidate_fixture_f5_{$runUuid}.tar.gz";
     $remoteDir = null;
     $remoteDirCreated = false;
+    $pendingPassEvidence = null;
+    $cleanupSuccess = true;
+    $cleanupError = null;
 
     try {
         // Step 1: Package candidate fixture
@@ -383,13 +510,16 @@ function runCanonicalSuite(array $options = []): int
 
         // Step 2: Prepare exclusive remote directory without -p and write owner marker
         $prep = f5_remote_prepare_dir($sshHost, $canonicalParent, $runUuid, 15.0, $cmdRunner);
+        $remoteDir = $prep['remote_dir'] ?? "{$canonicalParent}/f5-run-{$runUuid}";
+        $remoteDirCreated = (bool)($prep['created'] ?? false);
+
         if (!$prep['success']) {
+            if ($remoteDirCreated) {
+                fwrite(STDERR, "Partial remote directory creation detected ({$remoteDir}); marker unverified. Scheduled for safe reconciliation.\n");
+            }
             fwrite(STDERR, "Remote directory preparation failed: " . ($prep['error'] ?? 'unknown') . "\n");
             return 1;
         }
-
-        $remoteDir = $prep['remote_dir'] ?? null;
-        $remoteDirCreated = true;
 
         echo "[+] Prepared exclusive remote directory {$remoteDir}\n";
 
@@ -428,7 +558,7 @@ function runCanonicalSuite(array $options = []): int
             $evidence = json_decode(trim($stdout), true);
             if (is_array($evidence) && ($evidence['status'] ?? '') === 'PASS') {
                 echo "\n========================================================\n";
-                echo " F5 CANONICAL ACCEPTANCE: PASS\n";
+                echo " F5 CANONICAL ACCEPTANCE: PASS (execution verified)\n";
                 echo "========================================================\n";
                 echo "Total Checks Passed: " . ($evidence['regression_coverage']['total_checks_passed'] ?? 0) . "\n";
                 echo "Tables Dropped:      " . ($evidence['teardown']['tables_dropped'] ?? 0) . "\n";
@@ -436,26 +566,26 @@ function runCanonicalSuite(array $options = []): int
                 echo "Harness SHA256:      " . ($evidence['retained_harness']['harness_sha256'] ?? '') . "\n";
                 echo "Worker SHA256:       " . ($evidence['retained_harness']['worker_sha256'] ?? '') . "\n";
 
-                @file_put_contents($evidenceOut, json_encode($evidence, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-                echo "[+] Truthful evidence saved to {$evidenceOut}\n";
-                return 0; // PASS! Exit code 0 returned from function, finally will run!
+                // Stage the PASS evidence in memory; DO NOT publish until cleanup succeeds!
+                $pendingPassEvidence = $evidence;
             }
         }
 
-        // On failure: write separate failure log without destroying prior PASS evidence
-        $failureOut = $failurePrefix . date('Ymd_His') . '.json';
-        $failurePayload = [
-            'status' => 'FAIL',
-            'exit_code' => $runExit,
-            'timed_out' => $execRes['timed_out'],
-            'stdout' => f5_sanitize_output($stdout, $creds['password']),
-            'stderr' => f5_sanitize_output($stderr, $creds['password']),
-            'timestamp' => gmdate('c')
-        ];
+        if ($pendingPassEvidence === null) {
+            $failureOut = $failurePrefix . date('Ymd_His') . '.json';
+            $failurePayload = [
+                'status' => 'FAIL',
+                'exit_code' => $runExit,
+                'timed_out' => $execRes['timed_out'],
+                'stdout' => f5_sanitize_output($stdout, $creds['password']),
+                'stderr' => f5_sanitize_output($stderr, $creds['password']),
+                'timestamp' => gmdate('c')
+            ];
 
-        @file_put_contents($failureOut, json_encode($failurePayload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-        fwrite(STDERR, "Regression failed. Raw output preserved in {$failureOut}\n");
-        return 1; // FAIL! Exit code 1 returned from function, finally will run!
+            @file_put_contents($failureOut, json_encode($failurePayload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+            fwrite(STDERR, "Regression failed. Raw output preserved in {$failureOut}\n");
+            return 1;
+        }
 
     } finally {
         // ALWAYS executed on both PASS, failures, and uncaught exceptions
@@ -465,13 +595,59 @@ function runCanonicalSuite(array $options = []): int
         if ($remoteDirCreated && $remoteDir !== null) {
             echo "[*] Cleaning up remote temporary directory {$remoteDir}...\n";
             $cleanRes = f5_remote_cleanup_dir($sshHost, $remoteDir, $runUuid, $remoteDirCreated, 20.0, $cmdRunner);
-            if (!$cleanRes['success']) {
-                throw new RuntimeException("Remote cleanup failed; preserve private evidence for recovery.");
-            } else {
+            if ($cleanRes['success']) {
+                $cleanupSuccess = true;
                 echo "[+] Remote temporary directory cleaned successfully.\n";
+            } else {
+                $cleanupSuccess = false;
+                $cleanupError = $cleanRes['error'] ?? 'Remote cleanup refused';
+                echo "[!] Remote cleanup refused or failed: {$cleanupError}\n";
             }
+        } else {
+            $cleanupSuccess = true;
         }
     }
+
+    // Post-finally processing: verified publication or fail-closed handling
+    if (!$cleanupSuccess) {
+        $failureOut = $failurePrefix . date('Ymd_His') . '.json';
+        $failurePayload = [
+            'status' => 'FAIL',
+            'reason' => 'remote_cleanup_refused_or_failed',
+            'error' => $cleanupError,
+            'remote_dir' => $remoteDir,
+            'run_uuid' => $runUuid,
+            'execution_passed' => ($pendingPassEvidence !== null),
+            'timestamp' => gmdate('c')
+        ];
+        @file_put_contents($failureOut, json_encode($failurePayload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+        fwrite(STDERR, "Execution halted: remote cleanup failed or refused. Prior PASS evidence preserved byte-for-byte. Details: {$failureOut}\n");
+        return 1;
+    }
+
+    if ($pendingPassEvidence !== null) {
+        $evidenceDir = dirname($evidenceOut);
+        if (!is_dir($evidenceDir)) {
+            @mkdir($evidenceDir, 0700, true);
+        }
+        $tmpEvidenceFile = $evidenceDir . '/.tmp_evidence_' . bin2hex(random_bytes(6)) . '.json';
+        $payload = json_encode($pendingPassEvidence, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+        $written = @file_put_contents($tmpEvidenceFile, $payload);
+        if ($written !== strlen($payload)) {
+            @unlink($tmpEvidenceFile);
+            fwrite(STDERR, "CRITICAL: Incomplete evidence write to temporary receipt file\n");
+            return 1;
+        }
+        if (!@rename($tmpEvidenceFile, $evidenceOut)) {
+            @unlink($tmpEvidenceFile);
+            fwrite(STDERR, "CRITICAL: Atomic rename of evidence receipt failed\n");
+            return 1;
+        }
+        echo "[+] Truthful evidence saved to {$evidenceOut}\n";
+        return 0; // True PASS after verified cleanup!
+    }
+
+    return 1;
 }
 
 // Global cleanup references for shutdown emergency fallback

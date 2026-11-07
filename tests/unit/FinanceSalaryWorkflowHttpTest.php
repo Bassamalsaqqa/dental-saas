@@ -140,14 +140,14 @@ final class FinanceSalaryWorkflowHttpTest extends \Tests\Support\PhaseBFixture
         $response->assertSessionHas('errors');
         self::assertSame(0,$this->db->table('finances')->where(['clinic_id'=>$this->clinic,'counterparty_name'=>'Synthetic invalid payee'])->countAllResults());
         self::assertSame(0,$this->db->table('finance_payments')->where('clinic_id',$this->clinic)->countAllResults());
-        $page=$this->withSession(session()->get())->get('/finance/expenses/create');
+        $page=$this->withSession($_SESSION)->get('/finance/expenses/create');
         $page->assertOK();
         $body=(string)$page->getBody();
         self::assertStringContainsString('value="Synthetic invalid payee"',$body);
         self::assertStringContainsString('value="salaries" selected',$body);
         self::assertStringContainsString('value="bank_transfer" selected',$body);
         self::assertStringContainsString('value="pending" selected',$body);
-        self::assertStringContainsString(lang('Finance.expensePendingMethodHelp'),$body);
+        self::assertStringContainsString(esc(lang('Finance.expensePendingMethodHelp')),$body);
     }
 
     public function testSettlementContextConcealsAnotherClinicsSalary(): void

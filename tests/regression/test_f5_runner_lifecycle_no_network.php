@@ -12,6 +12,11 @@ declare(strict_types=1);
  *     - Proves prior PASS evidence receipt is strictly preserved and never overwritten on failure.
  */
 
+// Synthetic inputs only; no real escrow, credentials or network in this suite.
+$ioTestRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'f5_mock_io_' . bin2hex(random_bytes(6));
+mkdir($ioTestRoot, 0700);
+$previousIoRoot = getenv('DENTA_F5_PRIVATE_SCRATCH');
+putenv('DENTA_F5_PRIVATE_SCRATCH=' . $ioTestRoot);
 define('F5_RUNNER_UNIT_TEST', true);
 require_once __DIR__ . '/run_f5_canonical_regression.php';
 
@@ -103,6 +108,28 @@ run_test("f5_run_bounded_command bounds wait and terminates child on timeout", f
     }
 });
 
+run_test("f5_run_bounded_command bounds wait on large unconsumed stdin, captures stderr pressure, and leaves zero survivors", function () {
+    $start = microtime(true);
+    $largeStdin = str_repeat("SYNTHETIC_DATA_ROW_PADDING\n", 40000); // ~1MB
+    // Child never consumes stdin, writes 50KB to stderr, and sleeps
+    $childScript = 'fwrite(STDERR, str_repeat("E", 50000)); usleep(5000000);';
+    $res = f5_run_bounded_command(['php', '-r', $childScript], $largeStdin, 0.35);
+    $duration = microtime(true) - $start;
+
+    if (!$res['timed_out']) {
+        throw new \RuntimeException("Expected process to time out");
+    }
+    if ($res['exitcode'] !== -1) {
+        throw new \RuntimeException("Expected exitcode -1 on timeout, got {$res['exitcode']}");
+    }
+    if (strlen($res['stderr']) < 50000) {
+        throw new \RuntimeException("Expected to capture 50000 bytes of stderr pressure, got " . strlen($res['stderr']));
+    }
+    if ($duration > 2.5) {
+        throw new \RuntimeException("Process execution wait exceeded timeout bound significantly ({$duration}s)");
+    }
+});
+
 echo "\n=== SECTION 3: Remote Directory Preparation & Cleanup Safeguards ===\n";
 
 run_test("f5_remote_prepare_dir fails if parent directory check fails", function () {
@@ -150,6 +177,9 @@ run_test("f5_remote_prepare_dir fails if owner marker verification fails", funct
     $res = f5_remote_prepare_dir('mock-host', '/home/u556956644/.denta-stage-20261017', 'testuuid12345678', 5.0, $mockRunner);
     if ($res['success']) {
         throw new \RuntimeException("Expected failure on marker verify failure");
+    }
+    if (!$res['created'] || !$res['partial']) {
+        throw new \RuntimeException("Expected created=true and partial=true on marker verify failure");
     }
     if (!str_contains($res['error'] ?? '', 'Remote directory verification failed')) {
         throw new \RuntimeException("Unexpected error message: " . ($res['error'] ?? ''));
@@ -473,6 +503,62 @@ run_test("Runner Lifecycle Case E: Timeout executes finally, preserves prior PAS
         throw new \RuntimeException("Prior PASS evidence receipt was overwritten on timeout!");
     }
 });
+
+run_test("Runner Lifecycle Case F: Execution PASS with cleanup refusal preserves prior PASS receipt byte-for-byte, returns 1, leaves no pending receipt", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $testSandbox) {
+    $cleanupCalled = false;
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled): array {
+        $cmdStr = implode(' ', $cmd);
+        if (str_contains($cmdStr, 'tar -czf')) {
+            $tarPath = $cmd[2] ?? '';
+            if ($tarPath) file_put_contents($tarPath, "tar contents");
+            return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'PARENT_OK')) return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'MKDIR_OK')) return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
+            // Execution SUCCEEDS with PASS payload!
+            $passPayload = json_encode([
+                'status' => 'PASS',
+                'regression_coverage' => ['total_checks_passed' => 140],
+                'teardown' => ['tables_dropped' => 82, 'final_table_count' => 0],
+                'retained_harness' => ['harness_sha256' => 'mock_harness', 'worker_sha256' => 'mock_worker']
+            ]);
+            return ['exitcode' => 0, 'stdout' => $passPayload, 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'CLEANED_OK')) {
+            $cleanupCalled = true;
+            // Cleanup REFUSES deletion (e.g. marker check mismatch or process refused)
+            return ['exitcode' => 1, 'stdout' => 'REFUSED_CLEANUP', 'stderr' => 'Ownership mismatch', 'timed_out' => false];
+        }
+        return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+    };
+
+    $opts = array_merge($baseOptions, ['cmd_runner' => $mockRunner]);
+    $code = runCanonicalSuite($opts);
+
+    if ($code !== 1) {
+        throw new \RuntimeException("Expected return code 1 when cleanup refuses, got {$code}");
+    }
+    if (!$cleanupCalled) {
+        throw new \RuntimeException("Cleanup was NOT invoked in finally block!");
+    }
+    // Verify prior PASS evidence was NOT modified
+    $currentSha = hash_file('sha256', $dummyEvidenceOut);
+    if ($currentSha !== $priorPassSha) {
+        throw new \RuntimeException("Prior PASS evidence receipt was overwritten on cleanup failure!");
+    }
+    // Verify no temporary evidence file exists
+    $tmpFiles = glob($testSandbox . '/.tmp_evidence_*');
+    if (!empty($tmpFiles)) {
+        throw new \RuntimeException("Temporary uncommitted evidence receipt left behind in filesystem!");
+    }
+});
+
+@rmdir($ioTestRoot);
+if ($previousIoRoot === false) putenv('DENTA_F5_PRIVATE_SCRATCH');
+else putenv('DENTA_F5_PRIVATE_SCRATCH=' . $previousIoRoot);
 
 // Clean up sandbox
 $files = glob($testSandbox . DIRECTORY_SEPARATOR . '*');
