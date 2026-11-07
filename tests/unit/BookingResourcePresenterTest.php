@@ -57,4 +57,32 @@ final class BookingResourcePresenterTest extends TestCase
             self::assertSame(1,$xp->query('//select[@name="provider_user_id"][@disabled]')->length);
         }
     }
+
+    public function testLegacyBookingColumnsDisplayDistinctionHelp(): void
+    {
+        foreach (['en', 'ar'] as $locale) {
+            $dom = $this->render($locale, 'hours');
+            $xp = new \DOMXPath($dom);
+            $help = $xp->query('//fieldset[@data-legacy-scheduling]//p[contains(@class, "settings-information")]');
+            self::assertSame(1, $help->length, "Legacy booking column distinction help must be rendered in {$locale}");
+            self::assertStringContainsString(
+                $locale === 'ar' ? 'هذه أسماء تُدخل يدويًا لأعمدة الحجز' : 'These names are manual booking-column labels',
+                $help->item(0)->textContent
+            );
+        }
+    }
+
+    public function testStaffProfileRendersSalaryDistinctionGuidance(): void
+    {
+        foreach (['en', 'ar'] as $locale) {
+            $dom = $this->render($locale, 'user-show');
+            $xp = new \DOMXPath($dom);
+            $guidance = $xp->query('//section[contains(@class, "staff-provider-section")]//p[contains(@class, "staff-provider-guidance")]');
+            self::assertSame(1, $guidance->length, "Staff profile provider section must render salary distinction guidance in {$locale}");
+            self::assertStringContainsString(
+                $locale === 'ar' ? 'ادفع هنا الحصص المسجلة على معاملات المرضى' : 'Pay shares recorded on patient transactions here',
+                $guidance->item(0)->textContent
+            );
+        }
+    }
 }

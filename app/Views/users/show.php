@@ -118,6 +118,9 @@
 <p>
 <?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?>
 </p>
+<p class="staff-provider-guidance">
+<?= esc(lang('Finance.providerPayoutsGuidance')) ?>
+</p>
 </div>
 <a class="button secondary" href="<?= base_url('finance/payouts') ?>">
 <?= esc(lang('Finance.openPayoutLedger')) ?>
