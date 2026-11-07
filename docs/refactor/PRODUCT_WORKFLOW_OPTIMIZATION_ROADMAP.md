@@ -18,26 +18,10 @@ Make DentaCare a fast clinic operating system: preserve patient/visit context, s
 
 ## Completed Foundations
 
-### Phase 1 - Visit Flow
-
-- Server-owned appointment stages and transitions.
-- Dashboard operational queues for expected, waiting, chairside, checkout, and attention.
-- Context-preserving canonical quick actions.
-
-### Phase 2 - Procedure Lifecycle
-
-- First-class tenant-scoped procedure records and append-only status history.
-- New Treatment plan/start intent mapped to procedure lifecycle.
-- Atomic optional inventory and charge capture.
-- No ambiguous legacy backfill.
-
-### Phase 3 - Checkout
-
-- Appointment detail reviews clinical, charge, invoice/payment, and link state.
-- New appointment-context clinical work retains explicit appointment linkage.
-- Clean visits complete normally.
-- Unresolved work/billing/balance/context links require an acknowledged reason logged in appointment activity.
-- No automatic clinical completion, invoice, payment, or legacy inference.
+The visit lifecycle (Phase 1), procedure state machine (Phase 2), and checkout boundary (Phase 3) foundations are authoritative in [PATIENT_CLINICAL_WORKFLOW_PLAN](PATIENT_CLINICAL_WORKFLOW_PLAN.md) and [CLINICAL_FINANCE_TRACEABILITY_PLAN](CLINICAL_FINANCE_TRACEABILITY_PLAN.md). Canonical highlights:
+- Server-owned appointment stages, operational queues, and context-preserving quick actions.
+- First-class procedure records with append-only status history and atomic optional charge capture.
+- Appointment checkout reviewing clinical work and balances with audited exception reasons; no automatic billing or clinical inference.
 
 ## Next Phases
 

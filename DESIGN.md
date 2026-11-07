@@ -1,6 +1,6 @@
 ---
-name: Denta+ clinic overview proof
-description: Owner-accepted dashboard direction; application-wide rebuild in progress
+name: Denta+ clinic design system
+description: Deployed Studio design system and visual directions; application is deployed and working
 colors:
   primary: "#153f36"
   primary-deep: "#10332c"
@@ -37,12 +37,24 @@ components:
     rounded: "{rounded.control}"
     padding: "10px 15px"
 ---
-# Denta+ design proof
+# Denta+ design proof and design system
 
 ## Overview
-The Owner rejected the previous V4 implementation. It remains preserved at checkpoint 9bf0622 and is not visual authority. The Owner generally approved the one-page direction, requesting stronger overall color and larger text. The latest Owner refinement requires larger text, denser appointment information, one-click language switching, filled text containers and borderless colored cards. The final dashboard direction was accepted at 99c9ecb; the Owner authorized the clean-base application rebuild. The Owner additionally requires distinct inner attention-task cards, full-row table navigation and no directional arrows anywhere, including dialogs and menus.
+Denta+ is a working, deployed application running CodeIgniter 4, native PHP views, Tailwind 3 and shared Studio CSS/JS. PR27 (incorporating PR26) is deployed and verified in production at `5b7c0688a1afa4626a4ed913e759a763eb282c12`. This campaign focuses on workflow ergonomics, discoverability, accessibility, responsive fit and performance improvements across the existing application, not an unfinished rewrite or speculative frontend migration.
 
-The accepted dashboard defines the visual anchor. The system now extends through the rebuilt routes recorded in docs/UI_REBUILD_COVERAGE.csv, using Studio shells, semantic theme roles and shared components. Unrebuilt routes remain explicitly pending. No claim of whole-application completion, blanket Owner visual acceptance, external approval or production readiness.
+The dashboard visual anchor at `99c9ecb` established the accepted forest/sage identity. The system is governed by shared Studio components, semantic theme roles in `public/assets/css/studio-theme.css`, and the contracts in `docs/UI_STUDIO_COMPONENTS.md`. `docs/UI_REBUILD_COVERAGE.csv` is historical rebuild evidence; current routes, source and the active work register determine present coverage.
+
+Authoritative deployed tokens are defined in `public/assets/css/studio-theme.css` (`--color-frame`, `--color-action`, `--color-canvas`, `--color-surface`, `--color-ink`, `--color-selected`, and shadcn semantic aliases `--primary`, `--card`, `--border`, etc.). Proposed design directions evaluated in current studies remain proposals until reviewed and approved.
+
+### Operator clarity & button philosophy (Owner latest intent)
+- The entire application must be easy to navigate and operate for a roughly 65-year-old nontechnical operator with a short attention span. Question every workflow and default; optimize the shortest safe completion path.
+- The Owner is generally satisfied with MANY existing buttons. Do NOT replace all buttons, add icons everywhere, ban effective text labels, or decorate controls merely to claim modernization.
+- Prefer the clearest control for each task:
+  - Preserve good existing controls.
+  - Use meaningful icons with visible labels when they assist quick task comprehension.
+  - Use discoverable, accessibly named icon-only controls for familiar, unambiguous utility actions (e.g. search clear, table row inspect, compact filters).
+  - Unfamiliar or high-consequence actions (e.g. refunds, voiding, recording payments, deletions) must retain explicit visible text labels.
+- Distinct inner attention-task cards, full-row table navigation, and arrow-free controls (no directional chevrons/arrows in menus, dialogs or buttons) remain binding across all surfaces. No decorative borders on cards; use filled surfaces and readable type hierarchy.
 
 ## Colors
 A deep forest frame establishes persistent navigation; lime indicates the active location. A crisp reading surface, cool neutral canvas and sage attention region separate operational tasks. Status colors require actual persisted states and visible text.
