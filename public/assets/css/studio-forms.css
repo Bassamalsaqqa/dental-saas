@@ -73,6 +73,8 @@
 @media(max-width:800px){.registration-heading h1{font-size:var(--studio-font-27,27px)}.registration-fields{gap:16px 12px}.registration-contact-fields{grid-template-columns:minmax(0,1fr)}.registration-heading{padding-block:18px}.registration-details{gap:24px}}
 
 @media(max-width:540px){.registration-fields>.form-field{grid-column:span 3}.registration-fields>.form-field--phone{grid-column:1/-1}}
+/* Keep native input minimums from widening registration beyond its canvas. */
+.studio-form[data-patient-create-form]{grid-template-columns:minmax(0,1fr)}
 
 .patient-edit-identity{display:flex;gap:12px;flex-wrap:wrap;font-size:var(--studio-font-17,17px);margin-top:8px;color:var(--muted-foreground)}.patient-edit-identity>span{font-size:var(--studio-font-15,15px);align-self:center}
 

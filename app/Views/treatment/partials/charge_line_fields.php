@@ -12,7 +12,7 @@ $currencyOptions = ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
 ?>
 <div class="treatment-charge" data-treatment-charge-section>
     <div class="treatment-charge-content">
-        <header class="clinical-details-heading"><div><h2><?= esc(lang('Treatment.capture_patient_charge')) ?></h2><p><?= esc(lang('Treatment.capture_patient_charge_hint')) ?></p></div><label class="clinical-switch"><input type="hidden" name="charge_enabled" value="0"><input type="checkbox" name="charge_enabled" value="1" data-charge-toggle <?= $chargeEnabled ? 'checked' : '' ?>><span><?= esc(lang('Examination.enable')) ?></span></label></header>
+        <header class="clinical-details-heading"><div><h2><?= esc(lang('Treatment.capture_patient_charge')) ?></h2><p><?= esc(lang('Treatment.capture_patient_charge_hint')) ?></p></div><label class="clinical-switch" for="<?= esc($idPrefix) ?>_charge_enabled"><input type="hidden" name="charge_enabled" value="0"><input type="checkbox" id="<?= esc($idPrefix) ?>_charge_enabled" name="charge_enabled" value="1" data-charge-toggle <?= $chargeEnabled ? 'checked' : '' ?>><span><?= esc(lang('Examination.enable')) ?></span></label></header>
 
         <div data-charge-body class="charge-body <?= $chargeEnabled ? '' : 'hidden' ?>">
             <div class="charge-field-grid">

@@ -32,7 +32,7 @@ $medicalAlerts=[
 ];
 ?>
 <section class="form-section registration-basics" aria-labelledby="patient-basics">
-    <header><h2 id="patient-basics"><?= esc(lang('Studio.patientIdentity')) ?></h2></header>
+    <header><h2 id="patient-basics"><?= esc(lang('Studio.patientIdentity')) ?></h2><?php if(!$studioEditing && has_permission('patients','view')): ?><button type="button" class="button secondary" data-dialog="search-dialog"><?= esc(lang('Studio.existingPatientSearch')) ?></button><?php endif; ?></header>
     <div class="registration-fields">
         <?php foreach(['first_name'=>'patientFirstName','last_name'=>'patientLastName'] as $name=>$label): ?>
         <div class="form-field">

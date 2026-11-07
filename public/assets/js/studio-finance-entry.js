@@ -18,7 +18,8 @@ window.initStudioFinanceEntry=(root=document)=>{
     supplierDetails=form.querySelector('.finance-optional-supplier'),
     totalLive=form.querySelector('[data-finance-total]'),
     submitBtn=form.querySelector('button[data-entry-submit]'),
-    heading=document.querySelector('.finance-entry-workspace .money-heading h1');
+    heading=document.querySelector('.finance-entry-workspace .money-heading h1'),
+    methodHelp=form.querySelector('[data-expense-method-help]');
 
   function isPaidLocked(){
     return !paid||paid.readOnly||paid.disabled||form.hasAttribute('data-settlement-edit');
@@ -64,10 +65,22 @@ window.initStudioFinanceEntry=(root=document)=>{
     if(visible&&!account.value)account.value=method.value==='cash'?'safe_cash':'bank';
     if(!visible)account.value='';
   }
+  function syncStatusHelp(){
+    if(!methodHelp||!status)return;
+    const s=status.value;
+    if(s==='pending'){
+      methodHelp.textContent=L.pendingMethodHelp||methodHelp.dataset.helpPending||'';
+    }else if(s==='partial'){
+      methodHelp.textContent=L.partialMethodHelp||methodHelp.dataset.helpPartial||'';
+    }else{
+      methodHelp.textContent=L.paidMethodHelp||methodHelp.dataset.helpPaid||'';
+    }
+  }
   method?.addEventListener('change',liquidity);
-  status?.addEventListener('change',()=>{liquidity();syncPaid();});
+  status?.addEventListener('change',()=>{liquidity();syncPaid();syncStatusHelp();});
   paid?.addEventListener('input',liquidity);
   liquidity();
+  syncStatusHelp();
 
   let lastSupplier='';
   supplier?.addEventListener('change',()=>{

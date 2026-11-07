@@ -50,6 +50,28 @@ final class FinanceSalaryProviderAccountingTest extends CIUnitTestCase
         return $controller;
     }
 
+    public function testIncompleteProviderSummariesDoNotInventZero(): void
+    {
+        $originalLocale = service('language')->getLocale();
+        try {
+        $class = \App\Services\ProviderCurrencySummary::class;
+            foreach (['en', 'ar'] as $locale) {
+                service('language')->setLocale($locale);
+                foreach ([[], ['currency_buckets' => []], ['currency_buckets' => null]] as $summary) {
+                    $this->assertSame(lang('Finance.providerCurrencyUnavailable'), $class::format($summary, 'provider_remaining'));
+                }
+                $this->assertSame('0.00', $class::format($class::summarize([]), 'provider_remaining'));
+                $mixed = $class::summarize([
+                    ['finance_id' => 1, 'currency' => 'ILS', 'provider_balance_due' => 125],
+                    ['finance_id' => 2, 'currency' => 'USD', 'provider_balance_due' => 50],
+                ]);
+                $this->assertSame('125.00 ILS / 50.00 USD', $class::format($mixed, 'provider_remaining'));
+            }
+        } finally {
+            service('language')->setLocale($originalLocale);
+        }
+    }
+
     /**
      * Journey (a): Salary expense payment-state normalization only, not persisted lifecycle.
      * Scenario: 1,000 total expense with 400 paid leaves 600 balance due.
@@ -541,5 +563,76 @@ final class FinanceSalaryProviderAccountingTest extends CIUnitTestCase
         $this->assertStringContainsString('"clinicUser":"' . lang('Finance.clinicUser') . '"', $html);
         $this->assertStringContainsString('"guestProvider":"' . lang('Finance.guestProvider') . '"', $html);
         $this->assertStringContainsString('"transactionBasis":"' . lang('Finance.transactionBasis') . '"', $html);
+    }
+
+    public function testPayablesPresenterConfigProvidesLocalizedExpenseCategories(): void
+    {
+        $fixture = dirname(__DIR__) . '/_support/fixtures/MoneyConfigPresenter.php';
+        $html = shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($fixture) . ' ar payables');
+        $this->assertIsString($html);
+        $doc = new \DOMDocument();
+        @$doc->loadHTML($html);
+        $config = json_decode($doc->getElementsByTagName('script')->item(0)->textContent, true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertSame('payables', $config['mode']);
+        $this->assertArrayHasKey('expenseCategories', $config);
+        $this->assertSame('رواتب', $config['expenseCategories']['salaries'] ?? null);
+        $this->assertCount(1, $config['localRows']);
+        $this->assertSame('salaries', $config['localRows'][0]['expense_category']);
+    }
+
+    public function testExpenseFormMethodHelpRendersPendingPaidAndPartialStates(): void
+    {
+        helper(['asset', 'url', 'settings', 'form', 'navigation']);
+
+        $requestMock = $this->createMock(IncomingRequest::class);
+        $requestMock->method('getGet')->willReturn(null);
+        $oldInput = [];
+        $requestMock->method('getOldInput')->willReturnCallback(static function ($key) use (&$oldInput) {
+            return $oldInput[$key] ?? null;
+        });
+        $siteUri = new \CodeIgniter\HTTP\SiteURI(config('App'), 'finance/expenses/create');
+        $requestMock->method('getUri')->willReturn($siteUri);
+        Services::injectMock('request', $requestMock);
+
+        $baseData = [
+            'studioExpense' => true,
+            'studioInDialog' => true,
+            'base_currency' => 'ILS',
+            'expense_category_options' => ['salaries' => 'Salaries', 'rent' => 'Rent'],
+            'currency_options' => ['ILS'],
+            'liquidity_account_options' => ['safe_cash' => 'Safe Cash', 'bank' => 'Bank'],
+        ];
+
+        // 1. Initial default state (paid)
+        $htmlPaid = view('finance/partials/studio_transaction_form', $baseData);
+        $this->assertStringContainsString('id="expensePaymentMethodHelp"', $htmlPaid);
+        $this->assertStringContainsString('data-expense-method-help', $htmlPaid);
+        $this->assertStringContainsString(lang('Finance.expensePaidMethodHelp'), $htmlPaid);
+        $this->assertStringContainsString('data-help-pending="' . esc(lang('Finance.expensePendingMethodHelp'), 'attr') . '"', $htmlPaid);
+        $labelsDoc = new \DOMDocument();
+        @$labelsDoc->loadHTML($htmlPaid);
+        $labels = json_decode($labelsDoc->getElementById('finance-entry-labels')->textContent, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(lang('Finance.expensePendingMethodHelp'), $labels['pendingMethodHelp'] ?? null);
+        $this->assertSame(lang('Finance.expensePaidMethodHelp'), $labels['paidMethodHelp'] ?? null);
+        $this->assertSame(lang('Finance.expensePartialMethodHelp'), $labels['partialMethodHelp'] ?? null);
+
+        // 2. Pending state (unpaid)
+        $oldInput = ['payment_status' => 'pending'];
+        $htmlPending = view('finance/partials/studio_transaction_form', $baseData);
+        $doc = new \DOMDocument();
+        @$doc->loadHTML($htmlPending);
+        $helpNode = (new \DOMXPath($doc))->query('//*[@id="expensePaymentMethodHelp"]')->item(0);
+        $this->assertNotNull($helpNode);
+        $this->assertSame(lang('Finance.expensePendingMethodHelp'), trim($helpNode->textContent));
+
+        // 3. Partial state
+        $oldInput = ['payment_status' => 'partial'];
+        $htmlPartial = view('finance/partials/studio_transaction_form', $baseData);
+        $docPartial = new \DOMDocument();
+        @$docPartial->loadHTML($htmlPartial);
+        $helpNodePartial = (new \DOMXPath($docPartial))->query('//*[@id="expensePaymentMethodHelp"]')->item(0);
+        $this->assertNotNull($helpNodePartial);
+        $this->assertSame(lang('Finance.expensePartialMethodHelp'), trim($helpNodePartial->textContent));
     }
 }
