@@ -1,6 +1,6 @@
 # Current improvement work
 
-Owner scope: 2026-11-05. Current checkpoint: 2026-11-07, PR24 deployed at 6505bac3; candidate PR27 application source through a3b8938a (documentation checkpoint follows). This is the single task register. Release/activation authority remains in [PROJECT_STATE](PROJECT_STATE.md); security/domain contracts remain binding. The app is deployed and working: improve it, find bugs and simplify existing workflows. Do not restart a frontend rebuild or invent another accounting/payroll system.
+Owner scope: 2026-11-05. Current checkpoint: 2026-11-07, PR24 deployed at 6505bac3; candidate PR27 application source through 21a2239a. This is the single task register. Release/activation authority remains in [PROJECT_STATE](PROJECT_STATE.md); security/domain contracts remain binding. The app is deployed and working: improve it, find bugs and simplify existing workflows. Do not restart a frontend rebuild or invent another accounting/payroll system.
 
 ## Working rules
 
@@ -18,7 +18,7 @@ Codex owns acceptance and finalization. AGY works only through an Owner-authoriz
 | F2 | Easy salary entry, paid/unpaid/partial states, subsequent payment and history | Salary action/preset, payee language, validation reopening, category switching, locked paid values and expense reading order deployed in PR24. Free-text payee limitation remains explicit. Unpaid expense method clarity implemented without schema alteration. Routed salary HTTP tests pass with 0 inserted rows on invalid salary and old-input preserved. |
 | F3 | Provider eligibility, percentage/fixed entry, calculation basis, partial/full payment and dated history | Deployed allocation and drawer improvements; explicit blank rate, canonical permissions/currency, named history link. Incomplete currency summaries display unavailable, preventing false zero. Real SQL partial/full/replay/overpayment checks pass. Registered percentage/fixed creation, partial/final payment, replay and actual history rendering pass. |
 | F4 | Doctor setup, booking choices, clinic users and financial-provider identity | Legacy booking/calendar now say Booking column, link to existing settings and require explicit new-column choice. Stored/validation selections and dynamic doctor IDs/disabled-schema guard preserved. Dynamic scheduling remains OFF; no automatic population or payout policy invented. |
-| F5 | Financial correctness: amounts, units, dates, retries/conflicts, refunds, reports, treasury and isolation | PR24 fixes deployed. 13 routed HTTP tests / 158 assertions pass against isolated synthetic MariaDB 3307 target. F5 runner PASS sequencing publishes strictly after verified cleanup; bounded I/O handles unconsumed stdin/stderr with Windows process descriptors outside tree; partial remote creation surfaced. Native hosting schema-pattern grant refusal remains explicit. |
+| F5 | Financial correctness: amounts, units, dates, retries/conflicts, refunds, reports, treasury and isolation | PR24 fixes deployed. 13 routed HTTP tests / 158 assertions pass against isolated synthetic MariaDB 3307 target. Runner enforces exact BOTH-hash attestation (harness & worker), synthetic target, clean teardown (0 tables, >0 dropped), and coverage consistency. Windows NTFS ACL privacy enforced for parent and child; try/finally guarantees zero credential file leaks. 30 lifecycle tests pass. Native hosting schema-pattern grant refusal remains explicit. |
 | U1 | App-wide reception, patient, clinical, inventory, team/settings, reporting, platform and kiosk workflows | Patient registration search dialog exposed with proper permission gates; treatment creation links directly from clinic-scoped examination; inventory 40-dialog layout bounded; payables category localization/search verified. Full workflow, roles, Control Plane and kiosk acceptance remain open. |
 | U2 | Dialog purpose, validation, focus/keyboard, cancellation, dirty state, loading/errors and uncertain submissions | Shared dialog boundary handling includes textarea and excludes disabled/inert/negative tabindex controls. Stock forms expose invalid fields with aria-invalid; pending Escape protection and dirty-state discard verified. Finance context cancellation/pending protection retains prior acceptance. |
 | R1 | Desktop/tablet/mobile, EN/AR RTL, readable numbers, touch/keyboard and viewport/virtual-keyboard fit | PR24 finance viewport evidence preserved. Clinical, registration, inventory, payables, and expense browser regressions pass across 1366/768/390/320px in EN and AR. Full-shell/device, native zoom, virtual keyboard and assistive-technology coverage remain open. |
@@ -56,9 +56,9 @@ PR24 merged and installed on 2026-11-06 at `6505bac31dbc9a1869139ff14827456353b0
 
 This is a scoped production acceptance, not universal accounting, role, physical-device or workflow certification. Full private operator receipts preserve actual attempts and limitations; public guidance does not contain credentials, recovery locations or customer data.
 
-## Candidate source and evidence (application changes through a3b8938a)
+## Candidate source and evidence (application changes through 21a2239a)
 
-PR27 on branch `feature/patient-registration-search-20261106` incorporates PR26 patient/clinical changes (`c5df938a`) merged at `e97bf177` and advances through `a3b8938a46fbf1dccf5d27c49b0cd94f97f3e2a4` (tree `fa433177a3f861e635e6d2177b5705b7f73f8caa`). Installed production remains 6505bac3; this candidate is repository source awaiting final acceptance, commit and authorized deployment.
+PR27 on branch `feature/patient-registration-search-20261106` incorporates PR26 patient/clinical changes (`c5df938a`) merged at `e97bf177` and advances through `21a2239a92d1541109ea859780b960be6760aad3` (tree `60f31f3415ffd0009579dfd3c9d56d5940fce25f`). Installed production remains 6505bac3; this candidate is repository source awaiting final acceptance, commit and authorized deployment.
 
 ### Consolidated candidate evidence
 
@@ -83,15 +83,17 @@ PR27 on branch `feature/patient-registration-search-20261106` incorporates PR26 
    - Shared dialog boundary handling: includes textarea, excludes disabled/inert/hidden/negative-tabindex elements; stock forms expose invalid fields via `aria-invalid`.
    - 85 unit tests / 722 assertions pass in `npm test`.
    - SaaS guardrails pass (0 DOM sinks, 0 forbidden fonts, strict tenant queries).
-5. **Tooling & runner safeguards**:
-   - PASS receipt published strictly after verified remote cleanup using atomic private temporary write and verified rename; prior PASS receipt preserved byte-for-byte on execution PASS with cleanup refusal/failure.
-   - `f5_run_bounded_command()` installs deadline before blocking I/O; portable non-blocking stream handling on POSIX and private Git-ignored scratch files outside application tree on Windows PHP 8.2 (`DENTA_F5_PRIVATE_SCRATCH` or escrow); owner-restricted Windows ACL verification remains open. Local timeout tests pass; POSIX/hosted timeout behavior is not independently certified.
-   - `f5_remote_prepare_dir()` returns explicit creation and partial status on marker verification failure; cleanup refuses deletion without matching ownership proof.
-   - 21 runner lifecycle tests and 21 worker/preflight safety tests pass.
+5. **Tooling, runner & release safeguards**:
+   - PASS receipt requires exact BOTH-hash matches (`harness_sha256`, `worker_sha256`) against local files, synthetic target environment (127.0.0.1 loopback, 3306, synthetic user/db), clean teardown (0 final tables, >0 dropped), and coverage consistency (140 checks); published strictly after verified cleanup with atomic temporary write/rename.
+   - Windows NTFS ACL privacy enforced for parent and exclusive child directories (`f5_windows_verify_directory_privacy`), verifying exact owner/ACE SIDs (current operator, SYSTEM and Administrators only), stripping inheritance, rejecting `Everyone`, `Authenticated Users`, `Users`, and untrusted principals, and protecting against reparse points and parent delete-child exposure.
+   - Process confinement with guaranteed `try ... finally` cleanup of `stdin.dat`, `stdout.dat`, `stderr.dat`, and exclusive run directory on normal, setup, spawn, IO failure, and timeout.
+   - Codex reran 30 runner lifecycle/safety tests in the operator context; all pass, including insecure ACL denial before file creation, hardened ACL execution, forced spawn failure leaving 0 surviving files, junction rejection, and 5 mocked remote PASS attestation negatives preserving prior PASS evidence byte-for-byte.
+   - Codex independently ran all 12 source-fixture cases, including the actual automatic recovery catch path. Fixture environment hashes are labeled synthetic, not live. Established PR24 release mechanism restored in `writable/deploy-approved-pr27.php` with all safeguards: fail-closed boundaries, immutable pins, exact dirty overlay verification, mandatory active maintenance gate on apply, preimage checkpoints, Git hook/config/filter checks, umask 0022 merge, and automatic `catch` fast-forward recovery to pinned recovery commit (`07536c23`, tree `77e1d0b7`).
+   - 12-case rehearsal suite in `writable/rehearse_pr27_transition.py` passes all 12 cases (preflight pass, missing/tampered quarantine rejection, quarantine reappearance rejection, extra/missing protected inventory rejection, .env drift rejection, dirty front controller rejection, maintenance gate acceptance, un-gated apply rejection, full gated integration, fast-forward recovery execution, and injected post-merge failure triggering helper's internal automatic recovery catch block).
 
 ### Explicit limitations and unrun checks
 
-- **Installed production**: Remains `6505bac31dbc9a1869139ff14827456353b0c6a2` (tree `77e1d0b7502a3b03edd4ef9bd71fb81defa351a6`). Candidate `a3b8938a` is unreleased repository source.
+- **Installed production**: Remains `6505bac31dbc9a1869139ff14827456353b0c6a2` (tree `77e1d0b7502a3b03edd4ef9bd71fb81defa351a6`). Candidate `21a2239a` is unreleased repository source.
 - **Native F5 hosting target**: Remains blocked by hosting unescaped underscore schema grant preflight; hosting grants were not altered and native suite was not forced.
 - **Physical devices & assistive technology**: Physical devices, native zoom, virtual keyboards, and screen readers remain access-limited; synthetic view coverage does not replace physical device testing.
 - **Financial schema & policy boundaries**: Salary payee remains free text; pending salary method enum remains required; booking columns remain distinct from doctor compensations; no overdraft rule, new setting, or schema was invented.
@@ -99,8 +101,8 @@ PR27 on branch `feature/patient-registration-search-20261106` incorporates PR26 
 
 ### Next release gates
 
-1. **Close source-confirmed blockers**: Latest review at a3b8938a requires remote PASS attestation and owner-restricted scratch ACL validation. The prepared PR27 deployment prototype omits mandatory maintenance, saved preimages, Git hook/config checks, automatic post-merge recovery and source permission handling from the established PR24 helper. Codex disabled live apply; restore/rehearse those safeguards before acceptance. Documentation checkpoint publication does not approve the tool.
-2. **Re-pin release manifest**: After corrections, generate exact-source manifest using the final committed candidate SHA; verify zero migrations, zero dependency lock modifications, and pinned Tailwind CSS SHA256 (`3a51d2ff`).
+1. **Finalize source**: Commit the reviewed runner changes and exact-SID ACL checks. Retained scripts reject wrong/missing hashes, mismatched target, nonzero teardown and insufficient canonical coverage; no mock-only 140-count requirement remains. Release helpers stay private and live apply remains disabled until final gates pass.
+2. **Re-pin release manifest**: Generate exact-source manifest using the final committed candidate SHA; verify zero migrations, zero dependency lock modifications, and pinned Tailwind CSS SHA256 (`3a51d2ff`).
 3. **Backup & recovery integrity**: Verify fresh encrypted off-host backup and isolated restore proof before any deployment.
 4. **Controlled deployment**: Execute reviewed fast-forward deployment helper with explicit Owner authorization flag; preserve protected overlays (`.env`, `.htaccess`, `public/.htaccess`) and durable storage; keep legacy files quarantined.
 5. **Authenticated postflight**: Execute finite, no-follow GET/HEAD checks, authenticated EN/AR task entry, and safe modal open/cancel checks at 1366/768/390px viewports without live customer mutations.

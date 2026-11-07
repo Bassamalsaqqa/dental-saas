@@ -19,6 +19,9 @@ $previousIoRoot = getenv('DENTA_F5_PRIVATE_SCRATCH');
 putenv('DENTA_F5_PRIVATE_SCRATCH=' . $ioTestRoot);
 define('F5_RUNNER_UNIT_TEST', true);
 require_once __DIR__ . '/run_f5_canonical_regression.php';
+if (PHP_OS_FAMILY === 'Windows') {
+    f5_windows_harden_child_directory($ioTestRoot);
+}
 
 $totalPassed = 0;
 $totalFailed = 0;
@@ -129,6 +132,129 @@ run_test("f5_run_bounded_command bounds wait on large unconsumed stdin, captures
         throw new \RuntimeException("Process execution wait exceeded timeout bound significantly ({$duration}s)");
     }
 });
+
+if (PHP_OS_FAMILY === 'Windows') {
+    run_test("Windows NTFS ACL: Negative fixture with insecure ACL refuses execution BEFORE secret file creation", function () {
+        $insecureDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'f5_insecure_' . bin2hex(random_bytes(4));
+        mkdir($insecureDir);
+        // Grant Everyone read permissions to make it intentionally insecure
+        exec('icacls ' . escapeshellarg($insecureDir) . ' /grant Everyone:(RX) 2>NUL');
+
+        $origScratch = getenv('DENTA_F5_PRIVATE_SCRATCH');
+        putenv('DENTA_F5_PRIVATE_SCRATCH=' . $insecureDir);
+
+        try {
+            $secretInput = "TOP_SECRET_CREDENTIALS_REJECT_ME";
+            $res = f5_run_bounded_command(['php', '-r', 'echo "executed"; exit(0);'], $secretInput, 5.0);
+
+            if ($res['exitcode'] !== -1) {
+                throw new \RuntimeException("Expected exitcode -1 on insecure directory, got {$res['exitcode']}");
+            }
+            if (!str_contains($res['stderr'], 'Insecure process I/O parent directory') && !str_contains($res['stderr'], 'Everyone')) {
+                throw new \RuntimeException("Expected stderr to cite insecure directory/untrusted principal, got: {$res['stderr']}");
+            }
+
+            // Verify no secret credential file or child directory was created under the insecure directory
+            $surviving = glob($insecureDir . '/*');
+            if (!empty($surviving)) {
+                throw new \RuntimeException("Secret or descriptor files were created in insecure directory before refusal!");
+            }
+        } finally {
+            if ($origScratch === false) {
+                putenv('DENTA_F5_PRIVATE_SCRATCH');
+            } else {
+                putenv('DENTA_F5_PRIVATE_SCRATCH=' . $origScratch);
+            }
+            @rmdir($insecureDir);
+        }
+    });
+
+    run_test("Windows NTFS ACL: Positive fixture with hardened private ACL executes successfully", function () {
+        $hardenedDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'f5_hardened_' . bin2hex(random_bytes(4));
+        mkdir($hardenedDir);
+        if (!f5_windows_harden_child_directory($hardenedDir)) {
+            @rmdir($hardenedDir);
+            throw new \RuntimeException("Failed to harden private test directory");
+        }
+
+        $origScratch = getenv('DENTA_F5_PRIVATE_SCRATCH');
+        putenv('DENTA_F5_PRIVATE_SCRATCH=' . $hardenedDir);
+
+        try {
+            $res = f5_run_bounded_command(['php', '-r', 'echo "hardened_pass\n"; exit(0);'], "synthetic_stdin", 5.0);
+
+            if ($res['exitcode'] !== 0) {
+                throw new \RuntimeException("Expected exitcode 0 in hardened directory, got {$res['exitcode']}: {$res['stderr']}");
+            }
+            if (trim($res['stdout']) !== 'hardened_pass') {
+                throw new \RuntimeException("Expected stdout 'hardened_pass', got '{$res['stdout']}'");
+            }
+
+            // Verify zero descriptor files remain after normal execution
+            $surviving = glob($hardenedDir . '/*');
+            if (!empty($surviving)) {
+                throw new \RuntimeException("Descriptor files survived normal execution: " . implode(', ', $surviving));
+            }
+        } finally {
+            if ($origScratch === false) {
+                putenv('DENTA_F5_PRIVATE_SCRATCH');
+            } else {
+                putenv('DENTA_F5_PRIVATE_SCRATCH=' . $origScratch);
+            }
+            @rmdir($hardenedDir);
+        }
+    });
+
+    run_test("Windows Process Confinement: Forced spawn failure in try/finally leaves zero surviving credential files", function () use ($ioTestRoot) {
+        $nonExistentBinary = 'non_existent_f5_executable_' . bin2hex(random_bytes(6));
+        $secretPayload = "SYNTHETIC_CREDENTIALS_FOR_SPAWN_FAILURE_TEST";
+
+        $res = f5_run_bounded_command([$nonExistentBinary], $secretPayload, 5.0);
+
+        if ($res['exitcode'] !== -1) {
+            throw new \RuntimeException("Expected exitcode -1 on spawn failure, got {$res['exitcode']}");
+        }
+        if (!str_contains($res['stderr'], 'Failed to spawn process')) {
+            throw new \RuntimeException("Expected 'Failed to spawn process' in stderr, got: {$res['stderr']}");
+        }
+
+        // Verify zero files or directories survive in scratch root
+        $surviving = glob($ioTestRoot . '/*');
+        if (!empty($surviving)) {
+            throw new \RuntimeException("Credential or descriptor files survived spawn failure: " . implode(', ', $surviving));
+        }
+    });
+
+    run_test("Windows Security: Reparse point or junction scratch directory is strictly refused", function () {
+        $targetDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'f5_target_' . bin2hex(random_bytes(4));
+        mkdir($targetDir);
+        f5_windows_harden_child_directory($targetDir);
+
+        $junctionDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'f5_junc_' . bin2hex(random_bytes(4));
+        exec('cmd.exe /c mklink /J ' . escapeshellarg($junctionDir) . ' ' . escapeshellarg($targetDir) . ' 2>NUL');
+
+        $origScratch = getenv('DENTA_F5_PRIVATE_SCRATCH');
+        putenv('DENTA_F5_PRIVATE_SCRATCH=' . $junctionDir);
+
+        try {
+            $res = f5_run_bounded_command(['php', '-r', 'echo 1;'], null, 5.0);
+            if ($res['exitcode'] !== -1) {
+                throw new \RuntimeException("Expected refusal on junction directory, got {$res['exitcode']}");
+            }
+            if (!str_contains($res['stderr'], 'reparse point') && !str_contains($res['stderr'], 'symlink')) {
+                throw new \RuntimeException("Expected reparse point error, got: {$res['stderr']}");
+            }
+        } finally {
+            if ($origScratch === false) {
+                putenv('DENTA_F5_PRIVATE_SCRATCH');
+            } else {
+                putenv('DENTA_F5_PRIVATE_SCRATCH=' . $origScratch);
+            }
+            @rmdir($junctionDir);
+            @rmdir($targetDir);
+        }
+    });
+}
 
 echo "\n=== SECTION 3: Remote Directory Preparation & Cleanup Safeguards ===\n";
 
@@ -279,6 +405,73 @@ $dummyWorker = $testSandbox . DIRECTORY_SEPARATOR . 'finance_concurrency_race_wo
 file_put_contents($dummyHarness, "<?php // dummy harness");
 file_put_contents($dummyWorker, "<?php // dummy worker");
 
+$repoRoot = dirname(__DIR__, 2);
+$realHarnessSha = hash_file('sha256', $repoRoot . '/tests/regression/FinanceCanonicalEdgeCasesSql.php');
+$realWorkerSha = hash_file('sha256', $repoRoot . '/tests/_support/finance_concurrency_race_worker.php');
+
+$targetEnv = [
+    'host' => '127.0.0.1',
+    'port' => 3306,
+    'database' => 'u556956644_pr24syn1106',
+    'user' => 'u556956644_pr24syn1106'
+];
+
+function f5_test_make_valid_receipt(string $harnessSha, string $workerSha, array $target): array
+{
+    $checks = [];
+    for ($i = 1; $i <= 47; $i++) {
+        $checks[] = "Canonical Check {$i}: passed";
+    }
+    return [
+        'status' => 'PASS',
+        'checkpoint' => 'denta-pr24-f5-acceptance-20261106',
+        'run_uuid' => '1122334455667788',
+        'runtime_environment' => [
+            'php_version' => PHP_VERSION,
+            'php_sapi' => 'cli',
+            'mariadb_version' => '11.8.0-MariaDB',
+            'host' => $target['host'],
+            'port' => (int)$target['port'],
+            'database' => $target['database'],
+            'user' => $target['user']
+        ],
+        'retained_harness' => [
+            'harness_path' => 'tests/regression/FinanceCanonicalEdgeCasesSql.php',
+            'harness_sha256' => $harnessSha,
+            'worker_path' => 'tests/_support/finance_concurrency_race_worker.php',
+            'worker_sha256' => $workerSha
+        ],
+        'preflight_safeguards' => [
+            'host_strictly_local' => true,
+            'port_strictly_3306' => true,
+            'database_strictly_synthetic' => true,
+            'user_grants_strictly_confined' => true,
+            'synthetic_negatives_passed' => true,
+            'broader_grants_rejected' => true,
+            'initial_table_count' => 0,
+            'advisory_lock_acquired' => true,
+            'marker_table_verified' => true
+        ],
+        'regression_coverage' => [
+            'total_cases' => 4,
+            'total_checks_passed' => 47,
+            'checks' => $checks
+        ],
+        'teardown' => [
+            'tables_dropped' => 82,
+            'final_table_count' => 0,
+            'clean_database_verified' => true,
+            'drift_protection_verified' => true
+        ],
+        'safeguards' => [
+            'production_database_writes' => 0,
+            'business_data_imported' => false,
+            'customer_records_accessed' => false
+        ],
+        'completed_utc' => gmdate('c')
+    ];
+}
+
 $dummyEvidenceOut = $testSandbox . DIRECTORY_SEPARATOR . 'f5-canonical-evidence.json';
 $priorPassEvidence = json_encode([
     'status' => 'PASS',
@@ -291,44 +484,30 @@ file_put_contents($dummyEvidenceOut, $priorPassEvidence);
 $priorPassSha = hash_file('sha256', $dummyEvidenceOut);
 
 $baseOptions = [
-    'repo_root' => dirname(__DIR__, 2),
+    'repo_root' => $repoRoot,
     'creds_raw' => json_encode(['host' => '127.0.0.1', 'port' => 3306, 'database' => 'u556956644_pr24syn1106', 'user' => 'u556956644_pr24syn1106', 'password' => 'secret_pass']),
     'evidence_out' => $dummyEvidenceOut,
     'failure_prefix' => $testSandbox . DIRECTORY_SEPARATOR . 'failure-',
     'run_uuid' => '1122334455667788'
 ];
 
-run_test("Runner Lifecycle Case A: PASS path executes finally and returns 0", function () use ($baseOptions, $dummyEvidenceOut) {
+$validPassReceipt = f5_test_make_valid_receipt($realHarnessSha, $realWorkerSha, $targetEnv);
+
+run_test("Runner Lifecycle Case A: PASS path with dynamic local hashes executes finally and returns 0", function () use ($baseOptions, $dummyEvidenceOut, $validPassReceipt) {
     $cleanupCalled = false;
-    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled): array {
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled, $validPassReceipt): array {
         $cmdStr = implode(' ', $cmd);
         if (str_contains($cmdStr, 'tar -czf')) {
-            // tar creation
             $tarPath = $cmd[2] ?? '';
             if ($tarPath) file_put_contents($tarPath, "tar contents");
             return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
         }
-        if (str_contains($cmdStr, 'PARENT_OK')) {
-            return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
-        }
-        if (str_contains($cmdStr, 'MKDIR_OK')) {
-            return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
-        }
-        if (str_contains($cmdStr, 'VERIFY_OK')) {
-            return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
-        }
-        if (str_contains($cmdStr, 'tar -xzf')) {
-            return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
-        }
+        if (str_contains($cmdStr, 'PARENT_OK')) return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'MKDIR_OK')) return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
         if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
-            // Remote execution PASS
-            $passPayload = json_encode([
-                'status' => 'PASS',
-                'regression_coverage' => ['total_checks_passed' => 140],
-                'teardown' => ['tables_dropped' => 82, 'final_table_count' => 0],
-                'retained_harness' => ['harness_sha256' => 'mock_harness', 'worker_sha256' => 'mock_worker']
-            ]);
-            return ['exitcode' => 0, 'stdout' => $passPayload, 'stderr' => '', 'timed_out' => false];
+            return ['exitcode' => 0, 'stdout' => json_encode($validPassReceipt), 'stderr' => '', 'timed_out' => false];
         }
         if (str_contains($cmdStr, 'CLEANED_OK')) {
             $cleanupCalled = true;
@@ -347,8 +526,225 @@ run_test("Runner Lifecycle Case A: PASS path executes finally and returns 0", fu
         throw new \RuntimeException("Cleanup was NOT called in finally block on PASS!");
     }
     $newEvidence = json_decode((string)file_get_contents($dummyEvidenceOut), true);
-    if (($newEvidence['status'] ?? '') !== 'PASS' || ($newEvidence['regression_coverage']['total_checks_passed'] ?? 0) !== 140) {
+    if (($newEvidence['status'] ?? '') !== 'PASS' || ($newEvidence['regression_coverage']['total_checks_passed'] ?? 0) !== 47) {
         throw new \RuntimeException("Evidence receipt was not updated with PASS payload");
+    }
+});
+
+// Restore prior PASS evidence for negative tests
+file_put_contents($dummyEvidenceOut, $priorPassEvidence);
+
+run_test("Attestation Negative 1: Wrong harness SHA in remote PASS rejected, exit 1, prior PASS preserved byte-for-byte", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $validPassReceipt) {
+    $cleanupCalled = false;
+    $badReceipt = $validPassReceipt;
+    $badReceipt['retained_harness']['harness_sha256'] = 'wrong_harness_sha256_deadbeef0123456789abcdef';
+
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled, $badReceipt): array {
+        $cmdStr = implode(' ', $cmd);
+        if (str_contains($cmdStr, 'tar -czf')) {
+            $tarPath = $cmd[2] ?? '';
+            if ($tarPath) file_put_contents($tarPath, "tar contents");
+            return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'PARENT_OK')) return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'MKDIR_OK')) return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
+            return ['exitcode' => 0, 'stdout' => json_encode($badReceipt), 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'CLEANED_OK')) {
+            $cleanupCalled = true;
+            return ['exitcode' => 0, 'stdout' => 'CLEANED_OK', 'stderr' => '', 'timed_out' => false];
+        }
+        return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+    };
+
+    $opts = array_merge($baseOptions, ['cmd_runner' => $mockRunner]);
+    $code = runCanonicalSuite($opts);
+
+    if ($code !== 1) {
+        throw new \RuntimeException("Expected exit code 1 on wrong harness SHA, got {$code}");
+    }
+    if (!$cleanupCalled) {
+        throw new \RuntimeException("Cleanup was NOT called in finally block on attestation failure!");
+    }
+    $currentSha = hash_file('sha256', $dummyEvidenceOut);
+    if ($currentSha !== $priorPassSha) {
+        throw new \RuntimeException("Prior PASS evidence was modified on wrong harness SHA attestation failure!");
+    }
+});
+
+file_put_contents($dummyEvidenceOut, $priorPassEvidence);
+
+run_test("Attestation Negative 2: Missing worker SHA in remote PASS rejected, exit 1, prior PASS preserved byte-for-byte", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $validPassReceipt) {
+    $cleanupCalled = false;
+    $badReceipt = $validPassReceipt;
+    unset($badReceipt['retained_harness']['worker_sha256']);
+
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled, $badReceipt): array {
+        $cmdStr = implode(' ', $cmd);
+        if (str_contains($cmdStr, 'tar -czf')) {
+            $tarPath = $cmd[2] ?? '';
+            if ($tarPath) file_put_contents($tarPath, "tar contents");
+            return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'PARENT_OK')) return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'MKDIR_OK')) return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
+            return ['exitcode' => 0, 'stdout' => json_encode($badReceipt), 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'CLEANED_OK')) {
+            $cleanupCalled = true;
+            return ['exitcode' => 0, 'stdout' => 'CLEANED_OK', 'stderr' => '', 'timed_out' => false];
+        }
+        return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+    };
+
+    $opts = array_merge($baseOptions, ['cmd_runner' => $mockRunner]);
+    $code = runCanonicalSuite($opts);
+
+    if ($code !== 1) {
+        throw new \RuntimeException("Expected exit code 1 on missing worker SHA, got {$code}");
+    }
+    if (!$cleanupCalled) {
+        throw new \RuntimeException("Cleanup was NOT called in finally block on attestation failure!");
+    }
+    $currentSha = hash_file('sha256', $dummyEvidenceOut);
+    if ($currentSha !== $priorPassSha) {
+        throw new \RuntimeException("Prior PASS evidence was modified on missing worker SHA attestation failure!");
+    }
+});
+
+file_put_contents($dummyEvidenceOut, $priorPassEvidence);
+
+run_test("Attestation Negative 3: Wrong target database/port in remote PASS rejected, exit 1, prior PASS preserved byte-for-byte", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $validPassReceipt) {
+    $cleanupCalled = false;
+    $badReceipt = $validPassReceipt;
+    $badReceipt['runtime_environment']['database'] = 'unauthorized_production_database';
+
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled, $badReceipt): array {
+        $cmdStr = implode(' ', $cmd);
+        if (str_contains($cmdStr, 'tar -czf')) {
+            $tarPath = $cmd[2] ?? '';
+            if ($tarPath) file_put_contents($tarPath, "tar contents");
+            return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'PARENT_OK')) return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'MKDIR_OK')) return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
+            return ['exitcode' => 0, 'stdout' => json_encode($badReceipt), 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'CLEANED_OK')) {
+            $cleanupCalled = true;
+            return ['exitcode' => 0, 'stdout' => 'CLEANED_OK', 'stderr' => '', 'timed_out' => false];
+        }
+        return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+    };
+
+    $opts = array_merge($baseOptions, ['cmd_runner' => $mockRunner]);
+    $code = runCanonicalSuite($opts);
+
+    if ($code !== 1) {
+        throw new \RuntimeException("Expected exit code 1 on wrong target database, got {$code}");
+    }
+    if (!$cleanupCalled) {
+        throw new \RuntimeException("Cleanup was NOT called in finally block on attestation failure!");
+    }
+    $currentSha = hash_file('sha256', $dummyEvidenceOut);
+    if ($currentSha !== $priorPassSha) {
+        throw new \RuntimeException("Prior PASS evidence was modified on wrong target database attestation failure!");
+    }
+});
+
+file_put_contents($dummyEvidenceOut, $priorPassEvidence);
+
+run_test("Attestation Negative 4: Non-zero final tables in teardown rejected, exit 1, prior PASS preserved byte-for-byte", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $validPassReceipt) {
+    $cleanupCalled = false;
+    $badReceipt = $validPassReceipt;
+    $badReceipt['teardown']['final_table_count'] = 5;
+
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled, $badReceipt): array {
+        $cmdStr = implode(' ', $cmd);
+        if (str_contains($cmdStr, 'tar -czf')) {
+            $tarPath = $cmd[2] ?? '';
+            if ($tarPath) file_put_contents($tarPath, "tar contents");
+            return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'PARENT_OK')) return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'MKDIR_OK')) return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
+            return ['exitcode' => 0, 'stdout' => json_encode($badReceipt), 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'CLEANED_OK')) {
+            $cleanupCalled = true;
+            return ['exitcode' => 0, 'stdout' => 'CLEANED_OK', 'stderr' => '', 'timed_out' => false];
+        }
+        return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+    };
+
+    $opts = array_merge($baseOptions, ['cmd_runner' => $mockRunner]);
+    $code = runCanonicalSuite($opts);
+
+    if ($code !== 1) {
+        throw new \RuntimeException("Expected exit code 1 on non-zero final table count, got {$code}");
+    }
+    if (!$cleanupCalled) {
+        throw new \RuntimeException("Cleanup was NOT called in finally block on attestation failure!");
+    }
+    $currentSha = hash_file('sha256', $dummyEvidenceOut);
+    if ($currentSha !== $priorPassSha) {
+        throw new \RuntimeException("Prior PASS evidence was modified on non-zero final table count!");
+    }
+});
+
+file_put_contents($dummyEvidenceOut, $priorPassEvidence);
+
+run_test("Attestation Negative 5: Zero coverage in remote PASS rejected, exit 1, prior PASS preserved byte-for-byte", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $validPassReceipt) {
+    $cleanupCalled = false;
+    $badReceipt = $validPassReceipt;
+    $badReceipt['regression_coverage']['total_checks_passed'] = 0;
+    $badReceipt['regression_coverage']['checks'] = [];
+
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled, $badReceipt): array {
+        $cmdStr = implode(' ', $cmd);
+        if (str_contains($cmdStr, 'tar -czf')) {
+            $tarPath = $cmd[2] ?? '';
+            if ($tarPath) file_put_contents($tarPath, "tar contents");
+            return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'PARENT_OK')) return ['exitcode' => 0, 'stdout' => 'PARENT_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'MKDIR_OK')) return ['exitcode' => 0, 'stdout' => 'MKDIR_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+        if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
+            return ['exitcode' => 0, 'stdout' => json_encode($badReceipt), 'stderr' => '', 'timed_out' => false];
+        }
+        if (str_contains($cmdStr, 'CLEANED_OK')) {
+            $cleanupCalled = true;
+            return ['exitcode' => 0, 'stdout' => 'CLEANED_OK', 'stderr' => '', 'timed_out' => false];
+        }
+        return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
+    };
+
+    $opts = array_merge($baseOptions, ['cmd_runner' => $mockRunner]);
+    $code = runCanonicalSuite($opts);
+
+    if ($code !== 1) {
+        throw new \RuntimeException("Expected exit code 1 on zero coverage, got {$code}");
+    }
+    if (!$cleanupCalled) {
+        throw new \RuntimeException("Cleanup was NOT called in finally block on attestation failure!");
+    }
+    $currentSha = hash_file('sha256', $dummyEvidenceOut);
+    if ($currentSha !== $priorPassSha) {
+        throw new \RuntimeException("Prior PASS evidence was modified on zero coverage!");
     }
 });
 
@@ -504,9 +900,9 @@ run_test("Runner Lifecycle Case E: Timeout executes finally, preserves prior PAS
     }
 });
 
-run_test("Runner Lifecycle Case F: Execution PASS with cleanup refusal preserves prior PASS receipt byte-for-byte, returns 1, leaves no pending receipt", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $testSandbox) {
+run_test("Runner Lifecycle Case F: Execution PASS with cleanup refusal preserves prior PASS receipt byte-for-byte, returns 1, leaves no pending receipt", function () use ($baseOptions, $dummyEvidenceOut, $priorPassSha, $testSandbox, $validPassReceipt) {
     $cleanupCalled = false;
-    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled): array {
+    $mockRunner = function (array $cmd, ?string $in, float $timeout) use (&$cleanupCalled, $validPassReceipt): array {
         $cmdStr = implode(' ', $cmd);
         if (str_contains($cmdStr, 'tar -czf')) {
             $tarPath = $cmd[2] ?? '';
@@ -518,14 +914,8 @@ run_test("Runner Lifecycle Case F: Execution PASS with cleanup refusal preserves
         if (str_contains($cmdStr, 'VERIFY_OK')) return ['exitcode' => 0, 'stdout' => 'VERIFY_OK', 'stderr' => '', 'timed_out' => false];
         if (str_contains($cmdStr, 'tar -xzf')) return ['exitcode' => 0, 'stdout' => '', 'stderr' => '', 'timed_out' => false];
         if (str_contains($cmdStr, 'FinanceCanonicalEdgeCasesSql.php')) {
-            // Execution SUCCEEDS with PASS payload!
-            $passPayload = json_encode([
-                'status' => 'PASS',
-                'regression_coverage' => ['total_checks_passed' => 140],
-                'teardown' => ['tables_dropped' => 82, 'final_table_count' => 0],
-                'retained_harness' => ['harness_sha256' => 'mock_harness', 'worker_sha256' => 'mock_worker']
-            ]);
-            return ['exitcode' => 0, 'stdout' => $passPayload, 'stderr' => '', 'timed_out' => false];
+            // Execution SUCCEEDS with valid attestation PASS payload!
+            return ['exitcode' => 0, 'stdout' => json_encode($validPassReceipt), 'stderr' => '', 'timed_out' => false];
         }
         if (str_contains($cmdStr, 'CLEANED_OK')) {
             $cleanupCalled = true;

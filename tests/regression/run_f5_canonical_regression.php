@@ -34,6 +34,231 @@ function f5_resolve_process_exit_code(?int $statusExitCode, int $procCloseCode):
 }
 
 /**
+ * Checks if a path on Windows is a reparse point or symbolic link.
+ */
+function f5_windows_is_reparse_point(string $path): bool
+{
+    if (is_link($path)) {
+        return true;
+    }
+    if (DIRECTORY_SEPARATOR === '\\') {
+        $out = [];
+        $code = 0;
+        exec('fsutil reparsepoint query ' . escapeshellarg($path) . ' 2>NUL', $out, $code);
+        if ($code === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Resolves current Windows user identity, whoami, and SID.
+ *
+ * @return array{username: string, whoami: string, sid: string}
+ */
+function f5_windows_get_current_user_info(): array
+{
+    static $info = null;
+    if ($info !== null) {
+        return $info;
+    }
+    $username = strtolower((string)getenv('USERNAME'));
+    $whoami = '';
+    $out = [];
+    exec('whoami 2>NUL', $out);
+    if (!empty($out)) {
+        $whoami = strtolower(trim($out[0]));
+    }
+    $sid = '';
+    $sidOut = [];
+    exec('whoami /user 2>NUL', $sidOut);
+    foreach ($sidOut as $line) {
+        if (preg_match('/(S-1-5-21-[0-9-]+)/', $line, $m)) {
+            $sid = strtolower($m[1]);
+            break;
+        }
+    }
+    $info = [
+        'username' => $username,
+        'whoami' => $whoami,
+        'sid' => $sid
+    ];
+    return $info;
+}
+
+/**
+ * Strips inheritance and grants exclusive Full Control to current operator, SYSTEM, and Administrators.
+ */
+function f5_windows_harden_child_directory(string $childDir): bool
+{
+    $sid = f5_windows_get_current_user_info()['sid'];
+    if (!preg_match('/^s-1-[0-9-]+$/D', $sid)) {
+        return false;
+    }
+    $cmd = 'icacls ' . escapeshellarg($childDir) . ' /inheritance:r /grant:r '
+        . escapeshellarg('*' . strtoupper($sid) . ':(OI)(CI)F')
+        . ' ' . escapeshellarg('*S-1-5-18:(OI)(CI)F')
+        . ' ' . escapeshellarg('*S-1-5-32-544:(OI)(CI)F')
+        . ' 2>NUL';
+    $out = [];
+    $code = 0;
+    exec($cmd, $out, $code);
+    return ($code === 0);
+}
+
+/**
+ * Verifies owner SID/name and effective NTFS ACLs for directory privacy.
+ * Refuses Everyone, Authenticated Users, Users, or other untrusted principals.
+ *
+ * @return array{valid: bool, error?: string, owner?: string}
+ */
+function f5_windows_verify_directory_privacy(string $path, bool $isExclusiveChild = false): array
+{
+    $resolved = realpath($path);
+    if ($resolved === false || !is_dir($resolved)) {
+        return ['valid' => false, 'error' => 'Private directory cannot be resolved.'];
+    }
+    // Ask Windows for security identifiers directly: never trust display-name
+    // substrings, environment usernames, localized icacls text or sandbox groups.
+    $path64 = base64_encode($resolved);
+    $script = '$ErrorActionPreference = "Stop"; '
+        . '$p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("' . $path64 . '")); '
+        . '$item = Get-Item -Force -LiteralPath $p; $reparse = $false; $ancestor = $item; '
+        . 'while ($null -ne $ancestor) { if (($ancestor.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { $reparse = $true }; $ancestor = $ancestor.Parent }; '
+        . '$acl = Get-Acl -LiteralPath $p; '
+        . '$rules = @($acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier]) | ForEach-Object { '
+        . '@{sid=$_.IdentityReference.Value; type=$_.AccessControlType.ToString(); rights=[int64]$_.FileSystemRights} }); '
+        . '@{owner=$acl.GetOwner([Security.Principal.SecurityIdentifier]).Value; '
+        . 'current=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value; '
+        . 'protected=$acl.AreAccessRulesProtected; reparse=$reparse; rules=$rules} | ConvertTo-Json -Compress -Depth 4';
+    $encoded = base64_encode(iconv('UTF-8', 'UTF-16LE', $script));
+    $lines = [];
+    $code = 0;
+    exec('powershell.exe -NoProfile -NonInteractive -EncodedCommand ' . $encoded . ' 2>NUL', $lines, $code);
+    $acl = json_decode(implode("\n", $lines), true);
+    if ($code !== 0 || !is_array($acl) || !is_string($acl['current'] ?? null)
+        || !preg_match('/^S-1-[0-9-]+$/D', $acl['current'])
+        || ($acl['reparse'] ?? true) !== false || !is_array($acl['rules'] ?? null) || !$acl['rules']) {
+        return ['valid' => false, 'error' => 'Could not verify private directory security identifiers or reparse ancestry.'];
+    }
+    $trusted = [$acl['current'], 'S-1-5-18', 'S-1-5-32-544'];
+    if (!in_array($acl['owner'] ?? null, $trusted, true)) {
+        return ['valid' => false, 'error' => 'Private directory owner is not the operator, SYSTEM or Administrators.'];
+    }
+    foreach ($acl['rules'] as $rule) {
+        if (($rule['type'] ?? '') === 'Allow' && ($rule['rights'] ?? 0) !== 0
+            && !in_array($rule['sid'] ?? null, $trusted, true)) {
+            return ['valid' => false, 'error' => 'Private directory grants access to an untrusted principal.'];
+        }
+    }
+    if ($isExclusiveChild && ($acl['protected'] ?? false) !== true) {
+        return ['valid' => false, 'error' => 'Exclusive child directory inherits permissions.'];
+    }
+    return ['valid' => true, 'owner' => $acl['owner']];
+}
+
+/**
+ * Validates canonical acceptance receipt from remote test suite.
+ * Enforces exact BOTH hash matches against locally computed hashes,
+ * expected synthetic target environment, clean teardown verification,
+ * and coverage consistency.
+ *
+ * @return array{valid: bool, error?: string}
+ */
+function f5_validate_canonical_receipt(array $evidence, string $expectedHarnessSha, string $expectedWorkerSha, array $expectedTarget): array
+{
+    if (($evidence['status'] ?? '') !== 'PASS') {
+        return ['valid' => false, 'error' => "Status is not PASS: " . json_encode($evidence['status'] ?? null)];
+    }
+
+    // 1. Retained Harness & Worker SHA verification
+    $harness = $evidence['retained_harness'] ?? null;
+    if (!is_array($harness)) {
+        return ['valid' => false, 'error' => "Missing 'retained_harness' object"];
+    }
+    $harnessSha = (string)($harness['harness_sha256'] ?? '');
+    $workerSha = (string)($harness['worker_sha256'] ?? '');
+
+    if ($harnessSha === '' || !hash_equals(strtolower($expectedHarnessSha), strtolower($harnessSha))) {
+        return ['valid' => false, 'error' => "Harness SHA mismatch (expected {$expectedHarnessSha}, got {$harnessSha})"];
+    }
+    if ($workerSha === '' || !hash_equals(strtolower($expectedWorkerSha), strtolower($workerSha))) {
+        return ['valid' => false, 'error' => "Worker SHA mismatch (expected {$expectedWorkerSha}, got {$workerSha})"];
+    }
+
+    // 2. Runtime Environment & Synthetic Target verification
+    $env = $evidence['runtime_environment'] ?? null;
+    if (!is_array($env)) {
+        return ['valid' => false, 'error' => "Missing 'runtime_environment' object"];
+    }
+    $host = (string)($env['host'] ?? '');
+    if (!in_array($host, ['127.0.0.1', 'localhost'], true) || $host !== ($expectedTarget['host'] ?? '')) {
+        return ['valid' => false, 'error' => "Target host is not verified local loopback (got '{$host}')"];
+    }
+    $port = (int)($env['port'] ?? 0);
+    $expectedPort = (int)($expectedTarget['port'] ?? 3306);
+    if ($port !== $expectedPort) {
+        return ['valid' => false, 'error' => "Target port mismatch (expected {$expectedPort}, got {$port})"];
+    }
+    $database = (string)($env['database'] ?? '');
+    $expectedDatabase = (string)($expectedTarget['database'] ?? '');
+    if ($database === '' || $database !== $expectedDatabase) {
+        return ['valid' => false, 'error' => "Target database mismatch (expected '{$expectedDatabase}', got '{$database}')"];
+    }
+    $user = (string)($env['user'] ?? '');
+    $expectedUser = (string)($expectedTarget['user'] ?? '');
+    if ($user === '' || $user !== $expectedUser) {
+        return ['valid' => false, 'error' => "Target user mismatch (expected '{$expectedUser}', got '{$user}')"];
+    }
+
+    // 3. Preflight Safeguards
+    $safeguards = $evidence['preflight_safeguards'] ?? null;
+    if (!is_array($safeguards)) {
+        return ['valid' => false, 'error' => "Missing 'preflight_safeguards' object"];
+    }
+    if (($safeguards['database_strictly_synthetic'] ?? false) !== true) {
+        return ['valid' => false, 'error' => "Safeguard 'database_strictly_synthetic' was not true"];
+    }
+    if (($safeguards['initial_table_count'] ?? -1) !== 0) {
+        return ['valid' => false, 'error' => "Initial table count was non-zero"];
+    }
+
+    // 4. Regression Coverage & Checkcount Consistency
+    $coverage = $evidence['regression_coverage'] ?? null;
+    if (!is_array($coverage)) {
+        return ['valid' => false, 'error' => "Missing 'regression_coverage' object"];
+    }
+    $passed = $coverage['total_checks_passed'] ?? null;
+    if (!is_int($passed) || $passed < 47) {
+        return ['valid' => false, 'error' => "Total checks passed ({$passed}) is below the retained canonical suite minimum of 47"];
+    }
+    $checks = $coverage['checks'] ?? null;
+    if (!is_array($checks) || count($checks) !== $passed) {
+        return ['valid' => false, 'error' => "Check list count (" . count((array)$checks) . ") does not match total_checks_passed ({$passed})"];
+    }
+
+    // 5. Clean Teardown Verification
+    $teardown = $evidence['teardown'] ?? null;
+    if (!is_array($teardown)) {
+        return ['valid' => false, 'error' => "Missing 'teardown' object"];
+    }
+    if (($teardown['clean_database_verified'] ?? false) !== true) {
+        return ['valid' => false, 'error' => "Teardown 'clean_database_verified' was not true"];
+    }
+    $finalCount = $teardown['final_table_count'] ?? null;
+    if (!is_int($finalCount) || $finalCount !== 0) {
+        return ['valid' => false, 'error' => "Teardown final_table_count ({$finalCount}) is not strictly 0"];
+    }
+    $dropped = $teardown['tables_dropped'] ?? null;
+    if (!is_int($dropped) || $dropped <= 0) {
+        return ['valid' => false, 'error' => "Teardown tables_dropped ({$dropped}) is not greater than 0"];
+    }
+
+    return ['valid' => true];
+}
+
+/**
  * Runs a command with argument array, bounds wait with deadline, and performs non-blocking pipe reads.
  *
  * @param array<int, string> $cmd
@@ -165,7 +390,7 @@ function f5_run_bounded_command(array $cmd, ?string $stdinData = null, float $ti
 
     // Windows PHP 8.2: anonymous pipes do not support stream_set_blocking and stream_select
     // falsely signals readiness, causing blocking fread/fwrite hangs on large stdin or stderr pressure.
-    // Use private temporary files in a private, Git-ignored scratch directory (strictly not general Temp).
+    // Use private temporary files in a verified private, Git-ignored scratch directory (strictly not general Temp).
     $scratchParent = getenv('DENTA_F5_PRIVATE_SCRATCH')
         ?: 'C:/Users/bassa/DentaRecoveryKeys/denta-pr24-final-20261105';
     $resolvedParent = realpath($scratchParent);
@@ -176,98 +401,128 @@ function f5_run_bounded_command(array $cmd, ?string $stdinData = null, float $ti
         || str_starts_with(strtolower($normalizedParent), strtolower($repoPath) . '/')) {
         return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Configure a private process I/O directory outside the checkout.', 'timed_out' => false];
     }
-    // Operator-provisioned private storage inherits its existing restrictive ACL.
-    // Never put credential-bearing descriptors under the application web tree.
+
+    if (f5_windows_is_reparse_point($scratchParent) || f5_windows_is_reparse_point($resolvedParent)) {
+        return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Process I/O directory is a symlink or reparse point.', 'timed_out' => false];
+    }
+
+    // Verify parent directory privacy, ownership, and restrictive NTFS ACL
+    $parentCheck = f5_windows_verify_directory_privacy($resolvedParent, false);
+    if (!$parentCheck['valid']) {
+        return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Insecure process I/O parent directory: ' . ($parentCheck['error'] ?? 'unknown'), 'timed_out' => false];
+    }
+
+    // Create exclusive run directory under verified parent
     $privateScratchDir = $resolvedParent . '/f5_bounded_' . bin2hex(random_bytes(6));
-    if (!mkdir($privateScratchDir, 0700)) {
+    if (!@mkdir($privateScratchDir, 0700)) {
         return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Could not create exclusive process I/O storage.', 'timed_out' => false];
+    }
+
+    // Harden exclusive child directory permissions
+    if (!f5_windows_harden_child_directory($privateScratchDir)) {
+        @rmdir($privateScratchDir);
+        return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Could not harden exclusive child directory permissions.', 'timed_out' => false];
+    }
+
+    // Verify exclusive child directory privacy and non-inherited ACL
+    $childCheck = f5_windows_verify_directory_privacy($privateScratchDir, true);
+    if (!$childCheck['valid']) {
+        @rmdir($privateScratchDir);
+        return ['exitcode' => -1, 'stdout' => '', 'stderr' => 'Insecure exclusive child directory: ' . ($childCheck['error'] ?? 'unknown'), 'timed_out' => false];
     }
 
     $stdinFile = $privateScratchDir . '/stdin.dat';
     $stdoutFile = $privateScratchDir . '/stdout.dat';
     $stderrFile = $privateScratchDir . '/stderr.dat';
+    $proc = null;
+    $pipes = [];
 
-    if ($stdinData !== null && $stdinData !== '') {
-        file_put_contents($stdinFile, $stdinData);
-        $desc0 = ['file', $stdinFile, 'r'];
-    } else {
-        $desc0 = ['file', 'NUL', 'r'];
-    }
-
-    $descriptors = [
-        0 => $desc0,
-        1 => ['file', $stdoutFile, 'w'],
-        2 => ['file', $stderrFile, 'w']
-    ];
-
-    $proc = proc_open($cmd, $descriptors, $pipes, null, $env);
-    if (!is_resource($proc)) {
-        @unlink($stdinFile);
-        @rmdir($privateScratchDir);
-        return [
-            'exitcode' => -1,
-            'stdout' => '',
-            'stderr' => 'Failed to spawn process: ' . ($cmd[0] ?? 'unknown'),
-            'timed_out' => false
-        ];
-    }
-
-    $status = proc_get_status($proc);
-    $pid = (int)($status['pid'] ?? 0);
-    $capturedExitCode = null;
-    $timedOut = false;
-
-    while (true) {
-        $status = proc_get_status($proc);
-        if (!$status['running']) {
-            if ($capturedExitCode === null && isset($status['exitcode']) && $status['exitcode'] !== -1) {
-                $capturedExitCode = $status['exitcode'];
-            }
-            break;
+    try {
+        if ($stdinData !== null && $stdinData !== '') {
+            file_put_contents($stdinFile, $stdinData);
+            $desc0 = ['file', $stdinFile, 'r'];
+        } else {
+            $desc0 = ['file', 'NUL', 'r'];
         }
 
-        if (microtime(true) > $deadline) {
-            $timedOut = true;
-            @proc_terminate($proc);
-            $termDeadline = microtime(true) + 1.0;
-            while (microtime(true) < $termDeadline) {
-                $s = proc_get_status($proc);
-                if (!$s['running']) break;
-                usleep(15000);
+        $descriptors = [
+            0 => $desc0,
+            1 => ['file', $stdoutFile, 'w'],
+            2 => ['file', $stderrFile, 'w']
+        ];
+
+        $proc = proc_open($cmd, $descriptors, $pipes, null, $env);
+        if (!is_resource($proc)) {
+            return [
+                'exitcode' => -1,
+                'stdout' => '',
+                'stderr' => 'Failed to spawn process: ' . ($cmd[0] ?? 'unknown'),
+                'timed_out' => false
+            ];
+        }
+
+        $status = proc_get_status($proc);
+        $pid = (int)($status['pid'] ?? 0);
+        $capturedExitCode = null;
+        $timedOut = false;
+
+        while (true) {
+            $status = proc_get_status($proc);
+            if (!$status['running']) {
+                if ($capturedExitCode === null && isset($status['exitcode']) && $status['exitcode'] !== -1) {
+                    $capturedExitCode = $status['exitcode'];
+                }
+                break;
             }
-            $s = proc_get_status($proc);
-            if ($s['running'] && $pid > 0) {
-                exec("taskkill /F /T /PID {$pid} 2>&1");
-                $killDeadline = microtime(true) + 1.0;
-                while (microtime(true) < $killDeadline) {
-                    $s2 = proc_get_status($proc);
-                    if (!$s2['running']) break;
+
+            if (microtime(true) > $deadline) {
+                $timedOut = true;
+                @proc_terminate($proc);
+                $termDeadline = microtime(true) + 1.0;
+                while (microtime(true) < $termDeadline) {
+                    $s = proc_get_status($proc);
+                    if (!$s['running']) break;
                     usleep(15000);
                 }
+                $s = proc_get_status($proc);
+                if ($s['running'] && $pid > 0) {
+                    exec("taskkill /F /T /PID {$pid} 2>&1");
+                    $killDeadline = microtime(true) + 1.0;
+                    while (microtime(true) < $killDeadline) {
+                        $s2 = proc_get_status($proc);
+                        if (!$s2['running']) break;
+                        usleep(15000);
+                    }
+                }
+                break;
             }
-            break;
+
+            usleep(15000);
         }
 
-        usleep(15000);
+        $closeCode = proc_close($proc);
+        $proc = null;
+        $finalExitCode = $timedOut ? -1 : f5_resolve_process_exit_code($capturedExitCode, $closeCode);
+
+        $stdout = is_file($stdoutFile) ? (string)file_get_contents($stdoutFile) : '';
+        $stderr = is_file($stderrFile) ? (string)file_get_contents($stderrFile) : '';
+
+        return [
+            'exitcode' => $finalExitCode,
+            'stdout' => $stdout,
+            'stderr' => $stderr,
+            'timed_out' => $timedOut
+        ];
+    } finally {
+        if (is_resource($proc)) {
+            @proc_terminate($proc);
+            @proc_close($proc);
+        }
+        if (is_file($stdinFile)) @unlink($stdinFile);
+        if (is_file($stdoutFile)) @unlink($stdoutFile);
+        if (is_file($stderrFile)) @unlink($stderrFile);
+        if (is_dir($privateScratchDir)) @rmdir($privateScratchDir);
     }
-
-    $closeCode = proc_close($proc);
-    $finalExitCode = $timedOut ? -1 : f5_resolve_process_exit_code($capturedExitCode, $closeCode);
-
-    $stdout = is_file($stdoutFile) ? (string)file_get_contents($stdoutFile) : '';
-    $stderr = is_file($stderrFile) ? (string)file_get_contents($stderrFile) : '';
-
-    @unlink($stdinFile);
-    @unlink($stdoutFile);
-    @unlink($stderrFile);
-    @rmdir($privateScratchDir);
-
-    return [
-        'exitcode' => $finalExitCode,
-        'stdout' => $stdout,
-        'stderr' => $stderr,
-        'timed_out' => $timedOut
-    ];
 }
 
 /**
@@ -553,21 +808,26 @@ function runCanonicalSuite(array $options = []): int
             echo "Remote stderr:\n{$sanitizedStderr}\n";
         }
 
-        // Step 5: Check PASS evidence
+        // Step 5: Check PASS evidence with exact schema and hash attestation
         if ($runExit === 0 && trim($stdout) !== '') {
             $evidence = json_decode(trim($stdout), true);
-            if (is_array($evidence) && ($evidence['status'] ?? '') === 'PASS') {
-                echo "\n========================================================\n";
-                echo " F5 CANONICAL ACCEPTANCE: PASS (execution verified)\n";
-                echo "========================================================\n";
-                echo "Total Checks Passed: " . ($evidence['regression_coverage']['total_checks_passed'] ?? 0) . "\n";
-                echo "Tables Dropped:      " . ($evidence['teardown']['tables_dropped'] ?? 0) . "\n";
-                echo "Final Table Count:   " . ($evidence['teardown']['final_table_count'] ?? -1) . "\n";
-                echo "Harness SHA256:      " . ($evidence['retained_harness']['harness_sha256'] ?? '') . "\n";
-                echo "Worker SHA256:       " . ($evidence['retained_harness']['worker_sha256'] ?? '') . "\n";
+            if (is_array($evidence)) {
+                $attestation = f5_validate_canonical_receipt($evidence, $harnessSha, $workerSha, $creds);
+                if ($attestation['valid']) {
+                    echo "\n========================================================\n";
+                    echo " F5 CANONICAL ACCEPTANCE: PASS (execution verified)\n";
+                    echo "========================================================\n";
+                    echo "Total Checks Passed: " . ($evidence['regression_coverage']['total_checks_passed'] ?? 0) . "\n";
+                    echo "Tables Dropped:      " . ($evidence['teardown']['tables_dropped'] ?? 0) . "\n";
+                    echo "Final Table Count:   " . ($evidence['teardown']['final_table_count'] ?? -1) . "\n";
+                    echo "Harness SHA256:      " . ($evidence['retained_harness']['harness_sha256'] ?? '') . "\n";
+                    echo "Worker SHA256:       " . ($evidence['retained_harness']['worker_sha256'] ?? '') . "\n";
 
-                // Stage the PASS evidence in memory; DO NOT publish until cleanup succeeds!
-                $pendingPassEvidence = $evidence;
+                    // Stage the PASS evidence in memory; DO NOT publish until cleanup succeeds!
+                    $pendingPassEvidence = $evidence;
+                } else {
+                    fwrite(STDERR, "Receipt attestation rejected: " . ($attestation['error'] ?? 'unknown') . "\n");
+                }
             }
         }
 
