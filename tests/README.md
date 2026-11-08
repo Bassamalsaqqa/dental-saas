@@ -9,7 +9,7 @@ For the isolated patient registration interaction proof, run `node tests/js/run-
 
 The retained actual HTTP/navigation check is `node tests/js/run-patient-navigation-http.cjs`. It requires the already running, preflight-owned disposable target on loopback3307 and an explicit private `DENTA_VERIFIED_TEST_CONNECTION` JSON object (hostname, port, database, username, password, DBDriver, DBPrefix), or all corresponding `database.tests.*` environment values. There are no credential defaults. Do not print or put connection JSON in command arguments. The runner does not initialize or stop the database; it owns only its HTTP server/browser and run-scoped fixtures. Keep recovery schemas untouched. It isolates runtime files under an owned ignored run directory, removes that runtime after verified teardown, and retains synthetic screenshots plus pass.json separately. Framework renderer/session/toolbar substitutions and observed document reload mean this is not unmodified production-runtime or native-BFCache certification.
 
-`node tests/js/run-harness-negative-controls.cjs` checks five DB-free denial paths using owned loopback processes and the real runner's occupied-port refusal. The PHP harness security checks are included in `npm test`. Fault-injection coverage is not exhaustive.
+`node tests/js/run-harness-negative-controls.cjs` checks seven DB-free denial/preservation paths using owned loopback processes and the real runner's occupied-port refusal. The PHP harness security checks are included in `npm test`. Fault-injection coverage is not exhaustive.
 
 For an inspected database-free suite:
 ```powershell

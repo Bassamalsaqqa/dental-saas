@@ -32,7 +32,12 @@ if (!in_array($remote, ['127.0.0.1', '::1', 'localhost'], true)) {
     exit(1);
 }
 
-$serverPort = (string) ($_SERVER['SERVER_PORT'] ?? '57527');
+$serverPort = (string) ($_SERVER['SERVER_PORT'] ?? '');
+if ($serverPort !== '57527') {
+    http_response_code(400);
+    echo 'Bad Request: fixed port 57527 required.';
+    exit(1);
+}
 $hostHeader = $_SERVER['HTTP_HOST'] ?? '';
 if (!in_array($hostHeader, ["127.0.0.1:{$serverPort}", "localhost:{$serverPort}"], true)) {
     header('HTTP/1.1 400 Bad Request');
