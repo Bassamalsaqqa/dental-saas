@@ -1,14 +1,14 @@
 # Project State
 
-Last reconciled: 2026-11-07. Historical deployment and development entries remain available in Git history.
+Last reconciled: 2026-11-08. Historical deployment and development entries remain available in Git history.
 
 ## Production authority
 
-- Installed application: `5b7c0688a1afa4626a4ed913e759a763eb282c12`, tree `b1ec2c3e3b3472c5b62d11734d94fa8e1dc6941a`. PR27 (including PR26) merged and deployed on 2026-11-07 under Owner authorization. Prior PR24 source 6505bac3 remains the immediate source-recovery baseline.
+- Installed application: `1b17d06587a07a473f714e296af27f977134208d`, tree `257f1661717e898a430c5bec0d7128af1568ead1`. PR28 merged and deployed on 2026-11-08 under existing Owner authorization; maintenance is OFF. PR27 source 5b7c0688 is the immediate source-recovery baseline.
 - Deployment branch and GitHub default: `release/production-20261017`. Historical `main` remains `485a19824d08e35fcd1a2a68923c63ec265867ca`; do not deploy historical main.
 - PR22 schema/runtime history: PHP 8.3.36 / MariaDB 11.8.9. Exactly two approved migrations ran: `2026-10-29-120000_WidenTreatmentTypeStorage` and `2026-10-29-180000_CreateFinanceSettlementRequests`. History advanced 77 to 79; tables 67 to 68. No unrelated migration or dependency installation ran. PR24 introduces no migrations or dependency changes.
 - PR22 historical recovery preserved original table fingerprints, protected configuration and durable files. Its encrypted off-host recovery restored 67 tables / 9,664 rows, 137 protected files and 1,882 previous-source files; an encrypted post-migration supplement preserves the new treatment provenance journals.
-- PR27 postflight: 24 no-follow HTTP GET/HEAD checks, 54 authenticated browser entries in EN/AR at 1366/768/390px, and six each salary, registration/search and stock-dialog open/cancel journeys passed. No page errors or viewport overflow observed; maintenance is OFF. No live financial/clinical submissions, migrations, dependency changes or optional activations occurred.
+- Prior PR27 postflight: 24 no-follow HTTP GET/HEAD checks, 54 authenticated browser entries in EN/AR at 1366/768/390px, and six each salary, registration/search and stock-dialog open/cancel journeys passed. No page errors or viewport overflow observed; maintenance is OFF. No live financial/clinical submissions, migrations, dependency changes or optional activations occurred.
 - Fresh encrypted checkpoint was authenticated/decrypted independently; isolated two-sided restore verified 68 tables/9,832 rows and 0 FK orphans. Under maintenance, SQL content (apart from dump timestamp) and 56 durable files matched that verified checkpoint before source installation. Recovery retains security deletions and protected overlays.
 - Optional scheduling, WhatsApp, corrections, checkout, contact history, derivatives and tenant themes remain OFF. Existing contract/signature/attachment entitlements remain unchanged.
 - Detailed recovery/cutover receipts are private operator evidence, not repository fixtures. Never commit backups, keys, credentials or customer records.
@@ -19,7 +19,7 @@ Last reconciled: 2026-11-07. Historical deployment and development entries remai
 - Superseded PRs #4, #5, #6, #7, #8 and #12 were closed after proving their heads are release ancestors. Obsolete remote branches were removed; three unique historical tips are retained under `archive/cleanup-20261102/*` tags.
 - All 13 obsolete registered worktrees and 14 stale local branches were retired after verified preservation. One authoritative checkout remains. Owner design kits/prompts, runtime dependencies, durable files and the isolated MariaDB data directory remain preserved. Cleanup archives, historical screenshots and Git bundles are outside the source tree under Owner-restricted private storage.
 - The unused Hostinger `.denta-rehearsal` was retired on 2026-11-01 after encrypted off-host preservation. Additional obsolete synthetic staging clones were retired on 2026-11-02. Production checkpoints and current release tools remain available. Do not treat retired test domains as running rehearsals.
-- PR23 preserved the prior documentation checkpoint. PR27 source 5b7c0688 is merged and installed. Repository-only documentation checkpoints may follow without changing the installed application SHA; always distinguish those two identities.
+- PR23 preserved the prior documentation checkpoint. PR28 source 1b17d065 is merged and installed. Repository-only documentation checkpoints may follow without changing the installed application SHA; always distinguish those two identities.
 
 ## Remaining real limitations
 
@@ -45,4 +45,8 @@ The three verified obsolete legacy files remain absent from public source and pr
 
 Fresh encrypted recovery integrity, isolated two-sided restore proof and source-only recovery retaining security deletions are recorded privately. Failed maintenance-entry checks restored the original front controller before installation; source installed only after gate validation. No production schema/data rollback or optional activation occurred. See WORK_PROGRAM for current evidence scope and remaining work; do not resume superseded readiness handbacks.
 
-The two PR26/PR27 feature branches were retired after exact-tip ancestry checks proved preservation in the release branch. Post-release documentation commits may advance GitHub without changing installed application source 5b7c0688.
+The two PR26/PR27 feature branches were retired after exact-tip ancestry checks proved preservation in the release branch. Post-release documentation commits may advance GitHub without changing installed application source 1b17d065.
+
+PR28 postflight: 24 authenticated no-follow GET/HEAD checks under maintenance, 18 Chrome authenticated EN/AR entries at 1366/768/390px, six local-event pending/restoration checks and six dirty-cancel/keep journeys passed with no attempted POSTs, page errors or horizontal overflow. Public login/CSS/JS returned 200 and three quarantined legacy URLs returned 404 after reopening. Temporary browser verification access was removed; Arabic desktop restored. No current-day application log was created (latest log remains October 30); this is an absence of emitted entries, not proof of external logging coverage. Source installation saved 18 preimages. Fresh encrypted checkpoint denta-pr28-cutover-20261108T085105Z was independently authenticated and matched production SQL (apart from dump timestamp) and 56 durable files under maintenance before installation. No migrations, dependency changes, financial/clinical writes or feature activations occurred.
+
+PR28 feature branch retirement: exact local and remote tip `1b17d065` is preserved in the merged release ancestry. Historical main and archive tags remain retained.

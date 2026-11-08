@@ -20,7 +20,7 @@ This is the authoritative active document map for Denta+. Read only the document
 
 ## Current release and maintenance
 
-PR #27 (including PR26) was deployed on 2026-11-07 at `5b7c0688a1afa4626a4ed913e759a763eb282c12`. PR24 is the immediate source-recovery baseline and PR22 the schema-history baseline; PR27 applied no migrations. The GitHub default and deployment branch is `release/production-20261017`; historical `main` is not current application source.
+PR #28 was deployed on 2026-11-08 at `1b17d06587a07a473f714e296af27f977134208d`. PR27 (5b7c0688) is the immediate source-recovery baseline and PR22 the schema-history baseline; PR28 applied no migrations. The GitHub default and deployment branch is `release/production-20261017`; historical `main` is not current application source.
 
 See `PROJECT_STATE.md` for the exact release, two-migration inventory, preservation results, retired rehearsal environments and honest remaining limitations. The earlier UX/theme campaign and its development branches are historical. Optional features remain OFF; cleanup does not authorize another deployment, migration, dependency upgrade or feature activation.
 
