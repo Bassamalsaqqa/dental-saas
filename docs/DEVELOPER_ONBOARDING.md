@@ -111,6 +111,8 @@ git diff --check
 
 ## 5. Local Synthetic Bootstrap & Known Gaps
 
+`php scripts/DeveloperSandboxBootstrap.php --dry-run` prints an offline proposal derived from source. It does not connect, execute migrations, seed users or establish database readiness; apply/reset/check-only are refused. The preflight helpers are tested independently of a database. Migration-history/schema reconciliation and an isolated executor remain required before initialization.
+
 - **Developer Sandbox vs Test Target:** A developer's exploratory sandbox database is distinct from the strictly allowlisted automated test target `democa_dental_saas_test`.
 - **Known Onboarding Gap:** A complete, reviewed clean-slate application bootstrap has not been demonstrated for this handoff. Existing initialization scripts or test-only fixture schemas are not proof of a full application baseline. Dynamic scheduling and other optional migrations remain separate activation gates.
 - **Safety Invariant:** **Do not run blanket `php spark migrate`** or import customer recovery dumps into development environments. A new developer needs a reviewed synthetic schema/fixture baseline before database-backed development. No transferable approved baseline is supplied by these documentation changes; this remains a handoff gap. Pure checks can run before that gap is resolved.
