@@ -187,4 +187,21 @@ Supplier-statement addendum: payment and existing Mark Fully Paid confirmations 
 
 ### Review5700597599 follow-through
 
-History handoff exempts only the current task's pinned same-origin exact finance record during a trusted user navigation. It never unlocks or reclassifies an uncertain mutation; unrelated dirty/pending tasks remain protected. Payable reading hierarchy belongs to studio-money.css for every view-authorized role; financial task mutation assets remain edit-scoped. Native secondary details preserve all supporting facts/help and keyboard access. Actual supplier full settlement is repeat-safe in the tested stale-session scenario, but partial-payment duplicate intent is not server-identifiable. [Current acceptance and required separate backend scope](ui-evidence/product-ux/CURRENT_ACCEPTANCE.md). Do not advertise whole-program approval or server idempotency.
+History handoff exempts only the current task's pinned same-origin exact finance record during a trusted user navigation. It never unlocks or reclassifies an uncertain mutation; unrelated dirty/pending tasks remain protected. Payable reading hierarchy belongs to studio-money.css for every view-authorized role; financial task mutation assets remain edit-scoped. Native secondary details preserve all supporting facts/help and keyboard access. Actual supplier full settlement is repeat-safe in the tested stale-session scenario, but partial-payment duplicate intent is not server-identifiable. [Current acceptance and required separate backend scope](ui-evidence/product-ux/README.md). Do not advertise whole-program approval or server idempotency.
+
+## Core Journey Contracts
+
+These are design and acceptance contracts governing user flows across the native application. Each action must pass canonical route permissions/features and preserve canonical entity IDs and return context. Disabled or missing capabilities remain explicitly explained and unavailable.
+
+| Journey / Entry | Required Facts / Next Permitted Action | Success / Cancel / Failure Authority |
+|---|---|---|
+| Intake: search or patient/create | Explicit identity/duplicate check; retain unassessed warning; register then choose book or open profile | Existing patient controller validation; real return target; no inferred clinical negative. |
+| Reception: dayboard/calendar | Actual appointment/provider/stage; patient peek then supported arrival/handoff | Existing transitions/conflicts; preserve selected day/filter; no invented availability. |
+| Clinical: patient/visit/examination | Real patient alerts/encounter/chart; draft then explicit review/sign | Existing examination governance; signed notes immutable; failure retains input and truthful durable state. |
+| Plan: clinical finding/contracts | Suggestions distinct from persisted priced items; explicit edits/removals | Existing draft revision/locking; signed evidence preserved; no auto-charges. |
+| Checkout: appointment review | Canonical clinical work/charge/invoice/currency facts | Existing gated checkout/settlement only; never automate money or acknowledgments. |
+| Finance: ledger/detail/payout | Source invoice/payment/money trail; allowed record/refund/payout | Existing server calculations; retain list filters/record context; no false 0 balance. |
+| Inventory: item/movement/reorder | Authoritative quantity/batch/expiry; permitted explicit movement | Existing stock services; reason/audit; no fake supplier payable integration. |
+| Team: users/providers/settings | Canonical membership/provider identity/hours | Existing RBAC/doctor contracts; do not activate dynamic scheduling. |
+| Platform: gateway/clinic inspector | Genuine global role; explicit enter/impersonate/exit | Existing CSRF POST/session/audit; unoverrideable banner; clinic-switch differs from exiting impersonation. |
+| Exceptions | Denied/stale/empty/session expired/missing record facts | Honest reason and existing retry/safe exit; no forged success or placeholder actions. |

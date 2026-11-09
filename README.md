@@ -27,6 +27,8 @@ Binding contracts are indexed in [docs/START_HERE.md](docs/START_HERE.md).
 
 ## Local setup and continuing on another machine
 
+For the complete incoming engineer onboarding guide, architecture boundaries, and synthetic test tiers, read [docs/DEVELOPER_ONBOARDING.md](docs/DEVELOPER_ONBOARDING.md).
+
 The authoritative branch is `release/production-20261017`, also the GitHub default. Historical `main` is not the current application. Repository housekeeping commits may advance documentation without changing the application installed in production; see [current state](docs/PROJECT_STATE.md).
 
 Requirements: PHP 8.2+ with the extensions required by `composer.lock` (including `intl`, `mysqli`, XML and the documented polyfills), Composer, Node/npm, MySQL/MariaDB and a web server. Production was verified on PHP 8.3.36 / MariaDB 11.8.9. Docker is optional; this release has no authoritative Docker/Compose stack.
@@ -76,10 +78,12 @@ Operational commands and the canonical dump command are in [docs/OPERATIONS_RUNB
 
 ## Documentation
 
-- Start with [docs/START_HERE.md](docs/START_HERE.md).
-- Current implementation: `docs/PROJECT_STATE.md` plus module current-state files.
-- Durable decisions: `docs/DECISIONS.md`.
-- Recent changes: `docs/CHANGELOG.md`.
-- Removed historical material: Git history.
+- Start with [docs/START_HERE.md](docs/START_HERE.md) and [docs/DEVELOPER_ONBOARDING.md](docs/DEVELOPER_ONBOARDING.md).
+- Current implementation: docs/PROJECT_STATE.md plus module current-state files.
+- Durable decisions: docs/DECISIONS.md.
+- Component & journey contracts: [docs/UI_STUDIO_COMPONENTS.md](docs/UI_STUDIO_COMPONENTS.md).
+- Operations & runbook: [docs/OPERATIONS_RUNBOOK.md](docs/OPERATIONS_RUNBOOK.md).
+- Recent changes: docs/CHANGELOG.md.
+- Historical modernization & acceptance pointers: [docs/refactor/README.md](docs/refactor/README.md) and Git history.
 
 Do not treat removed historical plans from Git history as current requirements.

@@ -111,3 +111,17 @@ This correction changes frontend source only: controllers/services/models/filter
 ## Settings and ledger-first finance refinement
 
 [Current actual gallery](controls-gallery.html) and [scoped receipt](settings-finance-controls.json) cover integrated icon password controls, native time input groups, native file-selector styling, equal-height patient toolbar controls, balanced booking fields and full-width finance ledger. Existing canonical totals were moved above the ledger, without changing their producers/calculations. Action routes, fields, CSRF and permission checks remain unchanged.24 initial read-only cases,8 settled-state confirmations and14 tenant-dialog interaction cases pass; no writes. Native OS pickers remain intentional. Existing independent acceptance/recovery/release gates remain open.
+
+## Historical Narrative Acceptance Reports
+
+The narrative acceptance and signoff logs from earlier release cycles (PR #22, October 2026) have been retired to reduce redundant text. Their detailed historical narratives are preserved in Git history at commit `83295f93d94dbd1902ba000fc037a9e9fb712446`:
+
+| Historical File | Git Reference (`git show <commit>:<path>`) | Description |
+|---|---|---|
+| `CURRENT_ACCEPTANCE.md` | `git show 83295f93:docs/ui-evidence/product-ux/CURRENT_ACCEPTANCE.md` | Historical PR22 material workflow acceptance criteria |
+| `FINAL_ACCEPTANCE_CLOSURE.md` | `git show 83295f93:docs/ui-evidence/product-ux/FINAL_ACCEPTANCE_CLOSURE.md` | Historical PR22 acceptance closure narrative |
+| `FINAL_RELEASE_READINESS.md` | `git show 83295f93:docs/ui-evidence/product-ux/FINAL_RELEASE_READINESS.md` | Historical PR22 release readiness review |
+| `HISTORICAL_TREATMENT_ACCEPTANCE.md` | `git show 83295f93:docs/ui-evidence/product-ux/HISTORICAL_TREATMENT_ACCEPTANCE.md` | Historical treatment catalog migration acceptance |
+| `RELEASE_SIGNOFF.md` | `git show 83295f93:docs/ui-evidence/product-ux/RELEASE_SIGNOFF.md` | Historical PR22 engineering sign-off table |
+
+Active evidence continues to be grounded in the JSON receipts (`*.json`), galleries (`*.html`), and visual artifacts (`*.png`, `*.jpg`) in this directory.

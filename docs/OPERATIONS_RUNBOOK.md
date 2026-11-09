@@ -53,7 +53,7 @@ Follow the current [README setup](../README.md#local-setup-and-continuing-on-ano
 ## Local Runtime
 
 - Path: `C:\xampp\htdocs\dental-saas`
-- Database: `democa_dental_saas` at `127.0.0.1:3306`, user `root`, blank password
+- Database: resolve connection settings privately from the local environment. The historical business schema `democa_dental_saas` on port 3306 is not a disposable development/test baseline; do not assume root or a blank password. Keep that business service stopped during isolated verification.
 - Session cookie: `ci_session_saas`
 - Tenant login: `https://localhost/dental-saas/auth/login`
 - Control plane: `https://localhost/dental-saas/controlplane`

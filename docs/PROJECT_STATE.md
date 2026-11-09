@@ -1,6 +1,6 @@
 # Project State
 
-Last reconciled: 2026-11-08. Historical deployment and development entries remain available in Git history.
+Last reconciled: 2026-11-09. Historical deployment and development entries remain available in Git history.
 
 ## Production authority
 
@@ -23,6 +23,7 @@ Last reconciled: 2026-11-08. Historical deployment and development entries remai
 
 ## Remaining real limitations
 
+- Developer-transfer cleanup removed 23,716 local files / 1,095,436,460 logical bytes by the reconciled receipt. Eight deleted release artifacts have independently hash-verified remote copies; the remaining 86 top-level artifacts lack proven exact remote preservation from that scan. Retain all remaining recovery material. Docker remains unavailable/uninspected, and Hostinger cleanup remains a read-only proposal with apply disabled. A complete reviewed customer-free application database bootstrap is still a new-machine onboarding gap; source setup and pure checks do not close it. See [developer onboarding](DEVELOPER_ONBOARDING.md) and WORK_PROGRAM for current boundaries.
 - Patient workspace query count / latency remains a performance backlog item; no unbounded query refactor is authorized by cleanup.
 - Unassessed / No / Yes medical-history provenance remains a separate clinical policy decision. Historical zero values must not be treated as assessed negative.
 - Existing signed/legal print format is English-only. Full 400%/native zoom, physical assistive-technology / virtual-keyboard testing and full third-party API mutation recertification remain incomplete and were explicitly disclosed for release.
