@@ -16,7 +16,9 @@ namespace Scripts;
  *  - Refuses port 3306 and missing ports; requires explicit port 3307.
  *  - Refuses non-MySQLi drivers, alternate failover, DSN, socket, or subdriver overrides.
  *  - Fails closed on incomplete live identity (missing/null port, host, user, or db).
- *  - Version 1 requires a GENUINELY EMPTY target database (zero tables/views).
+ *  - Enforces anchored grant allowlist: permits only USAGE ON *.* and approved privileges on exact sandbox.
+ *  - Version 1 requires a GENUINELY EMPTY target database (zero tables, views, routines, events).
+ *  - All metadata query failures refuse eligibility.
  *  - Reset/overwrite of populated schemas is strictly refused pending separate recovery design.
  */
 final class DeveloperSandboxPreflight
@@ -202,9 +204,7 @@ final class DeveloperSandboxPreflight
             }
 
             // 2. Validate srv_port (MUST be present, integer, and strictly equal 3307)
-            $rawPort = $row['srv_port'] ?? null;
-            $livePort = is_int($rawPort) || (is_string($rawPort) && ctype_digit($rawPort))
-                ? (int) $rawPort : 0;
+            $livePort = isset($row['srv_port']) && is_numeric($row['srv_port']) ? (int) $row['srv_port'] : 0;
             if ($livePort === 0) {
                 $errors[] = "CRITICAL LIVE IDENTITY FAILURE: Server @@port identity is missing or zero. Refusing connection of unknown port.";
             } elseif (!in_array($livePort, self::ALLOWED_PORTS, true)) {
@@ -241,11 +241,119 @@ final class DeveloperSandboxPreflight
     }
 
     /**
+     * Validate user grants on the live connection using an anchored allowlist.
+     * Permits ONLY:
+     *  - USAGE ON *.* (standard MySQL connection privilege)
+     *  - Approved privileges on the exact sandbox schema (democa_dental_saas_dev)
+     *
+     * Strictly REJECTS:
+     *  - Global privileges on *.* other than USAGE (e.g. ALL PRIVILEGES, SELECT, PROCESS)
+     *  - WITH GRANT OPTION
+     *  - PROXY or role assignments
+     *  - Grants on foreign/business/test/recovery schemas
+     *  - Wildcard schema patterns (e.g. unescaped _ or %)
+     *  - Unknown, unparseable, or empty/failed result sets
+     *
+     * @param mixed $db Live database connection object
+     * @param string $targetDb Expected target sandbox database name
+     * @return string[] Errors encountered
+     */
+    public static function validateUserGrants($db, string $targetDb = self::APPROVED_DEFAULT_SANDBOX_DB): array
+    {
+        $errors = [];
+
+        if ($targetDb !== self::APPROVED_DEFAULT_SANDBOX_DB) {
+            return ["CRITICAL LIVE IDENTITY FAILURE: Unapproved target '{$targetDb}' specified for grant validation. Overrides forbidden."];
+        }
+
+        try {
+            $query = $db->query('SHOW GRANTS FOR CURRENT_USER()');
+            if (!$query || !method_exists($query, 'getResultArray')) {
+                return ["CRITICAL LIVE IDENTITY FAILURE: Failed to inspect user grants (query returned null or invalid result)."];
+            }
+
+            $rows = $query->getResultArray();
+            if (!is_array($rows) || empty($rows)) {
+                return ["CRITICAL LIVE IDENTITY FAILURE: SHOW GRANTS returned zero records for current user."];
+            }
+
+            $grantStatements = [];
+            foreach ($rows as $row) {
+                if (is_array($row)) {
+                    foreach ($row as $colVal) {
+                        if (is_string($colVal) && trim($colVal) !== '') {
+                            $grantStatements[] = trim($colVal);
+                        }
+                    }
+                }
+            }
+
+            if (empty($grantStatements)) {
+                return ["CRITICAL LIVE IDENTITY FAILURE: Unable to parse grant statements from server response."];
+            }
+
+            $hasSandboxGrant = false;
+
+            foreach ($grantStatements as $stmt) {
+                // 1. Strictly reject WITH GRANT OPTION anywhere
+                if (preg_match('/WITH\s+GRANT\s+OPTION/i', $stmt)) {
+                    $errors[] = "CRITICAL ISOLATION FAILURE: Grant statement includes WITH GRANT OPTION. Administrative delegation is strictly forbidden.";
+                }
+
+                // 2. Strictly reject PROXY grants
+                if (preg_match('/\bPROXY\b/i', $stmt)) {
+                    $errors[] = "CRITICAL ISOLATION FAILURE: Grant statement includes PROXY privilege. Role delegation is strictly forbidden.";
+                }
+
+                // 3. Global *.* grants: ONLY USAGE is permitted
+                if (preg_match('/ON\s+\*\.\*/i', $stmt)) {
+                    if (!preg_match('/^GRANT\s+USAGE\s+ON\s+\*\.\*/i', $stmt)) {
+                        $errors[] = "CRITICAL ISOLATION FAILURE: User holds excessive global privileges on *.*. Only USAGE ON *.* is permitted.";
+                    }
+                    continue;
+                }
+
+                // 4. Schema-level grants: Match exact target schema
+                if (preg_match('/ON\s+(`?)([^`\s.]+)\1\.\*/i', $stmt, $mSchema)) {
+                    $rawSchema = $mSchema[2];
+                    // Normalize MariaDB/MySQL escaped underscore: democa\_dental\_saas\_dev -> democa_dental_saas_dev
+                    $normalizedSchema = str_replace(['\\_', '\\%'], ['_', '%'], $rawSchema);
+
+                    // Strictly reject wildcard characters in schema name (% or unescaped _)
+                    if (str_contains($rawSchema, '%') || preg_match('/(?<!\\\\)_/', $rawSchema)) {
+                        $errors[] = "CRITICAL ISOLATION FAILURE: Grant schema contains unescaped wildcard pattern characters ('%' or unescaped '_'). In MariaDB grants, unescaped underscores act as single-character wildcards. Grant must be strictly escaped (e.g. `democa\_dental\_saas\_dev`.*) to guarantee confinement.";
+                    }
+
+                    if ($normalizedSchema !== self::APPROVED_DEFAULT_SANDBOX_DB) {
+                        $errors[] = "CRITICAL ISOLATION FAILURE: User holds grants on unauthorized schema '{$normalizedSchema}'. Only the approved developer sandbox is permitted.";
+                    } else {
+                        $hasSandboxGrant = true;
+                    }
+                    continue;
+                }
+
+                // 5. Any other grant statement format is unknown and rejected
+                $errors[] = "CRITICAL ISOLATION FAILURE: Unrecognized or unanchored grant statement encountered. Failing closed.";
+            }
+
+            if (!$hasSandboxGrant) {
+                $errors[] = "CRITICAL ISOLATION FAILURE: User holds no privileges on the target sandbox database '" . self::APPROVED_DEFAULT_SANDBOX_DB . "'.";
+            }
+        } catch (\Throwable $e) {
+            // Sanitize: Never expose raw statement text or SQL error in output
+            $errors[] = "CRITICAL LIVE IDENTITY FAILURE: Exception while inspecting user grants (sanitized: " . get_class($e) . ").";
+        }
+
+        return $errors;
+    }
+
+    /**
      * Verify target eligibility for bootstrap.
      *
      * In Version 1, reset/overwrite is strictly REMOVED.
-     * Bootstrap requires a GENUINELY EMPTY target database (zero tables and zero views).
+     * Bootstrap requires a GENUINELY EMPTY target database (zero tables, views, routines, events).
      * Populated schemas are refused unconditionally.
+     * All metadata query failures (false, null, wrong shape, exceptions) strictly refuse eligibility.
      *
      * @param mixed $db Live database connection object
      * @param string $targetDb Expected target sandbox database name
@@ -258,33 +366,83 @@ final class DeveloperSandboxPreflight
         }
         try {
             $tables = $db->listTables();
+            if (!is_array($tables)) {
+                return ['allowed' => false, 'reason' => 'Table inventory unavailable; target emptiness is not verified.'];
+            }
             $tableCount = count($tables);
 
-            // Also check for views if query is available
-            $viewCount = 0;
+            // 1. Check for views
             try {
                 $viewQuery = $db->query("SHOW FULL TABLES WHERE Table_type = 'VIEW'");
                 if (!$viewQuery || !method_exists($viewQuery, 'getResultArray')) {
-                    throw new \RuntimeException('View metadata unavailable');
+                    return ['allowed' => false, 'reason' => 'View inventory unavailable; target emptiness is not verified.'];
                 }
-                if ($viewQuery) {
-                    $viewRows = $viewQuery->getResultArray();
-                    $viewCount = count($viewRows);
+                $viewRows = $viewQuery->getResultArray();
+                if (!is_array($viewRows)) {
+                    return ['allowed' => false, 'reason' => 'View inventory returned invalid shape; target emptiness is not verified.'];
                 }
+                $viewCount = count($viewRows);
             } catch (\Throwable $error) {
                 return ['allowed' => false, 'reason' => 'View inventory unavailable; target emptiness is not verified.'];
             }
 
-            if ($tableCount === 0 && $viewCount === 0) {
+            // 2. Check for stored procedures and functions
+            try {
+                $procQuery = $db->query("SHOW PROCEDURE STATUS WHERE Db = '{$targetDb}'");
+                if (!$procQuery || !method_exists($procQuery, 'getResultArray')) {
+                    return ['allowed' => false, 'reason' => 'Stored procedure inventory unavailable; target emptiness is not verified.'];
+                }
+                $procRows = $procQuery->getResultArray();
+                if (!is_array($procRows)) {
+                    return ['allowed' => false, 'reason' => 'Stored procedure inventory returned invalid shape; target emptiness is not verified.'];
+                }
+
+                $funcQuery = $db->query("SHOW FUNCTION STATUS WHERE Db = '{$targetDb}'");
+                if (!$funcQuery || !method_exists($funcQuery, 'getResultArray')) {
+                    return ['allowed' => false, 'reason' => 'Stored function inventory unavailable; target emptiness is not verified.'];
+                }
+                $funcRows = $funcQuery->getResultArray();
+                if (!is_array($funcRows)) {
+                    return ['allowed' => false, 'reason' => 'Stored function inventory returned invalid shape; target emptiness is not verified.'];
+                }
+
+                $routineCount = count($procRows) + count($funcRows);
+            } catch (\Throwable $error) {
+                return ['allowed' => false, 'reason' => 'Routine inventory unavailable; target emptiness is not verified.'];
+            }
+
+            // 3. Check for scheduled events
+            try {
+                $eventQuery = $db->query("SHOW EVENTS FROM `{$targetDb}`");
+                if (!$eventQuery || !method_exists($eventQuery, 'getResultArray')) {
+                    return ['allowed' => false, 'reason' => 'Scheduled event inventory unavailable; target emptiness is not verified.'];
+                }
+                $eventRows = $eventQuery->getResultArray();
+                if (!is_array($eventRows)) {
+                    return ['allowed' => false, 'reason' => 'Scheduled event inventory returned invalid shape; target emptiness is not verified.'];
+                }
+                $eventCount = count($eventRows);
+            } catch (\Throwable $error) {
+                return ['allowed' => false, 'reason' => 'Scheduled event inventory unavailable; target emptiness is not verified.'];
+            }
+
+            if ($tableCount === 0 && $viewCount === 0 && $routineCount === 0 && $eventCount === 0) {
                 return [
                     'allowed' => true,
-                    'reason' => "Target database '{$targetDb}' is completely empty (0 tables, 0 views). Safe to initialize.",
+                    'reason' => "Target database '{$targetDb}' is completely empty (0 tables, 0 views, 0 routines, 0 events). Safe to initialize.",
                 ];
             }
 
+            $details = [];
+            if ($tableCount > 0) $details[] = "{$tableCount} table(s)";
+            if ($viewCount > 0) $details[] = "{$viewCount} view(s)";
+            if ($routineCount > 0) $details[] = "{$routineCount} routine(s)";
+            if ($eventCount > 0) $details[] = "{$eventCount} event(s)";
+            $detailsStr = implode(', ', $details);
+
             return [
                 'allowed' => false,
-                'reason' => "Target database '{$targetDb}' is NOT empty (contains {$tableCount} table(s) and {$viewCount} view(s)). Reset/overwrite is strictly refused in Version 1. Bootstrap requires a genuinely empty target schema.",
+                'reason' => "Target database '{$targetDb}' is NOT empty (contains {$detailsStr}). Reset/overwrite is strictly refused in Version 1. Bootstrap requires a genuinely empty target schema.",
             ];
         } catch (\Throwable $e) {
             return [
