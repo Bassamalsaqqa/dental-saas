@@ -2733,6 +2733,73 @@ final class DeveloperSandboxPreflightTest extends TestCase
         }
     }
 
+    public function testFirstHistoryReadAcceptsOnlyExactMissingTableDriverError(): void
+    {
+        $executor = new DeveloperSandboxExecutor();
+        $db = new class {
+            public $errorCode = 1146;
+            public bool $throws = false;
+            public function query(string $sql) {
+                if ($this->throws) {
+                    throw new \RuntimeException('Private diagnostic must never be repeated: 1146');
+                }
+                return false;
+            }
+            public function error(): array { return ['code' => $this->errorCode]; }
+        };
+        foreach ([false, true] as $throws) {
+            $db->throws = $throws;
+            $db->errorCode = 1146;
+            $this->assertSame(0, $executor->getMigrationHistoryRowCount($db, true));
+            foreach ([1142, 2006, 0, null] as $code) {
+                $db->errorCode = $code;
+                try {
+                    $executor->getMigrationHistoryRowCount($db, true);
+                    $this->fail('Unknown, permission and connection errors must stop initialization.');
+                } catch (\RuntimeException $e) {
+                    $this->assertStringNotContainsString('Private diagnostic', $e->getMessage());
+                }
+            }
+            $db->errorCode = 1146;
+            try {
+                $executor->getMigrationHistoryRowCount($db, false);
+                $this->fail('Missing history after initialization must be refused.');
+            } catch (\RuntimeException $e) {
+                $this->assertStringContainsString('REFUSAL', $e->getMessage());
+            }
+        }
+    }
+
+    public function testWorkerUnexpectedFailureDoesNotDumpPrivateArguments(): void
+    {
+        // Throw after real framework boot, before DB or storage I/O, to prove CI's
+        // exception renderer cannot serialize the worker's private arguments.
+        $env = getenv();
+        unset($env['DENTA_AUTHORIZED_DEV_SANDBOX_APPLY'], $env['DENTA_SANDBOX_WORKER_TEST_MODE']);
+        $env['DENTA_VERIFIED_DEV_SANDBOX_CONNECTION'] = json_encode([
+            'connection' => array_merge($this->validSandboxConfig, ['DBPrefix' => '', 'password' => 'private-worker-canary']),
+            'protected_databases' => $this->validBusinessConfig,
+        ]);
+        $worker = dirname(__DIR__, 2) . '/scripts/DeveloperSandboxWorker.php';
+        $code = 'namespace Scripts; function getenv($key) { '
+            . 'if ($key === "DENTA_DEV_SANDBOX_VAULT_DIR") { throw new \\RuntimeException("private-worker-canary"); } '
+            . 'return \\getenv($key); } '
+            . '$argv = ["worker", "--dry-run"]; require ' . var_export($worker, true) . ';';
+        $process = proc_open([PHP_BINARY, '-r', $code],
+            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__, 2), $env);
+        $this->assertIsResource($process);
+        fclose($pipes[0]);
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $this->assertSame(1, proc_close($process));
+        $this->assertStringNotContainsString('private-worker-canary', $stdout . $stderr);
+        $this->assertStringNotContainsString('Stack trace', $stdout . $stderr);
+        $this->assertStringContainsString('REFUSAL', $stderr);
+        $this->assertStringContainsString('Inspect the private stage journal', $stderr);
+    }
+
     public function testPlannedMigrationIdentityMatchesRealCodeIgniterLocator(): void
     {
         $locator = service('locator', true);

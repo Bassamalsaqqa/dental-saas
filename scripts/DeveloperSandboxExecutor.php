@@ -1395,10 +1395,17 @@ class DeveloperSandboxExecutor
         try {
             $q = $db->query("SELECT COUNT(*) as c FROM `migrations` WHERE `group` = 'default'");
         } catch (\Throwable $e) {
-            if ($allowMissingTable && (str_contains($e->getMessage(), "doesn't exist") || str_contains($e->getMessage(), "no such table") || str_contains($e->getMessage(), "1146"))) {
+            if ($allowMissingTable && $this->isMissingHistoryTableError($db)) {
                 return 0;
             }
-            throw new \RuntimeException("CRITICAL REFUSAL: Failed querying migration history count: " . $e->getMessage(), 0, $e);
+            throw new \RuntimeException("CRITICAL REFUSAL: Failed querying migration history count.");
+        }
+
+        // With DBDebug=false, MySQLi returns false rather than throwing for an absent
+        // table. Only the driver's exact missing-table code is valid on first run;
+        // permission, connection and malformed-result failures must still stop execution.
+        if ($q === false && $allowMissingTable && $this->isMissingHistoryTableError($db)) {
+            return 0;
         }
 
         if (!$q || !is_object($q) || !method_exists($q, 'getRowArray')) {
@@ -1411,6 +1418,19 @@ class DeveloperSandboxExecutor
         }
 
         return (int) $row['c'];
+    }
+
+    private function isMissingHistoryTableError(object $db): bool
+    {
+        if (!method_exists($db, 'error')) {
+            return false;
+        }
+        try {
+            $error = $db->error();
+            return is_array($error) && in_array($error['code'] ?? null, [1146, '1146'], true);
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**

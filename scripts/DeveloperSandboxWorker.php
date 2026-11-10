@@ -41,15 +41,19 @@ if (count($cliArgs) !== 1 || !in_array($cliArgs[0], $validModes, true)) {
 }
 $executionMode = $cliArgs[0];
 
-require_once __DIR__ . '/DeveloperSandboxPreflight.php';
-require_once __DIR__ . '/DeveloperSandboxExecutor.php';
-
 use Scripts\DeveloperSandboxPreflight;
 use Scripts\DeveloperSandboxExecutor;
 use Scripts\DeveloperSandboxStorageGuard;
 use Scripts\DeveloperSandboxTestConnectionStub;
 use Scripts\DeveloperSandboxMigrationAdapterInterface;
 use Scripts\CodeIgniterMigrationRunnerAdapter;
+use Scripts\DeveloperSandboxConnectionBootstrap;
+
+// Catch failures before CI's exception renderer can serialize connection/context
+// arguments (which contain private credentials). Keep failure output credential-free.
+try {
+require_once __DIR__ . '/DeveloperSandboxPreflight.php';
+require_once __DIR__ . '/DeveloperSandboxExecutor.php';
 
 // 2. Private intake from environment
 $rawPayload = getenv('DENTA_VERIFIED_DEV_SANDBOX_CONNECTION');
@@ -83,7 +87,6 @@ if (!is_array($payload)
 }
 
 require_once __DIR__ . '/DeveloperSandboxConnectionBootstrap.php';
-use Scripts\DeveloperSandboxConnectionBootstrap;
 
 $connConfig = $payload['connection'];
 $protectedDbConfig = $payload['protected_databases'];
@@ -359,3 +362,16 @@ $results = $executor->runBootstrap($context, $db, $migrationAdapter);
 
 echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
 exit($results['success'] ? 0 : 1);
+} catch (\Throwable $failure) {
+    putenv('DENTA_VERIFIED_DEV_SANDBOX_CONNECTION');
+    unset($_ENV['DENTA_VERIFIED_DEV_SANDBOX_CONNECTION'], $_SERVER['DENTA_VERIFIED_DEV_SANDBOX_CONNECTION']);
+    if (isset($context)) {
+        try {
+            $context->recordJournal('orchestration', 'worker_exception', ['exception_class' => get_class($failure)]);
+        } catch (\Throwable $journalFailure) {
+            // Never let a secondary reporting error invoke the framework renderer.
+        }
+    }
+    fwrite(STDERR, "CRITICAL REFUSAL: Developer sandbox worker failed. Inspect the private stage journal; execution was not completed.\n");
+    exit(1);
+}
