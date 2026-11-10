@@ -5,6 +5,7 @@
 
 This guide is a practical companion to [`README.md`](../README.md), [`docs/START_HERE.md`](START_HERE.md), and [`docs/OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md). It outlines stack boundaries, release truth, environment setup, test tiers, domain invariants, and operational procedures for engineers taking over development of DentaCare SaaS.
 
+**Transfer checkpoint (2026-11-10):** The Owner ended development/design work in this environment and plans to continue in another developer environment/T3 later. Production remains PR28 at `1b17d065` (tree `257f1661`). The published `feature/developer-sandbox-bootstrap-20261110` branch contains unreleased developer tooling and this handoff; it has not been merged into the deployment branch or deployed. Inspect that branch explicitly when taking over. Transfer source through Git; provide environment secrets, recovery keys and any approved data separately through private channels. Do not copy browser profiles, customer dumps or ignored `writable/` wholesale into T3.
 ---
 
 ## 1. Stack & Architecture Boundaries
@@ -111,11 +112,12 @@ git diff --check
 
 ## 5. Local Synthetic Bootstrap & Known Gaps
 
-`php scripts/DeveloperSandboxBootstrap.php --dry-run` prints an offline proposal derived from source. It does not connect, execute migrations, seed users or establish database readiness; apply/reset/check-only are refused. The preflight helpers are tested independently of a database. Migration-history/schema reconciliation and an isolated executor remain required before initialization.
+`php scripts/DeveloperSandboxBootstrap.php --dry-run` remains an offline planning command. The feature branch also includes a confined worker/executor/connection bridge; execution requires a separately reviewed, explicit isolated-target authorization. Do not treat these tools as routine install steps.
 
-- **Developer Sandbox vs Test Target:** A developer's exploratory sandbox database is distinct from the strictly allowlisted automated test target `democa_dental_saas_test`.
-- **Known Onboarding Gap:** A complete, reviewed clean-slate application bootstrap has not been demonstrated for this handoff. Existing initialization scripts or test-only fixture schemas are not proof of a full application baseline. Dynamic scheduling and other optional migrations remain separate activation gates.
-- **Safety Invariant:** **Do not run blanket `php spark migrate`** or import customer recovery dumps into development environments. A new developer needs a reviewed synthetic schema/fixture baseline before database-backed development. No transferable approved baseline is supplied by these documentation changes; this remains a handoff gap. Pure checks can run before that gap is resolved.
+- **Observed progress:** Fresh synthetic Trial #2 completed all eight worker stages and 77 native CI migrations. Its worker report processed 42 configured permissions and 8 configured roles; these are processing counts, not independently certified physical totals. AGY reports 69 tables and successful CHECK TABLE results. The final controller receipt is **FAIL**, because its verifier incorrectly requires every migration batch to equal 1; native per-file `force()` calls increment batches. No further database trial was run during transfer wrap-up.
+- **Remaining verifier work:** Correct the batch assertion against actual CI history semantics; replace the undefined `$appTables` receipt variable; replace stale hardcoded 5-role/77-permission expectations with source-derived verification. Finish physical RBAC/settings/FK and actual service/route acceptance before claiming a fully validated fresh developer environment. No verified end-to-end bootstrap PASS or portable initialized database is supplied.
+- **Target separation:** Developer schema `democa_dental_saas_dev` is distinct from automated test schema `democa_dental_saas_test`. Preserve both stopped trial datadirs and the customer recovery instance. Private operator controllers, credentials and receipts are ignored local evidence, not clone dependencies; obtain only specifically needed material through a private handoff.
+- **Safety:** Keep business port3306 stopped. Use a genuinely new owned local3307 instance for any separately authorized future trial. Never run blanket `php spark migrate`, import customer recovery dumps as development fixtures, reset partial trials or activate dormant features to obtain a pass. Pure checks remain usable without a database.
 
 ---
 

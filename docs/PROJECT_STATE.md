@@ -1,6 +1,6 @@
 # Project State
 
-Last reconciled: 2026-11-09. Historical deployment and development entries remain available in Git history.
+Last reconciled: 2026-11-10. Historical deployment and development entries remain available in Git history.
 
 ## Production authority
 
@@ -23,7 +23,7 @@ Last reconciled: 2026-11-09. Historical deployment and development entries remai
 
 ## Remaining real limitations
 
-- Developer-transfer cleanup removed 23,716 local files / 1,095,436,460 logical bytes by the reconciled receipt. Eight deleted release artifacts now have independently hash-verified off-host copies with hardened ACLs; the remaining 86 top-level artifacts lack proven exact remote preservation from that scan. Retain all remaining recovery material. Docker remains unavailable/uninspected. Codex completed the bounded ten-directory Hostinger staging retirement after authenticated off-host preservation: 2,061 unique inodes / 22,855,387 logical bytes removed, with production source and retained recovery records unchanged. General Hostinger cleanup is not authorized by that finite result. A complete reviewed customer-free application database bootstrap is still a new-machine onboarding gap; source setup and pure checks do not close it. See [developer onboarding](DEVELOPER_ONBOARDING.md) and WORK_PROGRAM for current boundaries.
+- Developer-transfer cleanup removed 23,716 local files / 1,095,436,460 logical bytes by the reconciled receipt. Eight deleted release artifacts now have independently hash-verified off-host copies with hardened ACLs; the remaining 86 top-level artifacts lack proven exact remote preservation from that scan. Retain all remaining recovery material. Docker was inspected on 2026-11-10: four verified unused official runtime images were removed without force; image storage reported3.338GB before/1.122GB after. All37volumes, the stopped Gaza recovery container/MySQL image and shared build cache were preserved because they contain or may belong to other-project/recovery work. No volume contents were read and no container was started. Exact image digests are recorded in the ignored cleanup receipt. Codex completed the bounded ten-directory Hostinger staging retirement after authenticated off-host preservation: 2,061 unique inodes / 22,855,387 logical bytes removed, with production source and retained recovery records unchanged. General Hostinger cleanup is not authorized by that finite result. A complete reviewed customer-free application database bootstrap is still a new-machine onboarding gap; source setup and pure checks do not close it. See [developer onboarding](DEVELOPER_ONBOARDING.md) and WORK_PROGRAM for current boundaries.
 - Patient workspace query count / latency remains a performance backlog item; no unbounded query refactor is authorized by cleanup.
 - Unassessed / No / Yes medical-history provenance remains a separate clinical policy decision. Historical zero values must not be treated as assessed negative.
 - Existing signed/legal print format is English-only. Full 400%/native zoom, physical assistive-technology / virtual-keyboard testing and full third-party API mutation recertification remain incomplete and were explicitly disclosed for release.
@@ -34,7 +34,7 @@ Last reconciled: 2026-11-09. Historical deployment and development entries remai
 
 ## Future changes
 
-The Owner's improvement campaign is tracked in [WORK_PROGRAM.md](WORK_PROGRAM.md): salary/provider/booking improvements are live through PR24; patient/clinical actions, registration search, responsive dialogs, financial clarity and safe tooling follow in [merged PR27](https://github.com/Bassamalsaqqa/dental-saas/pull/27). App-wide workflows, dialogs, responsive/device coverage and justified cleanup continue. The Owner provided an authenticated live review session and authorized sign-in when needed, preferring Chrome through Playwright.
+The Owner ended local development/design work on 2026-11-10 and plans to continue in another environment/T3 later. Preserve the published bootstrap feature branch separately from installed production; its fresh bootstrap worker executed successfully once, but final verification failed and end-to-end acceptance remains open. See [developer onboarding](DEVELOPER_ONBOARDING.md) and [WORK_PROGRAM](WORK_PROGRAM.md) for exact transfer limits. Do not automatically restart this campaign or run another database trial.
 
 Use the deployed source as the baseline. Preserve tenant/RBAC authority, signed evidence, original records, immutable financial history and durable files. Production deployments, migrations and feature activation require separate explicit Owner authorization. No GitHub Actions.
 
