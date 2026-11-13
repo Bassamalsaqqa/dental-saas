@@ -778,6 +778,10 @@ class DeveloperSandboxExecutor
 
     public const REVIEWED_FEATURE_COMMIT = '7427b4a43984666596455103fee00ab40e6633d7';
 
+    public const REVIEWED_FOUNDATION_FIXTURE_HASH = '0dc7d983cb96dcb2c01958e4523c2c7355c08125438bd1c05f01e1820c5d074d';
+    public const REVIEWED_WORKER_SOURCE_HASH = '6dca6f6fb86b8b8af8162a7b9c4bfc29bc0124e62a318c6d47e9a210a52bd8d7';
+    public const REVIEWED_PREFLIGHT_SOURCE_HASH = '1f34b5c9307711e29fba759479facde6fb6f7dbbfd7c3cf1f25356d8fe5bffb3';
+
     /**
      * Immutable reviewed SHA256 manifest of all 85 migration files pinned at reviewed feature commit 7427b4a4.
      * Prevents execution against an unreviewed or modified working tree.
@@ -910,6 +914,129 @@ class DeveloperSandboxExecutor
             'valid' => empty($errors),
             'reviewed_commit' => self::REVIEWED_FEATURE_COMMIT,
             'total_reviewed_files' => count(self::REVIEWED_MIGRATION_MANIFEST),
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * Verify that foundation schema fixture, worker source, and preflight source
+     * match immutable reviewed hashes pinned at reviewed feature commit 7427b4a4.
+     *
+     * @return array{valid: bool, errors: string[]}
+     */
+    public static function verifyReviewedSourcesAgainstPinned(): array
+    {
+        $repoRoot = dirname(__DIR__);
+        $errors = [];
+
+        $pinnedSources = [
+            'LegacyBaseSchema' => [
+                'path' => $repoRoot . '/tests/_support/Database/LegacyBaseSchema.php',
+                'expected' => self::REVIEWED_FOUNDATION_FIXTURE_HASH,
+            ],
+            'DeveloperSandboxWorker' => [
+                'path' => $repoRoot . '/scripts/DeveloperSandboxWorker.php',
+                'expected' => self::REVIEWED_WORKER_SOURCE_HASH,
+            ],
+            'DeveloperSandboxPreflight' => [
+                'path' => $repoRoot . '/scripts/DeveloperSandboxPreflight.php',
+                'expected' => self::REVIEWED_PREFLIGHT_SOURCE_HASH,
+            ],
+        ];
+
+        foreach ($pinnedSources as $name => $spec) {
+            $path = $spec['path'];
+            $expected = $spec['expected'];
+
+            if (!file_exists($path)) {
+                $errors[] = "Pinned source {$name} missing at '{$path}'.";
+                continue;
+            }
+
+            $actual = hash_file('sha256', $path);
+            if (!hash_equals($expected, (string) $actual)) {
+                $errors[] = "Pinned source {$name} hash mismatch. Expected {$expected}, actual {$actual}.";
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * Pure, fail-closed outbound messaging lockdown validator.
+     * Shared by DeveloperSandboxExecutor and DeveloperSandboxTrialController.
+     *
+     * Invariants:
+     * 1. Email transport environment:
+     *    - email.protocol must be strictly 'smtp'
+     *    - email.SMTPHost must be strictly ''
+     *    - email.SMTPPort must be strictly '0' or 0
+     * 2. Plan fixture row (id=1):
+     *    - Must be a non-null array with a 'features_json' key
+     *    - features_json must be a valid JSON string decoding to an array with 'notifications' array
+     *    - notifications MUST explicitly contain EACH channel: 'sms', 'whatsapp', 'email'
+     *    - Each channel MUST be an array containing the key 'enabled'
+     *    - 'enabled' in each channel MUST be strictly boolean false (=== false)
+     *    - Any missing channel, null, 0, string 'false', '0', missing enabled, or truthy value FAILS closed.
+     *
+     * @param array<string, mixed>|null $planRow Query row from plans table, or null if query failed / missing
+     * @param array<string, mixed> $envSettings Environment array containing email transport keys
+     * @return array{valid: bool, errors: string[]}
+     */
+    public static function verifyOutboundLockdown(?array $planRow, array $envSettings): array
+    {
+        $errors = [];
+
+        // 1. Email transport lockdown
+        $proto = $envSettings['email.protocol'] ?? null;
+        $host = $envSettings['email.SMTPHost'] ?? null;
+        $port = $envSettings['email.SMTPPort'] ?? null;
+
+        if ($proto !== 'smtp') {
+            $errors[] = "Outbound email protocol must be strictly 'smtp' (found " . var_export($proto, true) . ").";
+        }
+        if ($host !== '') {
+            $errors[] = "Outbound email SMTPHost must be strictly blank (found " . var_export($host, true) . ").";
+        }
+        if ($port !== '0' && $port !== 0) {
+            $errors[] = "Outbound email SMTPPort must be strictly '0' or 0 (found " . var_export($port, true) . ").";
+        }
+
+        // 2. Plan fixture lockdown (fail closed)
+        if ($planRow === null || !is_array($planRow) || !array_key_exists('features_json', $planRow)) {
+            $errors[] = "Plan fixture row id=1 is missing, query failed, or lacks features_json.";
+        } else {
+            $rawFeatures = $planRow['features_json'];
+            if (!is_string($rawFeatures)) {
+                $errors[] = "Plan features_json is not a valid string.";
+            } else {
+                $features = json_decode($rawFeatures, true);
+                if (json_last_error() !== JSON_ERROR_NONE || !is_array($features)) {
+                    $errors[] = "Plan features_json is malformed JSON.";
+                } elseif (!isset($features['notifications']) || !is_array($features['notifications'])) {
+                    $errors[] = "Plan features_json is missing required notifications object.";
+                } else {
+                    $notifs = $features['notifications'];
+                    $channels = ['sms', 'whatsapp', 'email'];
+                    foreach ($channels as $channel) {
+                        if (!array_key_exists($channel, $notifs) || !is_array($notifs[$channel])) {
+                            $errors[] = "Plan notification channel '{$channel}' is missing or not an array.";
+                        } elseif (!array_key_exists('enabled', $notifs[$channel])) {
+                            $errors[] = "Plan notification channel '{$channel}' is missing required 'enabled' property.";
+                        } elseif ($notifs[$channel]['enabled'] !== false) {
+                            $val = $notifs[$channel]['enabled'];
+                            $errors[] = "Plan notification channel '{$channel}.enabled' must be strictly boolean false (found " . gettype($val) . " " . var_export($val, true) . ").";
+                        }
+                    }
+                }
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
             'errors' => $errors,
         ];
     }
@@ -1200,51 +1327,28 @@ class DeveloperSandboxExecutor
     {
         try {
             $databaseName = $context->getTargetDb();
-            if ($databaseName !== '') {
-                $query = $db->query(
-                    "SELECT COUNT(*) AS table_count FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'",
-                    [$databaseName]
-                );
-                if ($query && method_exists($query, 'getRowArray')) {
-                    $row = $query->getRowArray();
-                    if (is_array($row) && isset($row['table_count']) && is_numeric($row['table_count'])) {
-                        return (int) $row['table_count'];
-                    }
+            if ($databaseName === '') {
+                return -1;
+            }
+
+            $query = $db->query(
+                "SELECT COUNT(*) AS table_count FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'",
+                [$databaseName]
+            );
+            if ($query && method_exists($query, 'getRowArray')) {
+                $row = $query->getRowArray();
+                if (is_array($row) && isset($row['table_count']) && is_numeric($row['table_count'])) {
+                    return (int) $row['table_count'];
                 }
             }
 
-            if (method_exists($db, 'resetDataCache')) {
-                $db->resetDataCache();
-            }
-
-            if (method_exists($db, 'listTables')) {
-                $tables = $db->listTables();
-                if (is_array($tables) && !empty($tables)) {
-                    return count($tables);
-                }
-            }
-
-            $query = $db->query("SHOW TABLES");
-            if ($query && method_exists($query, 'getResultArray')) {
-                $rows = $query->getResultArray();
-                if (is_array($rows) && !empty($rows)) {
-                    return count($rows);
-                }
-            }
+            return -1;
         } catch (\Throwable $e) {
             $context->recordJournal('orchestration', 'query_physical_table_count_failed', [
-                'error' => $e->getMessage(),
+                'error' => get_class($e),
             ]);
             return -1;
         }
-
-        if ($context->isTestMockRun()) {
-            return ($context->getMode() === self::MODE_PRODUCTION_BASELINE)
-                ? self::EXPECTED_TOTAL_TABLES_BASELINE
-                : self::EXPECTED_TOTAL_TABLES_ALL_SOURCE;
-        }
-
-        return -1;
     }
 
     /**
@@ -1347,6 +1451,11 @@ class DeveloperSandboxExecutor
 
         if (!$this->isMarkerTablePresent($db)) {
             throw new \RuntimeException("CRITICAL REFUSAL: Physical precondition failure: ownership marker table does not exist in target database.");
+        }
+
+        $legacySchemaFile = dirname(__DIR__) . '/tests/_support/Database/LegacyBaseSchema.php';
+        if (!file_exists($legacySchemaFile) || !hash_equals(self::REVIEWED_FOUNDATION_FIXTURE_HASH, (string) hash_file('sha256', $legacySchemaFile))) {
+            throw new \RuntimeException("CRITICAL REFUSAL: LegacyBaseSchema source file does not match immutable reviewed hash (reviewed commit " . self::REVIEWED_FEATURE_COMMIT . ").");
         }
 
         $statements = LegacyBaseSchema::DDL_STATEMENTS;
@@ -2132,48 +2241,25 @@ class DeveloperSandboxExecutor
     {
         $this->assertValidStageCall($context, $db, DeveloperSandboxRunContext::PHASE_STAGE7_DONE);
 
-        $protocol = (string) getenv('email.protocol');
-        $smtpHost = (string) getenv('email.SMTPHost');
-        $smtpPort = (string) getenv('email.SMTPPort');
+        $envSettings = [
+            'email.protocol' => (string) getenv('email.protocol'),
+            'email.SMTPHost' => (string) getenv('email.SMTPHost'),
+            'email.SMTPPort' => (string) getenv('email.SMTPPort'),
+        ];
 
-        if ($protocol !== 'smtp' || $smtpHost !== '' || $smtpPort !== '0') {
-            $context->recordJournal('stage_8', 'env_lockdown_failed');
-            return [
-                'success' => false,
-                'stage' => 'stage_8_transport_lockdown',
-                'message' => "CRITICAL ISOLATION FAILURE: Email transport is not fail-closed in environment.",
-            ];
-        }
-
-        // Verify plan fixture has notifications disabled (fail closed)
+        // Query plan fixture row id=1
         $planQuery = $db->query("SELECT features_json FROM plans WHERE id = 1");
         $plan = ($planQuery && method_exists($planQuery, 'getRowArray')) ? $planQuery->getRowArray() : null;
-        if (!$plan || !is_array($plan) || !isset($plan['features_json'])) {
-            $context->recordJournal('stage_8', 'plan_missing');
-            return [
-                'success' => false,
-                'stage' => 'stage_8_transport_lockdown',
-                'message' => "CRITICAL ISOLATION FAILURE: Plan fixture with id=1 is missing or query failed.",
-            ];
-        }
 
-        $features = json_decode((string) $plan['features_json'], true);
-        if (!is_array($features) || !isset($features['notifications']) || !is_array($features['notifications'])) {
-            $context->recordJournal('stage_8', 'plan_notifications_malformed');
+        $lockdownCheck = self::verifyOutboundLockdown($plan, $envSettings);
+        if (!$lockdownCheck['valid']) {
+            $context->recordJournal('stage_8', 'lockdown_verification_failed', [
+                'errors' => $lockdownCheck['errors'],
+            ]);
             return [
                 'success' => false,
                 'stage' => 'stage_8_transport_lockdown',
-                'message' => "CRITICAL ISOLATION FAILURE: Plan features_json is malformed or missing notifications configuration.",
-            ];
-        }
-
-        $notifs = $features['notifications'];
-        if (!empty($notifs['sms']['enabled']) || !empty($notifs['whatsapp']['enabled']) || !empty($notifs['email']['enabled'])) {
-            $context->recordJournal('stage_8', 'plan_notifications_enabled');
-            return [
-                'success' => false,
-                'stage' => 'stage_8_transport_lockdown',
-                'message' => "CRITICAL ISOLATION FAILURE: Outbound notifications are enabled in plan fixtures.",
+                'message' => "CRITICAL ISOLATION FAILURE: " . implode('; ', $lockdownCheck['errors']),
             ];
         }
 
@@ -2183,7 +2269,7 @@ class DeveloperSandboxExecutor
         return [
             'success' => true,
             'stage' => 'stage_8_transport_lockdown',
-            'message' => "Messaging transport confirmed fail-closed (protocol=smtp, SMTPHost='', SMTPPort=0, plan notifications disabled).",
+            'message' => "Messaging transport and notification outbound paths confirmed strictly fail-closed.",
         ];
     }
 

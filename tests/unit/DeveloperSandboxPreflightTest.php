@@ -204,6 +204,13 @@ final class DeveloperSandboxPreflightTest extends TestCase
                     };
                 }
 
+                if (str_contains($normalized, 'information_schema.TABLES') && str_contains($normalized, 'BASE TABLE')) {
+                    return new class {
+                        public function getRowArray() { return ['table_count' => 69]; }
+                        public function getResultArray() { return [['table_count' => 69]]; }
+                    };
+                }
+
                 return new class {
                     public function getRowArray() { return null; }
                     public function getResultArray() { return []; }

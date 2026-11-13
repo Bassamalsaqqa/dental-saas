@@ -14,20 +14,23 @@ Deployed production baseline remains `1b17d06587a07a473f714e296af27f977134208d` 
   - Dependency advisory: GitHub Dependabot alert #33 (`minimatch` `GHSA-g3hv-75wg-m249` in `package-lock.json`) is confined to development tooling and remains open; dependencies and pinned CSS remain locked and untouched.
   - Evidence governance: UI evidence in `docs/ui-evidence/` is retained as operational and audit verification.
 - **Developer sandbox bootstrap status (merged tooling vs runtime unverified):**
-  - Offline tooling merged into release branch (`DeveloperSandboxWorker`, `DeveloperSandboxExecutor`, `DeveloperSandboxConnectionBootstrap`, `DeveloperSandboxBootstrap`, `DeveloperSandboxPreflight`).
-  - All apply/reset refusal and fail-closed security guards are retained.
-  - Pure database-free suite rerun: 170 tests / 1338 assertions pass (including 74 preflight tests / 553 assertions; prior 170/1343 treated as historical).
-  - Runtime database bootstrap remains unverified. Trial #2 finished all 8 worker stages and 77 native CI migrations on a temporary target; step 8 FAIL was due to external/private controller verification mismatch (controller required all migration batches to equal 1, whereas native `force()` increments batch per run; undefined `$appTables`; hardcoded RBAC totals), NOT an executor Stage 8 defect. Linux symlink guard already exists in `DeveloperSandboxStorageGuard` (`is_link` component check). RBAC totals must be source-derived dynamically from `App\Config\Permissions`.
+  - Offline tooling merged into release branch (`DeveloperSandboxWorker`, `DeveloperSandboxExecutor`, `DeveloperSandboxConnectionBootstrap`, `DeveloperSandboxBootstrap`, `DeveloperSandboxPreflight`, `DeveloperSandboxTrialController`).
+  - All apply/reset refusal and fail-closed security guards are retained; live runtime execution remains strictly refused until supervisor review.
+  - Issue #29 corrections applied: authoritative single-query physical `BASE TABLE` verification (fail-closed, zero fallbacks, sanitized exception logging); strict fail-closed outbound notification lockdown (`sms`, `whatsapp`, `email` strictly boolean false; rejects `{notifications:{}}`, null, 0, strings); immutable SHA256 pins for all 85 migrations and core fixtures/workers tied to reviewed `7427b4a4`; pure DB-free `DeveloperSandboxTrialController` verifier (zero process lifecycle, daemon orchestration, or teardown) verifying native incremental batches (batch >= 1), exact 69/77 application table sets, dynamic RBAC from `App\Config\Permissions`, canonical settings without invented keys (e.g. no `currency_symbol`), `CHECK TABLE` integrity, and FK orphan/structure constraints.
+  - Runtime database bootstrap and physical schema acceptance remain unverified offline (Issue #29 runtime NOT VERIFIED); live execution strictly refused.
+  - Host cleanup: 3 files / 2,986 logical bytes deleted; canonical copies preserved in private journal `/home/t3dev/.denta-preservation-manifest-20261113/cleanup_deletion_journal.json`.
+  - Pure database-free suite: 203 tests / 1438 assertions pass in `npm test` (including 74 preflight tests / 553 assertions and 33 trial controller verifier tests / 100 assertions; baseline 170/1338 preserved).
 - **Current task verification results (2026-11-13):**
   - Fast-forward push of `ef29aed9` to `origin/release/production-20261017` completed after verifying expected remote `df708e52`.
   - Accessible patient finance navigation button implemented in `app/Views/patient/show.php`; browser NOT VERIFIED limitation preserved.
   - Reconciled `origin/feature/developer-sandbox-bootstrap-20261110` tip `7427b4a4` into release branch via normal merge; exact commit ancestry preserved.
-  - Database-free `npm test` verified: 170 tests / 1338 assertions pass.
+  - Issue #29 offline verifier hardening and test suite integration completed; `npm test` verified: 203 tests / 1438 assertions pass.
+  - Pinned migration hashes (85 files) and source hashes independently verified against git blobs at `7427b4a4`.
   - SaaS guardrails verified clean (`bash scripts/ci/saas_guardrails.sh`): 0 DOM sinks, 2 group auth, 28 raw tenant queries, forbidden fonts clean.
   - Pinned stylesheet `public/assets/css/tailwind.css` hash verified unchanged (`3a51d2ff...`).
   - Docker inspected read-only: CLI tools available, daemon offline. Fresh isolated target design prepared.
 - **Next bounded task:**
-  1. Supervisor review of local merge commit and diff (NO push of merged branch until supervisor actual diff review).
+  1. Supervisor review of local merge and corrective commits and diffs (NO push of merged branch until supervisor actual diff review).
   2. Supervisor review of proposed isolated fresh owned target design (dedicated datadir, loopback port 3307, zero connection to protected recovery datadir or port 3306) before any container/daemon start or runtime execution.
 
 ## Working rules
