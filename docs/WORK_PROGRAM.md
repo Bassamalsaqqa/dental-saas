@@ -15,19 +15,20 @@ Deployed production baseline remains `1b17d06587a07a473f714e296af27f977134208d` 
 - **Developer sandbox bootstrap status:** Offline plan prints credential-free source-derived proposals and refuses apply/reset/check-only; it performs no preflight connection or initialization. Preflight helpers pass 125 pure tests / 860 assertions DB-free (verified today). Complete clean-slate customer-free database bootstrap remains an open onboarding gap.
 - **Current task verification results (2026-11-13):**
   - Locked `composer install --no-scripts --no-plugins` executed; PHP modules verified (PHP 8.4 CLI with intl, mbstring, dom, etc.; composer check-platform-reqs clean).
-  - Database-free `npm test` verified today: 125 tests / 860 assertions pass (0 failures, 0 errors).
-  - SaaS guardrails verified today (`bash scripts/ci/saas_guardrails.sh`): 0 DOM sinks, 2 group auth, 28 raw tenant queries, forbidden fonts clean.
+  - Docs commit `df708e52` verified clean and pushed to `origin/release/production-20261017` via normal fast-forward push (verified expected remote `da31f1cf` first, no force).
+  - Implemented smallest native PHP patient finance navigation improvement:
+    - Patient show header outstanding balance summary made keyboard-accessible navigation affordance (`<button type="button" data-patient-tab="finances">`) targeting existing `#finances-content` / `#finances-tab`, preserving formatted currency, zero/unavailable states (`None` / `لا يوجد`), and permission gating (`has_permission('finance', 'view')`). Fails closed to static display when permission is denied. Accessible name coupled via `aria-labelledby` referencing label and value without extra prose.
+    - Operator workflow step reduction: opening finances tab from default Care group on patient workspace reduced from 2 actions (switch to History tab group -> click Finances tab) to 1 direct navigation action (click header balance affordance).
+    - Excluded contextual payment action from workspace finances table: identical URL to existing View action saved no clicks and mislabeled document review as payment.
+    - Responsive/focus behavior: live browser execution NOT VERIFIED (Playwright module `playwright-core` and Chromium binaries located on Linux host, but default launch requires missing `chromium_headless_shell-1223` and standard host container constraints without sandbox disabling prevent automated browser execution). Existing test infrastructure and static markup inspected; `showTab` opens real tab, reveals history section, updates URL query, and retains focus safely on visible header button without focus trap or hidden controls.
+  - Database-free `npm test` verified: 125 tests / 860 assertions pass (0 failures, 0 errors; pre-existing test suite preserved exactly after dropping fixture-mirroring unit additions).
+  - SaaS guardrails verified clean (`bash scripts/ci/saas_guardrails.sh`): 0 DOM sinks, 2 group auth, 28 raw tenant queries, forbidden fonts clean.
   - Git diff check (`git diff --check`): clean.
-  - Internal link check across documentation: verified clean.
-  - Explicit production recovery, native staging, authenticated postflight, and activated-credit fix-forward/finance containment rules restored in `DEPLOYMENT_GUIDE.md`.
-  - Historical test coverage (PR24-PR28 runs: 13 routed tests on 3307, 30 lifecycle tests, 21 worker preflight tests, 54 postflight entries, historical 170/1343 suite) distinguished from today's verified checks (125 tests / 860 assertions DB-free).
-  - Redundant audit rebuttals removed; concise operational evidence retained and open dev-tool `minimatch` advisory (Dependabot #33) recorded.
-  - Release authority and canonical release facts consolidated in `docs/PROJECT_STATE.md`.
   - Unmerged developer bootstrap branch `7427b4a4` preserved.
 - **Next bounded task:**
-  1. Supervisor verification of documentation commit.
+  1. Supervisor review of local native PHP patient finance navigation commit.
   2. Independently verify synthetic database isolation on loopback port 3307 (proving dedicated disposable schema, verified ownership, clean teardown, and strict protection of prior recovery datadir) before running any database-backed tests or bootstrap execution.
-  3. No push until supervisor verifies.
+  3. Reconcile developer bootstrap branch `7427b4a4` after single writer batch.
 
 Release/activation authority remains in [PROJECT_STATE](PROJECT_STATE.md); security/domain contracts remain binding. The app is deployed and working: improve it, find bugs, and simplify existing workflows. Do not restart a frontend rebuild or invent parallel systems.
 
