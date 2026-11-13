@@ -5,7 +5,7 @@
 
 This guide is a practical companion to [`README.md`](../README.md), [`docs/START_HERE.md`](START_HERE.md), and [`docs/OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md). It outlines stack boundaries, release truth, environment setup, test tiers, domain invariants, and operational procedures for engineers taking over development of DentaCare SaaS.
 
-**Transfer checkpoint (2026-11-10):** The Owner ended development/design work in this environment and plans to continue in another developer environment/T3 later. Production remains PR28 at `1b17d065` (tree `257f1661`). The published `feature/developer-sandbox-bootstrap-20261110` branch contains unreleased developer tooling and this handoff; it has not been merged into the deployment branch or deployed. Inspect that branch explicitly when taking over. Transfer source through Git; provide environment secrets, recovery keys and any approved data separately through private channels. Do not copy browser profiles, customer dumps or ignored `writable/` wholesale into T3.
+**Transfer checkpoint (2026-11-10):** The Owner ended development/design work in this environment and plans to continue in another developer environment/T3 later. Production remains PR28 at `1b17d065` (tree `257f1661`). The historical unmerged status of `feature/developer-sandbox-bootstrap-20261110` (`7427b4a4`) is explicitly superseded by the verified merge into `release/production-20261017` (`c69b8654`). Transfer source through Git; provide environment secrets, recovery keys and any approved data separately through private channels. Do not copy browser profiles, customer dumps or ignored `writable/` wholesale into T3.
 ---
 
 ## 1. Stack & Architecture Boundaries
@@ -33,7 +33,7 @@ This guide is a practical companion to [`README.md`](../README.md), [`docs/START
 - **Immediate Source Rollback Baseline:** PR #27 at `5b7c0688` (Tree SHA: `b1ec2c3e3b3472c5b62d11734d94fa8e1dc6941a`).
 - **Repository HEAD vs Installed Production:** Repository HEAD at audit baseline (2026-11-13) is `da31f1cf` on branch `release/production-20261017` (adds offline developer sandbox plan and fail-closed preflight checks). Repository-only documentation or tooling commits do not alter the installed production SHA; always distinguish these two identities.
 - **Authoritative Branch:** `release/production-20261017` is the GitHub default and deployment ref. Historical `main` remains preserved (`485a19824d08e35fcd1a2a68923c63ec265867ca`); do not deploy historical main.
-- **GitHub State:** 0 open pull requests; `feature/developer-sandbox-bootstrap-20261110` at `7427b4a4` has 4 unique commits (unmerged).
+- **GitHub State:** 0 open pull requests; `feature/developer-sandbox-bootstrap-20261110` (`7427b4a4`) source merged into `release/production-20261017` (runtime trial pending; remote feature branch pending retirement).
 - **Production Git Working Copy:** On Hostinger, the live checkout is named `main` tracking historical `origin/main` with deployed tree matching `1b17d065` plus `.htaccess` overlay. Do not pull, rename, or reconfigure production Git refs during maintenance.
 - Consult [`docs/PROJECT_STATE.md`](PROJECT_STATE.md) for authoritative release history and [`docs/WORK_PROGRAM.md`](WORK_PROGRAM.md) for active assignments.
 
@@ -46,7 +46,7 @@ This guide is a practical companion to [`README.md`](../README.md), [`docs/START
 - Composer 2.2+.
 - Node/npm compatible with committed tooling lockfile; do not upgrade dependencies during setup.
 - Git (Linux or Windows with Git Bash).
-- Clean checkout status: working tree is clean ~76 MB total (~40 MB tree, ~36 MB `.git`), with zero `vendor/` or `node_modules/` preinstalled.
+- Clean checkout hygiene: tracked files exclude `vendor/`, `node_modules/`, and transient artifacts; dependencies are installed locally via locked manifests.
 
 ### Setup Commands (Linux / macOS / Git Bash)
 ```bash
