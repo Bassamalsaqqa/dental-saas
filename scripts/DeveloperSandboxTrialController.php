@@ -43,8 +43,12 @@ final class DeveloperSandboxTrialController
 
     /**
      * DB-FREE VERIFIER: Verifies migration history rows.
-     * Handles native CodeIgniter incremental batch numbers (batch >= 1)
-     * and verifies exact source set against immutable reviewed manifest.
+     * Enforces:
+     *  - Exact per-mode filename version and class identity set derived from reviewed manifest
+     *  - Native CodeIgniter incremental batch numbers (strict positive integer, batch >= 1)
+     *  - Strict positive integer migration id (rejects floats/strings like 1.5)
+     *  - Excludes dormant 8 migrations for baseline mode
+     *  - Rejects arbitrary fake classes and duplicate entries
      *
      * @param array<int, array<string, mixed>> $rows
      * @param int $expectedCount
@@ -60,13 +64,45 @@ final class DeveloperSandboxTrialController
         $batches = [];
         $count = count($rows);
 
-        if ($count !== $expectedCount) {
-            $errors[] = "Migration count mismatch: expected exactly {$expectedCount}, found {$count}.";
+        $allowedModes = [DeveloperSandboxExecutor::MODE_PRODUCTION_BASELINE, self::MODE_ALL_SOURCE];
+        if (!in_array($mode, $allowedModes, true)) {
+            return [
+                'valid' => false,
+                'count' => $count,
+                'batches' => [],
+                'errors' => ["Unknown migration verification mode '{$mode}'. Fail closed."],
+            ];
         }
 
         $manifest = DeveloperSandboxExecutor::REVIEWED_MIGRATION_MANIFEST;
+        $excluded = ($mode === DeveloperSandboxExecutor::MODE_PRODUCTION_BASELINE)
+            ? array_flip(DeveloperSandboxExecutor::EXCLUDED_MIGRATIONS)
+            : [];
+
+        $allowedMigrations = [];
+        foreach (array_keys($manifest) as $filename) {
+            if (isset($excluded[$filename])) {
+                continue;
+            }
+            if (preg_match('/^(\d{4}-\d{2}-\d{2}-\d{6})_(.+)\.php$/', $filename, $m)) {
+                $allowedMigrations[$m[1]] = [
+                    'class' => 'App\\Database\\Migrations\\' . $m[2],
+                    'filename' => $filename,
+                ];
+            }
+        }
+
+        $expectedTargetCount = count($allowedMigrations);
+        if ($expectedCount !== $expectedTargetCount) {
+            $errors[] = "Specified expected migration count mismatch for mode '{$mode}': expected {$expectedTargetCount}, specified {$expectedCount}.";
+        }
+        if ($count !== $expectedTargetCount) {
+            $errors[] = "Migration count mismatch: expected exactly {$expectedTargetCount} for mode '{$mode}', found {$count}.";
+        }
+
         $seenVersions = [];
         $seenClasses = [];
+        $seenIds = [];
 
         foreach ($rows as $index => $row) {
             $id = $row['id'] ?? null;
@@ -74,46 +110,60 @@ final class DeveloperSandboxTrialController
             $class = (string) ($row['class'] ?? '');
             $batch = $row['batch'] ?? null;
 
-            if (!is_numeric($id) || (int) $id <= 0) {
-                $errors[] = "Row [{$index}]: invalid or non-positive migration id.";
+            // Strict positive integer validation: reject floats (1.5), non-numeric, or <= 0
+            if ((!is_int($id) && (!is_string($id) || !ctype_digit($id))) || (int) $id <= 0) {
+                $errors[] = "Row [{$index}]: invalid or non-positive migration id " . var_export($id, true) . "; must be a strict positive integer.";
+            } else {
+                $idInt = (int) $id;
+                if (isset($seenIds[$idInt])) {
+                    $errors[] = "Duplicate migration id '{$idInt}' detected at row [{$index}].";
+                }
+                $seenIds[$idInt] = true;
             }
 
             if (!preg_match('/^\d{4}-\d{2}-\d{2}-\d{6}$/', $version)) {
-                $errors[] = "Row [{$index}] (id {$id}): invalid migration version format '{$version}'.";
+                $errors[] = "Row [{$index}] (id " . var_export($id, true) . "): invalid migration version format '{$version}'.";
             }
 
-            if (!str_starts_with($class, 'App\\Database\\Migrations\\')) {
-                $errors[] = "Row [{$index}] (id {$id}): unexpected class namespace '{$class}'.";
+            if (!is_string($class) || !str_starts_with($class, 'App\\Database\\Migrations\\')) {
+                $errors[] = "Row [{$index}] (id " . var_export($id, true) . "): unexpected class namespace '{$class}'.";
             }
 
-            if (!is_numeric($batch) || (int) $batch < 1) {
-                $errors[] = "Row [{$index}] (id {$id}): invalid batch '{$batch}'; must be an integer >= 1.";
+            // Strict positive integer batch validation: reject floats (1.5), non-numeric, or < 1
+            if ((!is_int($batch) && (!is_string($batch) || !ctype_digit($batch))) || (int) $batch < 1) {
+                $errors[] = "Row [{$index}] (id " . var_export($id, true) . "): invalid batch '{$batch}'; must be an integer >= 1.";
             } else {
                 $b = (int) $batch;
                 $batches[$b] = ($batches[$b] ?? 0) + 1;
             }
 
-            // Check for duplicates
+            // Duplicate version check
             if (isset($seenVersions[$version])) {
                 $errors[] = "Duplicate migration version '{$version}' detected at row [{$index}].";
             }
             $seenVersions[$version] = true;
 
+            // Duplicate class check
             if (isset($seenClasses[$class])) {
                 $errors[] = "Duplicate migration class '{$class}' detected at row [{$index}].";
             }
             $seenClasses[$class] = true;
 
-            // Verify version exists in immutable manifest
-            $versionFoundInManifest = false;
-            foreach (array_keys($manifest) as $filename) {
-                if (str_starts_with($filename, $version . '_')) {
-                    $versionFoundInManifest = true;
-                    break;
+            // Verify version and exact class identity against allowed per-mode set derived from reviewed manifest
+            if (!isset($allowedMigrations[$version])) {
+                $errors[] = "Row [{$index}] (id " . var_export($id, true) . "): version '{$version}' is not in the reviewed migration manifest for mode '{$mode}'.";
+            } else {
+                $expectedClass = $allowedMigrations[$version]['class'];
+                if ($class !== $expectedClass) {
+                    $errors[] = "Row [{$index}] (id " . var_export($id, true) . "): class mismatch for version '{$version}': expected '{$expectedClass}', found '{$class}'.";
                 }
             }
-            if (!$versionFoundInManifest) {
-                $errors[] = "Row [{$index}] (id {$id}): version '{$version}' is not in the reviewed migration manifest.";
+        }
+
+        // Verify no allowed migration is missing
+        foreach (array_keys($allowedMigrations) as $expVer) {
+            if (!isset($seenVersions[$expVer])) {
+                $errors[] = "Required migration version '{$expVer}' missing for mode '{$mode}'.";
             }
         }
 
@@ -127,15 +177,42 @@ final class DeveloperSandboxTrialController
 
     /**
      * DB-FREE VERIFIER: Verifies application tables against defined variables.
-     * Enforces exact set match: no missing, no extras, no duplicates.
+     * Enforces exact set match for MODE_PRODUCTION_BASELINE: no missing, no extras, no duplicates.
+     * Explicitly refuses MODE_ALL_SOURCE with NOT_IMPLEMENTED until reviewed source-derived schema exists.
      *
      * @param string[] $existingTables
      * @param string $mode
-     * @return array{valid: bool, count: int, expected_count: int, missing: string[], extra: string[], errors: string[]}
+     * @return array{valid: bool, status: string, count: int, expected_count: int, missing: string[], extra: string[], errors: string[]}
      */
     public static function verifyAppTables(array $existingTables, string $mode = self::DEFAULT_MODE): array
     {
         $errors = [];
+        $actualCount = count($existingTables);
+
+        if ($mode === self::MODE_ALL_SOURCE) {
+            return [
+                'valid' => false,
+                'status' => 'NOT_IMPLEMENTED',
+                'count' => $actualCount,
+                'expected_count' => DeveloperSandboxExecutor::EXPECTED_TOTAL_TABLES_ALL_SOURCE,
+                'missing' => [],
+                'extra' => [],
+                'errors' => ["MODE_ALL_SOURCE table verification is NOT_IMPLEMENTED: actual source-derived reviewed expected schema for dormant migrations has not been verified."],
+            ];
+        }
+
+        if ($mode !== DeveloperSandboxExecutor::MODE_PRODUCTION_BASELINE) {
+            return [
+                'valid' => false,
+                'status' => 'FAILED',
+                'count' => $actualCount,
+                'expected_count' => 0,
+                'missing' => [],
+                'extra' => [],
+                'errors' => ["Unknown table verification mode '{$mode}'. Fail closed."],
+            ];
+        }
+
         $normalized = array_map('strtolower', $existingTables);
         $existingMap = [];
         foreach ($normalized as $t) {
@@ -145,9 +222,7 @@ final class DeveloperSandboxTrialController
             $existingMap[$t] = true;
         }
 
-        $expectedCount = ($mode === DeveloperSandboxExecutor::MODE_PRODUCTION_BASELINE)
-            ? DeveloperSandboxExecutor::EXPECTED_TOTAL_TABLES_BASELINE
-            : DeveloperSandboxExecutor::EXPECTED_TOTAL_TABLES_ALL_SOURCE;
+        $expectedCount = DeveloperSandboxExecutor::EXPECTED_TOTAL_TABLES_BASELINE; // 69
 
         // Defined table variables: 18 foundation tables from LegacyBaseSchema
         $foundationTables = [
@@ -180,20 +255,9 @@ final class DeveloperSandboxTrialController
             'whatsapp_optouts', 'whatsapp_tenant_policies',
         ];
 
-        // Optional tables in ALL_SOURCE mode (8 tables)
-        $allSourceOptionalTables = [
-            'appointment_contact_notes', 'attachment_variants', 'doctor_schedules',
-            'examination_note_governance', 'finance_checkout_requests',
-            'invoice_correction_ledger', 'patient_whatsapp_scoped', 'studio_theme_history',
-        ];
-
         $markerTable = '_dev_sandbox_marker';
 
         $expectedList = array_merge($foundationTables, $coreMigratedTables, [$markerTable]);
-        if ($mode === self::MODE_ALL_SOURCE) {
-            $expectedList = array_merge($expectedList, $allSourceOptionalTables);
-        }
-
         $expectedMap = array_flip(array_map('strtolower', $expectedList));
 
         $missing = [];
@@ -212,13 +276,13 @@ final class DeveloperSandboxTrialController
             }
         }
 
-        $actualCount = count($existingTables);
         if ($actualCount !== $expectedCount) {
             $errors[] = "Table count mismatch: expected {$expectedCount} tables (mode: {$mode}), found {$actualCount}.";
         }
 
         return [
             'valid' => empty($errors),
+            'status' => empty($errors) ? 'VERIFIED' : 'FAILED',
             'count' => $actualCount,
             'expected_count' => $expectedCount,
             'missing' => $missing,
@@ -231,16 +295,20 @@ final class DeveloperSandboxTrialController
      * DB-FREE VERIFIER: Dynamically verifies RBAC permissions, roles, and role_permissions mappings
      * against App\Config\Permissions. Zero hardcoded totals.
      * Enforces:
-     *  - Exact permission name and count match
+     *  - Exact permission name, module, action, and count match
      *  - No duplicate permissions, no unapproved extra permissions
      *  - Exact role slug and count match
+     *  - Role scope validation: system roles must have null clinic_id
      *  - No duplicate roles, no unapproved extra roles
      *  - Exact role-to-permission mapping and grant state (if role_permissions provided)
+     *  - Rejects orphan/unknown role_id and permission_id references in mappings
+     *  - Rejects extra non-system permissions for wildcard roles
+     *  - Explicitly flags partial result when role_permissions mappings are omitted
      *
      * @param array<int, array<string, mixed>> $dbPermissions
      * @param array<int, array<string, mixed>> $dbRoles
      * @param array<int, array<string, mixed>>|null $dbRolePermissions Optional role_permissions mappings
-     * @return array{valid: bool, permissions_count: int, roles_count: int, role_permissions_checked: bool, errors: string[]}
+     * @return array{valid: bool, status: string, is_partial: bool, permissions_count: int, roles_count: int, role_permissions_checked: bool, errors: string[]}
      */
     public static function verifyRbacDynamic(
         array $dbPermissions,
@@ -276,6 +344,20 @@ final class DeveloperSandboxTrialController
             $existingPermMap[$name] = $perm;
             if ($id !== null) {
                 $permIdToName[$id] = $name;
+            }
+
+            // Verify permission module/action if provided
+            if (isset($perm['module'])) {
+                $expectedMod = $expectedPermNames[$name]['module'] ?? null;
+                if ($expectedMod !== null && $perm['module'] !== $expectedMod) {
+                    $errors[] = "Permission '{$name}' at index [{$index}] has unexpected module '{$perm['module']}', expected '{$expectedMod}'.";
+                }
+            }
+            if (isset($perm['action'])) {
+                $expectedAct = $expectedPermNames[$name]['action'] ?? null;
+                if ($expectedAct !== null && $perm['action'] !== $expectedAct) {
+                    $errors[] = "Permission '{$name}' at index [{$index}] has unexpected action '{$perm['action']}', expected '{$expectedAct}'.";
+                }
             }
         }
 
@@ -315,6 +397,11 @@ final class DeveloperSandboxTrialController
             if ($id !== null) {
                 $roleIdToSlug[$id] = $slug;
             }
+
+            // Verify role scope / clinic: system default roles must not be clinic-scoped
+            if (array_key_exists('clinic_id', $role) && $role['clinic_id'] !== null && $role['clinic_id'] !== 0 && $role['clinic_id'] !== '') {
+                $errors[] = "Dynamic role '{$slug}' at index [{$index}] has invalid clinic_id scope " . var_export($role['clinic_id'], true) . "; system default roles must have null clinic_id.";
+            }
         }
 
         foreach ($expectedRoleSlugs as $roleSlug) {
@@ -335,6 +422,8 @@ final class DeveloperSandboxTrialController
 
         // 3. Optional role_permissions mapping verification
         $rolePermissionsChecked = false;
+        $isPartial = ($dbRolePermissions === null);
+
         if ($dbRolePermissions !== null) {
             $rolePermissionsChecked = true;
             $roleGrantedPerms = [];
@@ -345,8 +434,18 @@ final class DeveloperSandboxTrialController
                 $permId = $rp['permission_id'] ?? null;
                 $granted = $rp['granted'] ?? null;
 
-                $roleSlug = $roleIdToSlug[$roleId] ?? (string) $roleId;
-                $permName = $permIdToName[$permId] ?? (string) $permId;
+                // Rejects orphan / unknown role_id and permission_id
+                if ($roleId === null || !isset($roleIdToSlug[$roleId])) {
+                    $errors[] = "Role permission mapping at index [{$idx}] references unknown or orphaned role_id " . var_export($roleId, true) . ".";
+                    continue;
+                }
+                if ($permId === null || !isset($permIdToName[$permId])) {
+                    $errors[] = "Role permission mapping at index [{$idx}] references unknown or orphaned permission_id " . var_export($permId, true) . ".";
+                    continue;
+                }
+
+                $roleSlug = $roleIdToSlug[$roleId];
+                $permName = $permIdToName[$permId];
 
                 $pairKey = $roleSlug . '::' . $permName;
                 if (isset($seenPairs[$pairKey])) {
@@ -370,6 +469,12 @@ final class DeveloperSandboxTrialController
                     foreach (array_keys($expectedPermNames) as $pName) {
                         if (!isset($grantedMap[$pName])) {
                             $errors[] = "Wildcard role '{$roleSlug}' missing granted permission '{$pName}'.";
+                        }
+                    }
+                    // Rejects extra non-system permissions granted to wildcard role
+                    foreach (array_keys($grantedMap) as $grantedP) {
+                        if (!isset($expectedPermNames[$grantedP])) {
+                            $errors[] = "Wildcard role '{$roleSlug}' granted unexpected non-system permission '{$grantedP}'.";
                         }
                     }
                 } elseif (is_array($assigned)) {
@@ -397,6 +502,8 @@ final class DeveloperSandboxTrialController
 
         return [
             'valid' => empty($errors),
+            'status' => empty($errors) ? ($isPartial ? 'PARTIAL' : 'VERIFIED') : 'FAILED',
+            'is_partial' => $isPartial,
             'permissions_count' => count($dbPermissions),
             'roles_count' => count($dbRoles),
             'role_permissions_checked' => $rolePermissionsChecked,
@@ -407,8 +514,9 @@ final class DeveloperSandboxTrialController
     /**
      * DB-FREE VERIFIER: Verifies canonical settings against Executor canonical definition.
      * Enforces:
-     *  - Clinic settings: timezone, currency, currency_position, booking_chair_count,
-     *    booking_chair_names, dynamic_doctor_scheduling_enabled (strictly 0).
+     *  - Scope fail-closed validation ('clinic', 'global', or 'all')
+     *  - Exact canonical VALUES (not merely key presence or loose coercion allowing junk)
+     *  - Dynamic scheduling strictly 0 (rejects 'junk' or non-zero values)
      *  - ZERO invented keys (such as currency_symbol).
      *
      * @param array<string, mixed> $settings Map of setting_key => setting_value
@@ -418,39 +526,71 @@ final class DeveloperSandboxTrialController
     public static function verifyCanonicalSettings(array $settings, string $scope = 'clinic'): array
     {
         $errors = [];
+        $allowedScopes = ['clinic', 'global', 'all'];
+        if (!in_array($scope, $allowedScopes, true)) {
+            return [
+                'valid' => false,
+                'settings_count' => count($settings),
+                'scope' => $scope,
+                'errors' => ["Unknown settings verification scope '{$scope}'; must be one of: " . implode(', ', $allowedScopes) . ". Fail closed."],
+            ];
+        }
+
         $executor = new DeveloperSandboxExecutor();
         $canonicalDef = $executor->getCanonicalSettingsDefinition();
 
-        $requiredKeys = [];
+        $expectedDefs = [];
         if ($scope === 'clinic' || $scope === 'all') {
-            $requiredKeys = array_merge($requiredKeys, array_keys($canonicalDef['clinic']));
+            $expectedDefs = array_merge($expectedDefs, $canonicalDef['clinic']);
         }
         if ($scope === 'global' || $scope === 'all') {
-            $requiredKeys = array_merge($requiredKeys, array_keys($canonicalDef['global']));
+            $expectedDefs = array_merge($expectedDefs, $canonicalDef['global']);
         }
 
-        foreach ($requiredKeys as $key) {
+        // Validate presence and actual canonical values
+        foreach ($expectedDefs as $key => $expectedVal) {
             if (!array_key_exists($key, $settings)) {
                 $errors[] = "Required setting '{$key}' (scope: {$scope}) is missing from settings.";
-            } else {
-                $val = $settings[$key];
-                if ($val === null || (is_string($val) && trim($val) === '')) {
-                    $errors[] = "Required setting '{$key}' (scope: {$scope}) is empty.";
+                continue;
+            }
+
+            $actualVal = $settings[$key];
+
+            // Strict invariant: dynamic doctor scheduling must be strictly 0
+            if ($key === 'dynamic_doctor_scheduling_enabled') {
+                if ($actualVal !== 0 && $actualVal !== '0') {
+                    $errors[] = "Strict invariant violation: dynamic_doctor_scheduling_enabled must be 0 (found " . var_export($actualVal, true) . ").";
+                }
+                continue;
+            }
+
+            if (is_int($expectedVal)) {
+                if ((!is_int($actualVal) && (!is_string($actualVal) || !ctype_digit($actualVal))) || (int) $actualVal !== $expectedVal) {
+                    $errors[] = "Setting '{$key}' value mismatch: expected integer {$expectedVal}, found " . var_export($actualVal, true) . ".";
+                }
+            } elseif (is_array($expectedVal)) {
+                if (is_string($actualVal)) {
+                    $decoded = json_decode($actualVal, true);
+                    if ($decoded !== $expectedVal) {
+                        $errors[] = "Setting '{$key}' JSON value mismatch: expected " . json_encode($expectedVal) . ", found " . var_export($actualVal, true) . ".";
+                    }
+                } elseif (is_array($actualVal)) {
+                    if ($actualVal !== $expectedVal) {
+                        $errors[] = "Setting '{$key}' array value mismatch: expected " . json_encode($expectedVal) . ", found " . json_encode($actualVal) . ".";
+                    }
+                } else {
+                    $errors[] = "Setting '{$key}' must be an array or JSON string, found " . var_export($actualVal, true) . ".";
+                }
+            } elseif (is_string($expectedVal)) {
+                if (!is_string($actualVal) || (string) $actualVal !== $expectedVal) {
+                    $errors[] = "Setting '{$key}' value mismatch: expected '{$expectedVal}', found " . var_export($actualVal, true) . ".";
                 }
             }
         }
 
-        // Strict invariant: dynamic scheduling must be OFF (0)
-        if (array_key_exists('dynamic_doctor_scheduling_enabled', $settings)) {
-            $dynVal = $settings['dynamic_doctor_scheduling_enabled'];
-            if ((int) $dynVal !== 0) {
-                $errors[] = "Strict invariant violation: dynamic_doctor_scheduling_enabled must be 0 (found " . var_export($dynVal, true) . ").";
-            }
-        }
-
-        // Enforce zero invented / extra settings keys (e.g. currency_symbol)
+        // Enforce zero invented / extra settings keys
         foreach (array_keys($settings) as $actualKey) {
-            if (!in_array($actualKey, $requiredKeys, true)) {
+            if (!array_key_exists($actualKey, $expectedDefs)) {
                 $errors[] = "Unexpected invented/extra setting key '{$actualKey}' (scope: {$scope}) found in settings.";
             }
         }
@@ -514,9 +654,12 @@ final class DeveloperSandboxTrialController
 
     /**
      * DB-FREE VERIFIER: Verifies CHECK TABLE results across tables.
-     * Fails closed if query returned false/null or if table health is not OK.
+     * Enforces:
+     *  - Status via exact accepted normalized values ('ok', 'table is already up to date')
+     *  - Expected Msg_type must be 'status' (normalized)
+     *  - Fails closed on query false/null, missing fields, or any non-clean status (e.g. 'not ok', 'corrupt', 'error')
      *
-     * @param array<string, array<string, mixed>|string|false|null> $checkResults Map of table => result row or msg_text
+     * @param array<string, array<string, mixed>> $checkResults Map of table => result row
      * @return array{valid: bool, tables_checked: int, errors: string[]}
      */
     public static function verifyTableCheckIntegrity(array $checkResults): array
@@ -527,25 +670,39 @@ final class DeveloperSandboxTrialController
             $errors[] = "No table check results provided for integrity verification.";
         }
 
+        $acceptedStatusTexts = ['ok', 'table is already up to date'];
+
         foreach ($checkResults as $table => $result) {
             if ($result === false || $result === null) {
                 $errors[] = "Table `{$table}` CHECK TABLE query failed (returned false/null).";
                 continue;
             }
 
-            $msgText = '';
             if (is_array($result)) {
+                $msgType = (string) ($result['Msg_type'] ?? ($result['msg_type'] ?? 'status'));
                 $msgText = (string) ($result['Msg_text'] ?? ($result['msg_text'] ?? ''));
+
+                if (trim($msgText) === '') {
+                    $errors[] = "Table `{$table}` CHECK TABLE result is missing Msg_text.";
+                    continue;
+                }
+
+                $normType = strtolower(trim($msgType));
+                $normText = strtolower(trim($msgText));
+
+                if ($normType === 'error') {
+                    $errors[] = "Table `{$table}` CHECK TABLE reported error type: {$msgText}";
+                } elseif ($normType !== 'status') {
+                    $errors[] = "Table `{$table}` CHECK TABLE reported non-status Msg_type '{$msgType}': {$msgText}";
+                } elseif (!in_array($normText, $acceptedStatusTexts, true)) {
+                    $errors[] = "Table `{$table}` CHECK TABLE reported unhealthy status: {$msgText}";
+                }
             } else {
                 $msgText = (string) $result;
-            }
-
-            $msgType = is_array($result) ? strtolower((string) ($result['Msg_type'] ?? ($result['msg_type'] ?? 'status'))) : 'status';
-            $lower = strtolower($msgText);
-            if ($msgType === 'error') {
-                $errors[] = "Table `{$table}` CHECK TABLE reported error type: {$msgText}";
-            } elseif (!str_contains($lower, 'ok') && !str_contains($lower, 'already up to date')) {
-                $errors[] = "Table `{$table}` CHECK TABLE reported unhealthy status: {$msgText}";
+                $normText = strtolower(trim($msgText));
+                if (!in_array($normText, $acceptedStatusTexts, true)) {
+                    $errors[] = "Table `{$table}` CHECK TABLE reported unhealthy status: {$msgText}";
+                }
             }
         }
 
@@ -557,12 +714,17 @@ final class DeveloperSandboxTrialController
     }
 
     /**
-     * DB-FREE VERIFIER: Verifies physical foreign key constraint structure against required relationship definitions.
-     * Fails closed if foreign key constraints are missing or reference wrong targets.
+     * DB-FREE VERIFIER (PARTIAL): Verifies foreign key constraints against a provided target relationship list.
+     * Preserves composite constraint column order and identities.
+     *
+     * LIMITATION NOTICE:
+     *  - This validator is PARTIAL and does NOT certify exhaustive production constraint parity
+     *    until a complete reviewed production foreign key manifest exists.
+     *  - Does not certify runtime database parity.
      *
      * @param array<int, array<string, mixed>> $existingFks List of existing foreign keys (e.g. from information_schema)
      * @param array<int, array{table: string, column: string, referenced_table: string, referenced_column: string}> $expectedFks
-     * @return array{valid: bool, constraints_checked: int, missing: array<int, array{table: string, column: string, referenced_table: string, referenced_column: string}>, errors: string[]}
+     * @return array{valid: bool, status: string, is_partial: bool, exhaustive: bool, constraints_checked: int, missing: array<int, array{table: string, column: string, referenced_table: string, referenced_column: string}>, errors: string[]}
      */
     public static function verifyForeignKeyStructure(array $existingFks, array $expectedFks): array
     {
@@ -603,6 +765,9 @@ final class DeveloperSandboxTrialController
 
         return [
             'valid' => empty($errors),
+            'status' => empty($errors) ? 'PARTIAL' : 'FAILED',
+            'is_partial' => true,
+            'exhaustive' => false,
             'constraints_checked' => count($expectedFks),
             'missing' => $missing,
             'errors' => $errors,
@@ -624,7 +789,15 @@ final class DeveloperSandboxTrialController
 // CLI entry point (VERIFIER-ONLY)
 if (PHP_SAPI === 'cli' && isset($_SERVER['SCRIPT_FILENAME']) && realpath($_SERVER['SCRIPT_FILENAME']) === realpath(__FILE__)) {
     $cliArgs = array_slice($argv, 1);
-    $action = $cliArgs[0] ?? '--help';
+
+    // Strict offline CLI: exactly one argument required; reject missing or extras
+    if (count($cliArgs) !== 1) {
+        fwrite(STDERR, "CRITICAL USAGE ERROR: DeveloperSandboxTrialController offline CLI requires exactly one argument, " . count($cliArgs) . " provided.\n");
+        fwrite(STDERR, "Usage: php scripts/DeveloperSandboxTrialController.php [--help|--version|--verify-manifest|--verify-sources]\n");
+        exit(1);
+    }
+
+    $action = $cliArgs[0];
 
     if ($action === '--help' || $action === '-h') {
         echo "DeveloperSandboxTrialController - Pure Sandbox Verifier Utility (VERIFIER-ONLY)\n\n";
