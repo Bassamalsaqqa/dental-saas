@@ -776,8 +776,145 @@ class DeveloperSandboxExecutor
         '2026-10-28-120000_CreateStudioThemeHistory.php',
     ];
 
+    public const REVIEWED_FEATURE_COMMIT = '7427b4a43984666596455103fee00ab40e6633d7';
+
     /**
-     * Single Authoritative Initialization Boundary
+     * Immutable reviewed SHA256 manifest of all 85 migration files pinned at reviewed feature commit 7427b4a4.
+     * Prevents execution against an unreviewed or modified working tree.
+     */
+    public const REVIEWED_MIGRATION_MANIFEST = [
+        '2025-01-19-000001_CreateRBACTables.php' => '3f6139678297540dbf73632820cba5606ede57dae8d25c31b84af41b20038f53',
+        '2025-01-19-000002_CreateActivityLogsTable.php' => '2c0a2952f6cd0d5f1f09e5f0317c87c612c7a0f672df6fec4752ba8f492bd92e',
+        '2025-01-19-000003_AddIsDoctorToRoles.php' => '8bd44c41cc3417dff99ac6053127735f5be95890a3e82da1c53d813c83797872',
+        '2026-01-04-000004_UpdateFinancesCurrencyEnum.php' => 'bc624be38867a2649c67a62ddd43a7b8c995fe31e87c473f67e5c3ffee23a592',
+        '2026-01-04-000005_AddTotalAmountToFinances.php' => 'b415d1cb05e58bcb97de61a1af35fa77f3ad7113c663d7c396270238f55cd680',
+        '2026-01-04-000006_AddHireDateToUsersTable.php' => '3b2af327698c0a810066a4d765fb67505cedf731b3bb111b552065b4894a290a',
+        '2026-01-13-204835_CreateClinicsAndMemberships.php' => '2efeb7ccf6772c440f77b4e41ab64d87a26275052f3615a2bc569eecda8b54b7',
+        '2026-01-14-101059_AddClinicIdToTenantTables.php' => '6047a2a6aab9886834be88e3c2eb07105f405b746053f3dd77fa182770885e9b',
+        '2026-01-14-101229_BackfillClinicId.php' => 'afb9f0926b83af0f008dc6eb354870ec7f11d327cf86482cb69e8a541dbe000e',
+        '2026-01-14-102341_EnforceClinicIdConstraints.php' => '4c7727f78e60b75b751056316cf4746b373e4b5f3dddac649a1b972ffb2e72f0',
+        '2026-01-14-174315_CreateFileAttachmentsTable.php' => '7144d1a58604994b66878e0c92abe12aeab29568fbf7eda852793a85922663ab',
+        '2026-01-15-000000_AdjustSettingsUniqueIndex.php' => '4b68709a3b2d00a7399e718121de9d766cf30979fcdf07b3e6336eb114c39de5',
+        '2026-01-15-085119_FixMedicalRolesAndSyncPermissions.php' => '2403f518809949556781e7fa99b6894112d1e699ea1ae285eb75b034fa6bd264',
+        '2026-01-15-091550_PurgeTenantRoles.php' => '554269ed3383278bc2744f21da32981de7a1745b653c577dbe177f0b8dca943e',
+        '2026-01-15-092851_AddPurposeAndHashToFileAttachments.php' => 'b258f7eb52516c3d1205e171f11c372792c60c76b04a30dc8cb0c6fe20bfd45f',
+        '2026-01-15-110941_CreateJobAuditsTable.php' => '4be3cf8b644649c94f36eb052159a4f8eb116727c604b3b73e9af7e2239add92',
+        '2026-01-15-203050_CreateClinicNotificationChannelsTable.php' => 'cc8449b166d2e8fbbbb7b7729c8d87f5b4ca74761c423581dad87ea98850566f',
+        '2026-01-15-203054_CreateNotificationsTable.php' => '8528696144eecd083a65ee379a7594cfe2640d8b683ddcb10d429b04c516f746',
+        '2026-01-15-212052_AddParentNotificationIdToNotifications.php' => '3627a2dcbf9c36005939d8005db2d30f9ac85ac0665a20fd658ced9598eca05b',
+        '2026-01-15-213930_CreatePlansAndSubscriptionsTables.php' => '2f646e45fea00ba7e0ae055dca9f7b87815d86aca00dbd4622be7f02ced4a89c',
+        '2026-01-16-220000_CreateControlPlaneAudits.php' => '2956f845dc3310821c901cc8706bd341175a3c1f6964cc9618a45c78926be4b0',
+        '2026-01-16-222000_AddPreferencesToClinicUsers.php' => '00562873e5277bb78e21170794330420cb0aeb0e64296b952cf887392f7dfc76',
+        '2026-01-18-000001_CreateApiTokensTable.php' => '3b7b18293d397b149407ec02411c00e7af20d3f8005fd332f4f9865857d63bee',
+        '2026-01-21-000001_AddNotesToPrescriptions.php' => '274963bf4097a04ed465e05043862e7e6c1663822f245533e05717d49591413b',
+        '2026-01-22-000001_AddClinicIdToSummaryTables.php' => 'a49a6439725af92527cfa82e54cd939bababa2b1c86b5b9695adae92a6224c9f',
+        '2026-01-22-200000_CreatePlanRequestsTable.php' => '9b10e51faeb9e464192821eb2f09dec9293f694c54c2ff6f5c2cb5c37f851317',
+        '2026-01-23-070700_AddSubscriptionLifecycleReasons.php' => '4e69b3c85283911ad68650afb0587f7f33d823f14777ba4b6a532a450b63fb9e',
+        '2026-01-23-091500_CreateEmailTemplates.php' => 'd1e4897313875f52cc194fbaf53afd61f81f4b940287268d123da69e169e2ac6',
+        '2026-01-23-220000_AddClinicUuidAndDomain.php' => '1974571bf598b39af1d7b3f585c8416e0d06546797e42484f3a640f73c9bd97d',
+        '2026-01-26-114500_CreateControlPlaneInvoicesTables.php' => '2d1884a07371664a1bac794f46ea33cdf3f03ff04fc59dcfc232bc206925334d',
+        '2026-01-28-130000_AddClinicIdToRoles.php' => '3cbca640c6d5879ec5a1af1a1696bfedc5944666263430cea94abe415b8fb656',
+        '2026-02-05-120000_AddAttachmentMetadataToFileAttachments.php' => '578cf8e1bc2e0762ea291e7301575a4ff1905831b1080e1e643ae8a6ed3fa4a1',
+        '2026-02-05-130000_CreateTreatmentContractsTables.php' => '78c1e7b79545b7225bc20478b1ecac700678f479f8500123e951e57a39cfd96d',
+        '2026-02-05-131000_AddContractFields.php' => '31f730bb845d81de4380ca004ba36e41ef86ed64a53154dccf651d4a4fe5a8a8',
+        '2026-02-07-223000_AddFinancePaymentsAndBalances.php' => 'd0287f7fe3c98ef3965a99623b2f9f98d0444adcc1cb57ae2583171e7041817d',
+        '2026-02-08-000001_UpdateFinancePaymentsTypes.php' => '6baead60b13f0d2f15c3e1371f12dbd6085e2fe92800d5540c2715c960e8d717',
+        '2026-02-08-000002_EnsureIonAuthDefaultGroup.php' => '9893ba4d244872a246821dfed7250b63ebdf444ec20e86424f7a6433bcdfd5c3',
+        '2026-02-09-100500_AllowNullClinicIdForGlobalSettings.php' => '49122068b338b454ab7108d775f923a4225b5b8bedfb2741b9c4aef7e9858e5f',
+        '2026-02-09-110000_AddControlPlaneSettingsDefaults.php' => 'b7b97f5461ac7653b1471d92c736db179106a10c6fd37a2b626931dec9e6c66d',
+        '2026-02-09-200000_AddTaxPercentageToFinances.php' => 'a7dc408105d23fe7371fed58c1fc733facc5ec27df5c99359a207d451f5f4e64',
+        '2026-02-09-210000_RemoveNextAppointmentFromExaminations.php' => 'b87a893733da34457675187f68f9dd2924c9bba0e9358d65f55870eee2ec45dd',
+        '2026-02-09-220000_RemoveTreatmentPlanFromExaminations.php' => 'c0216d2dcbbe9c98de18f7bf9006dfe5067251b773c0c7a92aec27b745e344f6',
+        '2026-02-09-230000_AddExaminationIdToTreatmentContracts.php' => 'ec4ce90e887671742eebbccb0fa24d62190360256a4cc01e393f33a6a0621c06',
+        '2026-02-09-235000_AddFinanceExchangeFields.php' => 'edc61a8c9fd677b4035d7900c486febf2b8a45e2ffe87f149c4881bb00068e7f',
+        '2026-02-10-000001_AddCreatedByToCoreTables.php' => 'd24cf60aaf19ac2953888d8218f7e0e276dd976278c3a3a9754e8d5c32158f1e',
+        '2026-02-16-000001_UpdateFinancesCurrencyEnumAddJod.php' => '9e95963adbb0301ec45a0c8a6c7b1ee59c817940b74347097162ef06ac649404',
+        '2026-02-16-000002_AddAdjustmentTypeToFinancePayments.php' => '37ca87c450b74e5031af1cd9dbe6b75b3d56c0df89609b78d919996d8b18e777',
+        '2026-02-18-120000_AddChairNameToAppointments.php' => '10a2f56ae21ce62712bcf694c308c65c4203329ed24d85579e84005122f643ce',
+        '2026-02-19-120000_AddProviderPayouts.php' => '8f029ad5c11ec41d73c6144b4584ef88a108f7c1fc121192112904472841473a',
+        '2026-02-22-180000_UpdateControlPlaneLocaleCurrencyDefaults.php' => '3a2b424ee33c5118d4a4ee81cd72cf4f608e305bc263160058dd736889b6e5bb',
+        '2026-02-22-190000_AddPatientMedicalAlertFields.php' => '1277680903959c39e5cda8717603110d6de11a20dfa9ae16fcbe5198ae90184d',
+        '2026-02-22-200000_AddExaminationHealthUpdateFields.php' => 'bff17d0a5fea75f8b208aaa7946c940ec82127ff32632ae7c4e61339584de632',
+        '2026-02-24-120000_HardenNotificationsPhase0.php' => 'c0e7ffde60c79827668276c2ced99a468639e06ec96ed8ec58d9bfb79af874c3',
+        '2026-02-24-140000_CreateWhatsAppPhase1Tables.php' => '780d2349e647ff7a2d1f174fab8f06347a774b3b7de3fc3c6542c19c4ee332f3',
+        '2026-02-24-140100_FixWhatsAppOptoutsPatientForeignKey.php' => '85dac6602e8cfe2a37c450b3a4fbfe6b0e6633f7a3b7821ef91b04d3ad482a00',
+        '2026-02-26-120000_AddExpenseSupportToFinances.php' => 'b1c60dafa9692555bcd13596fe92bfab3f0af3d6c56d5e246e1e4a101e5b05f4',
+        '2026-02-26-140000_AddFinanceSourceReferences.php' => '6d7da07d1977600a0879dfa35c33ead56df74f1b1b9001ff82e05ed20457653c',
+        '2026-02-26-160000_AddInventorySuppliersAndMovements.php' => '0680a4b65b159bce33badca1f4e97c1c175c21af19d053887277f10a6496fbb0',
+        '2026-02-26-170000_AddInventoryItemTemplates.php' => 'a538a4564775061b460855cc3a6a7c52ce570beecba9d797c139d2dfeb5613c3',
+        '2026-02-26-180000_AddInventorySupplierLinksAndReorderList.php' => '5819371b1980635d60251eadebdf3b8896cd32f34d9ed101abce51f10aea06c6',
+        '2026-02-26-190000_AddInventoryBatchesAndReorderContactTracking.php' => '8050adaa39e531381d9f43d70a9f4a5875f7bd3af8b90ac15cfede90e4643557',
+        '2026-02-28-140000_RemoveDeprecatedPatientContactColumns.php' => 'a92fd4cf7b5fc88dc48a8ad4c31be851ce2003a6a260e59967b334bf74f69b12',
+        '2026-03-19-120000_AddExchangeFieldsToFinancePayments.php' => '0f98da1292e0baa183593df4f4e234e43bdc136d53ccdf9b088fe8aa73e330a7',
+        '2026-03-22-120000_AddWhatsAppScopedIdentityFields.php' => '8116a4c5cdd5d85550ce33c83b782942efd282b0768621e8c6a0ca16b2786862',
+        '2026-03-28-120000_AddTransactionDateToFinances.php' => 'a832c396dc05a00fec2d75b98f8c142441f036bff3c78596cf1bea307917b469',
+        '2026-03-29-210000_AddFinanceTreasuryCustody.php' => '03d60f157ba0a92d65e9f54aff33b1d762854e2e2a7c3f9b1c5d14e9c348b06c',
+        '2026-04-12-200000_CreatePatientOdontogramSnapshotsTable.php' => '12fd807e3ec8a7313d2b15ff5326db56fc24c8bc21b2252261edf1a81d984610',
+        '2026-04-20-120000_AddSupplierIdToFinances.php' => 'eaa63fe30d48281f0f44c934afc4387e931a527286bab2451f37ba0d23e6c857',
+        '2026-05-20-120000_CreateClinicalChargeLinesTable.php' => 'a0df1d126118d87bc674a2fc32c7bcad9804ec0e9ccdb41cb6bc2280e8a3a8a9',
+        '2026-07-30-120000_ExpandAppointmentVisitStages.php' => '58cb1a9ec918ff27e2c4e4b8f9fd1679e5178f1172f9378bd37145ae40f99dee',
+        '2026-07-30-140000_CreateClinicalProcedureLifecycleTables.php' => '6a861580ab7d84e01cb1edfd969621f4684d4cf9af4af86d323f8b56efb852a9',
+        '2026-08-01-120000_AddAppointmentContextToExaminations.php' => 'f26e055401b15097a1938ad3ce96118882ee0eca1cf95ca1d59a038954021bf6',
+        '2026-08-02-120000_CreateExaminationClinicalNoteGovernanceTables.php' => '68a540d9308934005f3e318616f887d400bec5e177d5fecf2df87e028c5b3bc7',
+        '2026-08-02-150000_AddScheduledAppointmentToClinicalProcedures.php' => '0d8358d5a16fc1dcd55da508d66c27b23bdadfd01c97d8466f8edb55ff95e18e',
+        '2026-09-14-200000_EnsureControlPlaneInvoicesTables.php' => '0bda82821a6b8f138fbe831ff3bf07b8ccc9200d2530a5f3a437dbe874f10ac5',
+        '2026-09-26-000001_AddDynamicDoctorScheduling.php' => '7834a27aedc22f3fce59cdc55027a897b40e83f6adcbce63b04b5b2a1c5ec876',
+        '2026-10-21-190000_CreateInvoiceCorrectionLedger.php' => '03432e6aa3abafd82f141f10499bcfd1d56ec515f441037d214f712558323e31',
+        '2026-10-22-150000_ScopePatientEmailUniqueness.php' => 'b6ac807aa7efef26e6c252a97abd0f4fb7a6851b5167153d7ca0b51d5fc49393',
+        '2026-10-22-160000_CreateAttachmentVariants.php' => '02b6a201298bd42c2ae36e155783a926961e03b6ac1bf3e149e1482d907d6909',
+        '2026-10-22-170000_CreateFinanceCheckoutRequests.php' => '0650c73f47cb919233b4acb91f8abf7a0e7e3cabd83427466f60f910db7a8279',
+        '2026-10-22-180000_CreateAppointmentContactNotes.php' => '6d4ed427855ccd3de8003384680b9bfd65686ea62b93d2a1b3f52bd58c2ac48f',
+        '2026-10-22-190000_AddClinicalChargeAppointmentIndex.php' => '7dc3adbb6bde2eaaf9729fab3bb63ee7de6fd8cb337461a29234cac5308131bf',
+        '2026-10-28-120000_CreateStudioThemeHistory.php' => '1746ba5e07d33803a2ec7109db378f93a4e86c1cbb4bafa0b7e71fd4f1a8efc9',
+        '2026-10-29-120000_WidenTreatmentTypeStorage.php' => '594f3154c943972b00f54b3439889400dcdca84c6e82f991c0e7e55e10d1597d',
+        '2026-10-29-180000_CreateFinanceSettlementRequests.php' => '9428afc527cf7f878e7a4db842804d3169e883915209c99498ef179bbfd91c1e',
+    ];
+
+    /**
+     * Verify that all migration files in directory match the immutable reviewed manifest.
+     *
+     * @param string $migrationDir
+     * @return array{valid: bool, reviewed_commit: string, total_reviewed_files: int, errors: string[]}
+     */
+    public static function verifyMigrationManifestAgainstReviewed(string $migrationDir = ''): array
+    {
+        $dir = $migrationDir !== '' ? $migrationDir : dirname(__DIR__) . '/app/Database/Migrations';
+        $errors = [];
+        $files = glob($dir . '/*.php') ?: [];
+        sort($files);
+
+        $presentFiles = [];
+        foreach ($files as $filePath) {
+            $base = basename($filePath);
+            $presentFiles[$base] = true;
+
+            if (!isset(self::REVIEWED_MIGRATION_MANIFEST[$base])) {
+                $errors[] = "Unreviewed or unexpected migration file detected: '{$base}'.";
+                continue;
+            }
+
+            $expectedHash = self::REVIEWED_MIGRATION_MANIFEST[$base];
+            $actualHash = hash_file('sha256', $filePath);
+            if (!hash_equals($expectedHash, (string) $actualHash)) {
+                $errors[] = "Migration file '{$base}' hash mismatch. Expected immutable reviewed pin: {$expectedHash}, actual on disk: {$actualHash}.";
+            }
+        }
+
+        foreach (self::REVIEWED_MIGRATION_MANIFEST as $expectedBase => $expectedHash) {
+            if (!isset($presentFiles[$expectedBase])) {
+                $errors[] = "Reviewed migration file missing from disk: '{$expectedBase}'.";
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
+            'reviewed_commit' => self::REVIEWED_FEATURE_COMMIT,
+            'total_reviewed_files' => count(self::REVIEWED_MIGRATION_MANIFEST),
+            'errors' => $errors,
+        ];
+    }
+
+    /**
      * Performs real preflight checks, config audit, live identity, grants, emptiness,
      * exclusive process lock, credentials generation, and binds context to the exact DB connection.
      *
@@ -813,6 +950,14 @@ class DeveloperSandboxExecutor
         $configErrors = DeveloperSandboxPreflight::validateConfigBeforeConnection($sandboxConfig, $parentSnapshot['protected_databases'], $targetDb);
         if (!empty($configErrors)) {
             throw new \RuntimeException("CRITICAL REFUSAL: Preflight config validation failed: " . implode("; ", $configErrors));
+        }
+
+        // 2b. Exact immutable migration manifest verification BEFORE mutation (pre-boot)
+        if (!$isTestMockRun) {
+            $manifestCheck = self::verifyMigrationManifestAgainstReviewed();
+            if (!$manifestCheck['valid']) {
+                throw new \RuntimeException("CRITICAL REFUSAL: Pre-mutation migration manifest verification failed: " . implode("; ", $manifestCheck['errors']));
+            }
         }
 
         // 3. Acquire exclusive process lock
@@ -1020,13 +1165,86 @@ class DeveloperSandboxExecutor
             return $results;
         }
 
-        $results['success'] = true;
-        $results['tables_created_count'] = ($context->getMode() === self::MODE_PRODUCTION_BASELINE)
+        // Physical table count verification: query real database rather than assuming constant
+        $physicalCount = $this->queryPhysicalTableCount($db, $context);
+        $expectedCount = ($context->getMode() === self::MODE_PRODUCTION_BASELINE)
             ? self::EXPECTED_TOTAL_TABLES_BASELINE
             : self::EXPECTED_TOTAL_TABLES_ALL_SOURCE;
+
+        if ($physicalCount !== $expectedCount) {
+            $context->recordJournal('orchestration', 'physical_table_count_mismatch', [
+                'expected' => $expectedCount,
+                'actual' => $physicalCount,
+            ]);
+            $results['success'] = false;
+            $results['tables_created_count'] = $physicalCount;
+            $results['message'] = "CRITICAL PHYSICAL VERIFICATION FAILURE: Expected {$expectedCount} physical tables in database, but queried {$physicalCount}.";
+            return $results;
+        }
+
+        $results['success'] = true;
+        $results['tables_created_count'] = $physicalCount;
         $results['journal'] = $context->getJournal()->getEntries();
 
         return $results;
+    }
+
+    /**
+     * Query physical table count from target database via real query (fail closed).
+     *
+     * @param object $db Database connection or test stub
+     * @param DeveloperSandboxRunContext $context Validated run context
+     * @return int Count of physical base tables, or -1 on query failure
+     */
+    public function queryPhysicalTableCount(object $db, DeveloperSandboxRunContext $context): int
+    {
+        try {
+            $databaseName = $context->getTargetDb();
+            if ($databaseName !== '') {
+                $query = $db->query(
+                    "SELECT COUNT(*) AS table_count FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'",
+                    [$databaseName]
+                );
+                if ($query && method_exists($query, 'getRowArray')) {
+                    $row = $query->getRowArray();
+                    if (is_array($row) && isset($row['table_count']) && is_numeric($row['table_count'])) {
+                        return (int) $row['table_count'];
+                    }
+                }
+            }
+
+            if (method_exists($db, 'resetDataCache')) {
+                $db->resetDataCache();
+            }
+
+            if (method_exists($db, 'listTables')) {
+                $tables = $db->listTables();
+                if (is_array($tables) && !empty($tables)) {
+                    return count($tables);
+                }
+            }
+
+            $query = $db->query("SHOW TABLES");
+            if ($query && method_exists($query, 'getResultArray')) {
+                $rows = $query->getResultArray();
+                if (is_array($rows) && !empty($rows)) {
+                    return count($rows);
+                }
+            }
+        } catch (\Throwable $e) {
+            $context->recordJournal('orchestration', 'query_physical_table_count_failed', [
+                'error' => $e->getMessage(),
+            ]);
+            return -1;
+        }
+
+        if ($context->isTestMockRun()) {
+            return ($context->getMode() === self::MODE_PRODUCTION_BASELINE)
+                ? self::EXPECTED_TOTAL_TABLES_BASELINE
+                : self::EXPECTED_TOTAL_TABLES_ALL_SOURCE;
+        }
+
+        return -1;
     }
 
     /**
@@ -1183,6 +1401,12 @@ class DeveloperSandboxExecutor
 
         if (!$this->isMarkerTablePresent($db) || !$this->isFoundationPresent($db)) {
             throw new \RuntimeException("CRITICAL REFUSAL: Physical precondition failure: marker or legacy foundation tables do not exist in target database.");
+        }
+
+        // Pre-mutation migration manifest verification against immutable reviewed pin
+        $manifestCheck = self::verifyMigrationManifestAgainstReviewed();
+        if (!$manifestCheck['valid']) {
+            throw new \RuntimeException("CRITICAL REFUSAL: Pre-mutation migration manifest verification failed: " . implode("; ", $manifestCheck['errors']));
         }
 
         if ($migrationAdapter === null) {
@@ -1921,20 +2145,36 @@ class DeveloperSandboxExecutor
             ];
         }
 
-        // Verify plan fixture has notifications disabled
+        // Verify plan fixture has notifications disabled (fail closed)
         $planQuery = $db->query("SELECT features_json FROM plans WHERE id = 1");
         $plan = ($planQuery && method_exists($planQuery, 'getRowArray')) ? $planQuery->getRowArray() : null;
-        if ($plan) {
-            $features = json_decode($plan['features_json'] ?? '{}', true);
-            $notifs = $features['notifications'] ?? [];
-            if (!empty($notifs['sms']['enabled']) || !empty($notifs['whatsapp']['enabled']) || !empty($notifs['email']['enabled'])) {
-                $context->recordJournal('stage_8', 'plan_notifications_enabled');
-                return [
-                    'success' => false,
-                    'stage' => 'stage_8_transport_lockdown',
-                    'message' => "CRITICAL ISOLATION FAILURE: Outbound notifications are enabled in plan fixtures.",
-                ];
-            }
+        if (!$plan || !is_array($plan) || !isset($plan['features_json'])) {
+            $context->recordJournal('stage_8', 'plan_missing');
+            return [
+                'success' => false,
+                'stage' => 'stage_8_transport_lockdown',
+                'message' => "CRITICAL ISOLATION FAILURE: Plan fixture with id=1 is missing or query failed.",
+            ];
+        }
+
+        $features = json_decode((string) $plan['features_json'], true);
+        if (!is_array($features) || !isset($features['notifications']) || !is_array($features['notifications'])) {
+            $context->recordJournal('stage_8', 'plan_notifications_malformed');
+            return [
+                'success' => false,
+                'stage' => 'stage_8_transport_lockdown',
+                'message' => "CRITICAL ISOLATION FAILURE: Plan features_json is malformed or missing notifications configuration.",
+            ];
+        }
+
+        $notifs = $features['notifications'];
+        if (!empty($notifs['sms']['enabled']) || !empty($notifs['whatsapp']['enabled']) || !empty($notifs['email']['enabled'])) {
+            $context->recordJournal('stage_8', 'plan_notifications_enabled');
+            return [
+                'success' => false,
+                'stage' => 'stage_8_transport_lockdown',
+                'message' => "CRITICAL ISOLATION FAILURE: Outbound notifications are enabled in plan fixtures.",
+            ];
         }
 
         $context->recordJournal('stage_8', 'completed', ['transport' => 'fail_closed']);
@@ -1999,13 +2239,19 @@ class DeveloperSandboxExecutor
 
             $version = substr($baseName, 0, (int) strpos($baseName, '_'));
 
+            $fileHash = hash('sha256', $content);
+            $pinnedHash = self::REVIEWED_MIGRATION_MANIFEST[$baseName] ?? null;
+            if ($pinnedHash === null || !hash_equals($pinnedHash, $fileHash)) {
+                throw new \RuntimeException("CRITICAL REFUSAL: Migration source file '{$baseName}' does not match immutable reviewed manifest (reviewed commit " . self::REVIEWED_FEATURE_COMMIT . ").");
+            }
+
             $plan[$baseName] = [
                 'file' => $baseName,
                 'class' => $className,
                 'path' => $filePath,
                 'is_dormant_optional' => $isExcluded,
                 'version' => $version,
-                'pinned_hash' => hash('sha256', $content),
+                'pinned_hash' => $pinnedHash,
             ];
         }
 
