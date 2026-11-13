@@ -570,6 +570,38 @@ final class DeveloperSandboxTrialControllerTest extends TestCase
         $res = DeveloperSandboxTrialController::verifyCanonicalSettings($settings, 'clinic');
         $this->assertFalse($res['valid']);
         $this->assertStringContainsString("Unexpected invented/extra setting key 'currency_symbol'", implode('; ', $res['errors']));
+
+        // Global scope also rejects invented keys
+        $globalWithInvented = [
+            'default_timezone' => 'Asia/Jerusalem',
+            'default_currency' => 'ILS',
+            'default_currency_position' => 'after',
+            'default_date_format' => 'd/m/Y',
+            'default_time_format' => '12',
+            'default_appointment_duration' => 30,
+            'default_booking_chair_max' => 3,
+            'app_name' => 'DentaCare Developer Sandbox',
+            'invented_global_key' => 'junk_value',
+        ];
+        $resGlobalBad = DeveloperSandboxTrialController::verifyCanonicalSettings($globalWithInvented, 'global');
+        $this->assertFalse($resGlobalBad['valid']);
+        $this->assertStringContainsString("Unexpected invented/extra setting key 'invented_global_key'", implode('; ', $resGlobalBad['errors']));
+
+        // Global scope accepts legitimate migration-seeded control plane settings
+        $globalWithMigration = [
+            'default_timezone' => 'Asia/Jerusalem',
+            'default_currency' => 'ILS',
+            'default_currency_position' => 'after',
+            'default_date_format' => 'd/m/Y',
+            'default_time_format' => '12',
+            'default_appointment_duration' => 30,
+            'default_booking_chair_max' => 3,
+            'app_name' => 'DentaCare Developer Sandbox',
+            'platform_name' => 'DentaCare Cloud',
+            'retention_mode' => 'latest',
+        ];
+        $resGlobalGood = DeveloperSandboxTrialController::verifyCanonicalSettings($globalWithMigration, 'global');
+        $this->assertTrue($resGlobalGood['valid'], implode('; ', $resGlobalGood['errors']));
     }
 
     public function testVerifyCanonicalSettingsRejectsMissingRequiredKey(): void

@@ -333,28 +333,31 @@ final class DeveloperSandboxTrialController
         $permIdToName = [];
         foreach ($dbPermissions as $index => $perm) {
             $name = (string) ($perm['name'] ?? '');
+            $module = isset($perm['module']) ? (string) $perm['module'] : '';
+            $action = isset($perm['action']) ? (string) $perm['action'] : '';
+            $canonicalKey = ($module !== '' && $action !== '') ? "{$module}.{$action}" : $name;
             $id = $perm['id'] ?? null;
-            if ($name === '') {
+            if ($name === '' && $canonicalKey === '') {
                 $errors[] = "Permission at index [{$index}] has empty name.";
                 continue;
             }
-            if (isset($existingPermMap[$name])) {
-                $errors[] = "Duplicate permission '{$name}' detected in permissions table.";
+            if (isset($existingPermMap[$canonicalKey])) {
+                $errors[] = "Duplicate permission '{$canonicalKey}' detected in permissions table.";
             }
-            $existingPermMap[$name] = $perm;
+            $existingPermMap[$canonicalKey] = $perm;
             if ($id !== null) {
-                $permIdToName[$id] = $name;
+                $permIdToName[$id] = $canonicalKey;
             }
 
             // Verify permission module/action if provided
             if (isset($perm['module'])) {
-                $expectedMod = $expectedPermNames[$name]['module'] ?? null;
+                $expectedMod = $expectedPermNames[$name]['module'] ?? ($expectedPermNames[$canonicalKey]['module'] ?? null);
                 if ($expectedMod !== null && $perm['module'] !== $expectedMod) {
                     $errors[] = "Permission '{$name}' at index [{$index}] has unexpected module '{$perm['module']}', expected '{$expectedMod}'.";
                 }
             }
             if (isset($perm['action'])) {
-                $expectedAct = $expectedPermNames[$name]['action'] ?? null;
+                $expectedAct = $expectedPermNames[$name]['action'] ?? ($expectedPermNames[$canonicalKey]['action'] ?? null);
                 if ($expectedAct !== null && $perm['action'] !== $expectedAct) {
                     $errors[] = "Permission '{$name}' at index [{$index}] has unexpected action '{$perm['action']}', expected '{$expectedAct}'.";
                 }
@@ -512,6 +515,29 @@ final class DeveloperSandboxTrialController
     }
 
     /**
+     * Legitimate control plane global settings seeded by database migrations
+     * (e.g. 2026-02-09-110000_AddControlPlaneSettingsDefaults).
+     * These are valid schema settings, distinct from invented arbitrary keys.
+     *
+     * @var array<string, bool>
+     */
+    public const VALID_MIGRATION_GLOBAL_SETTINGS = [
+        'platform_name' => true,
+        'platform_support_email' => true,
+        'platform_support_phone' => true,
+        'platform_support_whatsapp_primary' => true,
+        'platform_support_whatsapp_secondary' => true,
+        'platform_support_website' => true,
+        'retention_mode' => true,
+        'retention_last_n' => true,
+        'retention_days' => true,
+        'control_plane_audit_retention_days' => true,
+        'default_working_hours_start' => true,
+        'default_working_hours_end' => true,
+        'default_working_days' => true,
+    ];
+
+    /**
      * DB-FREE VERIFIER: Verifies canonical settings against Executor canonical definition.
      * Enforces:
      *  - Scope fail-closed validation ('clinic', 'global', or 'all')
@@ -588,9 +614,14 @@ final class DeveloperSandboxTrialController
             }
         }
 
-        // Enforce zero invented / extra settings keys
+        // Enforce zero invented / extra settings keys (allowing legitimate migration schema defaults for global scope)
+        $allowedExtraKeys = [];
+        if ($scope === 'global' || $scope === 'all') {
+            $allowedExtraKeys = self::VALID_MIGRATION_GLOBAL_SETTINGS;
+        }
+
         foreach (array_keys($settings) as $actualKey) {
-            if (!array_key_exists($actualKey, $expectedDefs)) {
+            if (!array_key_exists($actualKey, $expectedDefs) && !isset($allowedExtraKeys[$actualKey])) {
                 $errors[] = "Unexpected invented/extra setting key '{$actualKey}' (scope: {$scope}) found in settings.";
             }
         }

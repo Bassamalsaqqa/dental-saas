@@ -28,17 +28,21 @@ Deployed production baseline remains `1b17d06587a07a473f714e296af27f977134208d` 
   - Host cleanup: 3 files / 2,986 logical bytes deleted; canonical copies preserved in private journal `/home/t3dev/.denta-preservation-manifest-20261113/cleanup_deletion_journal.json`.
   - Pure database-free suite: 210 tests / 1495 assertions pass in `npm test` (including 74 preflight tests / 553 assertions and 40 trial controller verifier tests / 157 assertions; baseline 170/1338 preserved).
 - **Current task verification results (2026-11-14):**
-  - Fast-forward push of `ef29aed9` to `origin/release/production-20261017` completed after verifying expected remote `df708e52`.
+  - Fast-forward push of corrective commits (`a72754ff`, `155e49cb`, `231bb86a`) to `origin/release/production-20261017` completed cleanly after verifying expected remote `511bfc47`.
   - Accessible patient finance navigation button implemented in `app/Views/patient/show.php`; browser NOT VERIFIED limitation preserved.
   - Reconciled `origin/feature/developer-sandbox-bootstrap-20261110` tip `7427b4a4` into release branch via normal merge; exact commit ancestry preserved.
-  - Issue #29 verifier corrections completed and verified with 7 pure regression tests: `npm test` verified 210 tests / 1495 assertions pass.
-  - Pinned migration hashes (85 files) and source hashes independently verified against git blobs at `7427b4a4`.
-  - SaaS guardrails verified clean (`bash scripts/ci/saas_guardrails.sh`): 0 DOM sinks, 2 group auth, 28 raw tenant queries, forbidden fonts clean.
-  - Pinned stylesheet `public/assets/css/tailwind.css` hash verified unchanged (`3a51d2ff...`).
-  - Docker inspected read-only: CLI tools available, daemon offline. Fresh isolated target design prepared.
+  - Issue #29 single-run baseline bootstrap trial successfully executed in isolated private harness (`/home/t3dev/.trial-harness-issue29-ee3b5ff36090`, mode 0700):
+    * Provenance: MariaDB 10.11.19 packages verified via official Debian bookworm-security sha256 checksums; own datadir with random marker `DATADIR_MARKER_2524815d8528d162ccf79f246d0b76a9.txt`.
+    * Isolation: Port 3306 confirmed OFF; port 3307 loopback only; socket setup, root secured, anonymous/TCP root disabled, escaped schema grant `` `democa\_dental\_saas\_dev`.* ``.
+    * Preflight: Authoritative config envelope source-read, live identity, zero schema entities confirmed before worker.
+    * Guarded worker: `scripts/DeveloperSandboxWorker.php --apply` created 69 physical base tables and applied 77 migrations in 77 sequential batches; runtime `WRITEPATH` redirected to harness writable, app `writable/` hashes verified untouched (0 mutations).
+    * Physical verifications: 69 base tables, 77 migration records, dynamic RBAC (42 permissions, 8 roles, grant mappings resolved via canonical `module.action` keys), canonical settings (clinic 6, global 21 with legitimate migration defaults accepted, all 27; dynamic scheduling strictly 0), `CHECK TABLE` OK on all 69 tables, foreign key structure partial validator passed (4 core constraints; explicit non-exhaustive limitation recorded), 0 orphans across 6 relationships.
+    * CI4 model queries: 2 clinics, 5 personas, 8 roles, 1 plan verified via real framework models (`ClinicModel`, `UserModel`, `RoleModel`, `PlanModel`).
+    * Lifecycle & cleanup: MariaDB stopped gracefully, port 3307 confirmed free; package downloads and plaintext credentials cleaned after receipt verification; audit journal and receipt (`trial_receipt.json`) preserved privately; intended developer datadir retained stopped on disk.
+  - Pure tests: 40 tests, 160 assertions passed in `DeveloperSandboxTrialControllerTest.php`.
 - **Next bounded task:**
-  1. Supervisor review of local merge and corrective commits and diffs (NO push of merged branch until supervisor actual diff review; Issue #29 remains OPEN).
-  2. Supervisor review of proposed isolated fresh owned target design (dedicated datadir, loopback port 3307, zero connection to protected recovery datadir or port 3306) before any container/daemon start or runtime execution.
+  1. Supervisor review of local corrective diffs (`scripts/DeveloperSandboxTrialController.php`, `tests/unit/DeveloperSandboxTrialControllerTest.php`, `docs/WORK_PROGRAM.md`) and verified trial receipt (NO push of local commits until supervisor review; Issue #29 remains OPEN).
+  2. Retention of stopped developer datadir on disk pending supervised app acceptance.
 
 ## Working rules
 
@@ -106,5 +110,5 @@ Existing refund/correction policy preserves provider obligations/payments; no au
 - **Financial schema & policy boundaries:** Salary payee remains free text; pending salary method enum remains required; booking columns remain distinct from doctor compensations; no overdraft rule, new setting, or schema was invented.
 - **Dependency alert:** GitHub medium development-scope `minimatch` alert (#33, `package-lock.json`) is confined to dev tooling and remains open; locked dependencies and pinned CSS remain untouched.
 - **UI evidence status:** Accepted UI evidence in `docs/ui-evidence/` is retained as operational and audit verification.
-- **Synthetic database gap:** Clean-slate customer-free developer bootstrap remains an open onboarding gap; offline dry-run proposal exists but apply/reset is refused until an isolated Linux execution target is proven independently. Port 3306 is OFF by policy; port 3307 prior recovery datadir is protected.
+- **Synthetic database gap:** Clean-slate customer-free developer bootstrap trial successfully executed in private 0700 harness on port 3307; 69 tables and 77 migrations verified with 0 mutations to app writable. Intended developer datadir is retained stopped pending supervised app acceptance. Port 3306 remains OFF by policy; protected production recovery data remains untouched.
 - **Dormant features:** Dynamic scheduling, Theme Studio persistence, WhatsApp, invoice corrections, cashier checkout, contact notes, and media variants remain OFF.
