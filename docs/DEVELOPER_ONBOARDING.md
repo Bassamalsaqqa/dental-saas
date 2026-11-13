@@ -9,7 +9,7 @@ This guide is a practical companion to [`README.md`](../README.md), [`docs/START
 
 ## 1. Stack & Architecture Boundaries
 
-- **Backend:** CodeIgniter 4 (PHP 8.2+; production runs PHP 8.3.36).
+- **Backend:** CodeIgniter 4 (PHP 8.2+; production runs PHP 8.3.36, local Linux CLI runs PHP 8.3.6).
 - **Presentation:** Native server-rendered PHP views (`app/Views`) with shadcn-inspired Studio components ([`docs/UI_STUDIO_COMPONENTS.md`](UI_STUDIO_COMPONENTS.md)) and Tailwind CSS 3.
 - **Enhanced UI Controls:** jQuery 3.7.1, Select2, and Font Awesome Free 6.4.0 vendored under `public/assets/vendor/fontawesome` (CDN loading prohibited by [DECISIONS.md](DECISIONS.md)).
 - **Database:** Production was verified on MariaDB 11.8.9; isolated local regression used MariaDB 10.4.32. These checkpoints do not certify every database version.
@@ -30,9 +30,10 @@ This guide is a practical companion to [`README.md`](../README.md), [`docs/START
 
 - **Deployed Production Commit:** `1b17d06587a07a473f714e296af27f977134208d` (Tree SHA: `257f1661717e898a430c5bec0d7128af1568ead1`, PR #28 deployed 2026-11-08, maintenance OFF).
 - **Immediate Source Rollback Baseline:** PR #27 at `5b7c0688` (Tree SHA: `b1ec2c3e3b3472c5b62d11734d94fa8e1dc6941a`).
-- **Captured Repository Documentation Checkpoint (before this cleanup):** `83295f93d94dbd1902ba000fc037a9e9fb712446` on branch `release/production-20261017`.
-- **Authoritative Branch:** `release/production-20261017` is the GitHub default and deployment ref.
-- **Production Git Working Copy:** On Hostinger, the live checkout is named `main` tracking historical `origin/main`. Do not pull, rename, or reconfigure production Git refs during maintenance.
+- **Repository HEAD vs Installed Production:** Repository HEAD at audit baseline (2026-11-13) is `da31f1cf` on branch `release/production-20261017` (adds offline developer sandbox plan and fail-closed preflight checks). Repository-only documentation or tooling commits do not alter the installed production SHA; always distinguish these two identities.
+- **Authoritative Branch:** `release/production-20261017` is the GitHub default and deployment ref. Historical `main` remains preserved (`485a19824d08e35fcd1a2a68923c63ec265867ca`); do not deploy historical main.
+- **GitHub State:** 0 open pull requests; `feature/developer-sandbox-bootstrap-20261110` at `7427b4a4` has 4 unique commits (unmerged).
+- **Production Git Working Copy:** On Hostinger, the live checkout is named `main` tracking historical `origin/main` with deployed tree matching `1b17d065` plus `.htaccess` overlay. Do not pull, rename, or reconfigure production Git refs during maintenance.
 - Consult [`docs/PROJECT_STATE.md`](PROJECT_STATE.md) for authoritative release history and [`docs/WORK_PROGRAM.md`](WORK_PROGRAM.md) for active assignments.
 
 ---
@@ -40,39 +41,38 @@ This guide is a practical companion to [`README.md`](../README.md), [`docs/START
 ## 3. Setup & Environment Configuration
 
 ### Prerequisites
-- PHP 8.2+ with extensions: `intl`, `mbstring`, `mysqli`, `curl`, `json`, `gd`, `openssl`, `xml`, `zip`.
+- PHP 8.2+ (CLI 8.3 verified) with extensions: `intl`, `mbstring`, `mysqli`, `curl`, `json`, `gd`, `openssl`, `xml`, `zip`.
 - Composer 2.2+.
-- Node/npm compatible with the committed tooling lockfile; do not upgrade dependencies during setup.
-- Git (Windows requires Git Bash at `C:/Program Files/Git/bin/bash.exe`).
+- Node/npm compatible with committed tooling lockfile; do not upgrade dependencies during setup.
+- Git (Linux or Windows with Git Bash).
+- Clean checkout status: working tree is clean ~76 MB total (~40 MB tree, ~36 MB `.git`), with zero `vendor/` or `node_modules/` preinstalled.
 
-### Setup Commands
-```powershell
-# 1. Clone repository on authoritative branch
+### Setup Commands (Linux / macOS / Git Bash)
+```bash
+# 1. Clone repository on authoritative branch (if starting clean)
 git clone --branch release/production-20261017 https://github.com/Bassamalsaqqa/dental-saas.git
-Set-Location dental-saas
+cd dental-saas
 
-# 2. Install locked PHP dependencies
+# 2. Install locked PHP dependencies (when authorized for local development)
 composer install --no-interaction --no-scripts --no-plugins
 
-# 3. Install locked root JavaScript tooling
-npm.cmd ci --ignore-scripts --no-fund
+# 3. Install locked root JavaScript tooling (when authorized for local tooling)
+npm ci --ignore-scripts --no-fund
 
 # 4. Optional: Install locked frontend dependencies (if frontend sub-repo is cloned)
-if (Test-Path "frontend/package.json") {
-    Push-Location frontend
-    npm.cmd ci --ignore-scripts --no-fund
-    Pop-Location
-}
+if [ -f "frontend/package.json" ]; then
+    (cd frontend && npm ci --ignore-scripts --no-fund)
+fi
 
 # 5. Initialize environment configuration
-if (-not (Test-Path -LiteralPath .env)) { Copy-Item -LiteralPath .env.example -Destination .env }
+[ ! -f .env ] && cp .env.example .env
 ```
 
 ### Configuration Invariants
 - Copy `.env.example` to `.env` **only** if `.env` does not already exist.
 - `.env` holds private configuration: base URL, database connection, and encryption key (`app.encryption.key = hex2bin:...`).
 - **No Blank-Password Defaults:** Authoritative connection settings must be explicitly configured for your local isolated database.
-- Keep dormant features and outbound delivery disabled. Use the actual Config/clinic-setting contracts for each feature, not invented environment flag names; do not run message dispatchers during setup.
+- Keep dormant features and outbound delivery disabled. Use actual Config/clinic-setting contracts for each feature, not invented environment flag names; do not run message dispatchers during setup.
 
 ---
 
@@ -83,35 +83,33 @@ Tests are strictly divided into database-free pure checks and isolated synthetic
 ### Tier 1: Pure Unit Tests & Source Guardrails (Database-Free)
 Safe for routine execution without a running database:
 
-```powershell
-# Run pure database-free test suite (96 tests, 785 assertions)
-npm.cmd test
-
-# Run a single inspected database-free PHPUnit file
-php vendor/phpunit/phpunit/phpunit --no-coverage --no-logging --do-not-cache-result tests/unit/BookingResourcePresenterTest.php
-
+```bash
 # Run SaaS guardrails (validates DOM sinks, group auth helpers, reviewed raw queries, fonts)
-& "C:/Program Files/Git/bin/bash.exe" scripts/ci/saas_guardrails.sh
+bash scripts/ci/saas_guardrails.sh
 
 # Check for unapproved DOM sinks in views
 rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views
 
 # Verify git whitespace formatting
 git diff --check
+
+# Run pure database-free test suite (when composer/npm dependencies are installed)
+npm test
 ```
-*Note on Windows:* Use `npm.cmd test` directly in PowerShell because execution policies may block `npm.ps1`.
+
 *Database Warning:* Do not run tests like `tests/unit/AppApiFoundationTest.php` in routine pure checks; their `setUp` initializes database connections. Only run files enumerated in `package.json` under `test:unit`.
 
 ### Tier 2: Isolated Synthetic SQL & HTTP Tests
-- **Approved Target:** `scripts/TestDatabasePreflight.php` requires the exact schema `democa_dental_saas_test`, an approved loopback connection, disjoint business configuration and live ownership checks. Its implementation allows ports 3306 and 3307; this task authorizes only the isolated 3307 listener. Arbitrary schema prefixes fail preflight.
+- **Approved Target:** `scripts/TestDatabasePreflight.php` requires the exact schema `democa_dental_saas_test`, an approved loopback connection, disjoint business configuration, and live ownership checks.
 - **Port Rules:** Business MySQL on port 3306 must remain **OFF**. Synthetic test listeners run on loopback port 3307.
+- **Datadir Protection:** Port 3307 prior recovery datadir is strictly protected, not categorically disposable. This machine must independently prove synthetic database isolation (dedicated disposable schema, loopback binding, verified ownership, clean teardown) before running database-backed tests.
 - **Lifecycle & Teardown:** Test runners must verify ownership, clean up synthetic fixtures, and shut down isolated test instances upon completion.
 
 ---
 
 ## 5. Local Synthetic Bootstrap & Known Gaps
 
-`php scripts/DeveloperSandboxBootstrap.php --dry-run` prints an offline proposal derived from source. It does not connect, execute migrations, seed users or establish database readiness; apply/reset/check-only are refused. The preflight helpers are tested independently of a database. Migration-history/schema reconciliation and an isolated executor remain required before initialization.
+`php scripts/DeveloperSandboxBootstrap.php --dry-run` prints an offline proposal derived from source. It does not connect, execute migrations, seed users, or establish database readiness; apply/reset/check-only are refused. The preflight helpers are tested independently of a database. Migration-history/schema reconciliation and an isolated executor remain required before initialization.
 
 - **Developer Sandbox vs Test Target:** A developer's exploratory sandbox database is distinct from the strictly allowlisted automated test target `democa_dental_saas_test`.
 - **Known Onboarding Gap:** A complete, reviewed clean-slate application bootstrap has not been demonstrated for this handoff. Existing initialization scripts or test-only fixture schemas are not proof of a full application baseline. Dynamic scheduling and other optional migrations remain separate activation gates.
@@ -127,17 +125,20 @@ git diff --check
 - **First-Party App API (`/app-api/v1/*`):** Session cookie authentication + CSRF validation on all mutations. See [`docs/APP_API_CONTRACT.md`](APP_API_CONTRACT.md) and [`docs/refactor/APP_API_ROUTE_INVENTORY.md`](refactor/APP_API_ROUTE_INVENTORY.md).
 - **Clinical & Financial Invariants:**
   - Canonical fact-owner chain: Examination -> Procedure -> Charge Line -> Invoice -> Payment Allocation -> Provider Payout -> COGS. See [`docs/refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md`](refactor/CLINICAL_FINANCE_TRACEABILITY_PLAN.md).
-  - Preserve signed clinical evidence, original receipts, journal history and authoritative calculations. Editing/correction rules differ by record type; use the clinical and finance contracts rather than treating all ordinary records as immutable.
+  - Preserve signed clinical evidence, original receipts, journal history, and authoritative calculations. Editing/correction rules differ by record type; use clinical and finance contracts rather than treating all ordinary records as immutable.
   - Provider compensation allocations and supplier payables belong to distinct ledgers and must never be merged.
   - Guardrails allow 28 reviewed raw tenant queries in controllers; new raw queries require explicit review.
-- **Dormant Features:** The deployed feature states are recorded in PROJECT_STATE.md. Dynamic scheduling, Theme Studio persistence and WhatsApp remain OFF; do not infer that delivery is mocked or safe to invoke.
-- **Open Security Advisory:** Dependabot Alert #33 is `minimatch` (`GHSA-g3hv-75wg-m249`), confined to development tooling.
+- **Dormant Features:** Deployed feature states are recorded in PROJECT_STATE.md. Dynamic scheduling, Theme Studio persistence, and WhatsApp remain OFF; do not infer that delivery is mocked or safe to invoke.
+- **Security & Evidence Governance:**
+  - Dependabot Alert #33 (`minimatch` `GHSA-g3hv-75wg-m249` in `package-lock.json`) remains an open development-tooling advisory; locked dependencies remain untouched.
+  - UI evidence in `docs/ui-evidence/` is retained as operational and audit verification.
 
 ---
 
 ## 7. Release, Maintenance & Recovery Procedures
 
 - **Release Deployment:** Applied via pinned `git merge --ff-only` under controlled maintenance mode. Protected overlays (`.env`, root `.htaccess`, `public/.htaccess`, `public/uploads/`, `writable/`) are preserved. Deployment does not swap application archives.
+- **Owner Authorization:** Current Owner explicitly authorizes eventual commit/push/deploy; actual deployment execution remains bound to reviewed candidate and runbook preflight gates.
 - **Schema Migrations:** Releases with schema migrations require their own reviewed migration procedure; do not assume all releases are source-only.
 - **Recovery & Rollback:** A pinned fast-forward recovery commit restores the reviewed prior source tree while preserving overlays and customer data. Encrypted backups and isolated restore proofs provide separate operational recovery evidence; restoring a database is not part of routine source rollback. See [`docs/OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md).
 
