@@ -4,6 +4,10 @@ declare(strict_types=1);
 // CLI-only bridge for safe_test_runner's already-validated child connection.
 // No framework bootstrap, connection, mutation, output or credential files.
 if (PHP_SAPI !== 'cli') exit(2);
+$runtimeWritepath = getenv('WRITEPATH');
+if ($runtimeWritepath && is_dir($runtimeWritepath)) {
+    defined('WRITEPATH') || define('WRITEPATH', rtrim($runtimeWritepath, '\\/ ') . DIRECTORY_SEPARATOR);
+}
 require_once __DIR__.'/TestDatabasePreflight.php';
 try {
     $connection=json_decode((string)getenv('DENTA_VERIFIED_TEST_CONNECTION'),true,512,JSON_THROW_ON_ERROR);

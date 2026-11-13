@@ -42,6 +42,10 @@ foreach ($cliArgs as $arg) {
 }
 
 // 3. Bootstrap testing environment to inspect resolved configuration
+$runtimeWritepath = getenv('WRITEPATH');
+if ($runtimeWritepath && is_dir($runtimeWritepath)) {
+    defined('WRITEPATH') || define('WRITEPATH', rtrim($runtimeWritepath, '\\/ ') . DIRECTORY_SEPARATOR);
+}
 require_once $repoRoot . '/vendor/autoload.php';
 require_once $repoRoot . '/system/Test/bootstrap.php';
 

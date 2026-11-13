@@ -28,21 +28,23 @@ Deployed production baseline remains `1b17d06587a07a473f714e296af27f977134208d` 
   - Host cleanup: 3 files / 2,986 logical bytes deleted; canonical copies preserved in private journal `/home/t3dev/.denta-preservation-manifest-20261113/cleanup_deletion_journal.json`.
   - Pure database-free suite: 210 tests / 1495 assertions pass in `npm test` (including 74 preflight tests / 553 assertions and 40 trial controller verifier tests / 157 assertions; baseline 170/1338 preserved).
 - **Current task verification results (2026-11-14):**
-  - Fast-forward push of corrective commits (`a72754ff`, `155e49cb`, `231bb86a`) to `origin/release/production-20261017` completed cleanly after verifying expected remote `511bfc47`.
-  - Accessible patient finance navigation button implemented in `app/Views/patient/show.php`; browser NOT VERIFIED limitation preserved.
-  - Reconciled `origin/feature/developer-sandbox-bootstrap-20261110` tip `7427b4a4` into release branch via normal merge; exact commit ancestry preserved.
-  - Issue #29 single-run baseline bootstrap trial successfully executed in isolated private harness (`/home/t3dev/.trial-harness-issue29-ee3b5ff36090`, mode 0700):
-    * Provenance: MariaDB 10.11.19 packages verified via official Debian bookworm-security sha256 checksums; own datadir with random marker `DATADIR_MARKER_2524815d8528d162ccf79f246d0b76a9.txt`.
-    * Isolation: Port 3306 confirmed OFF; port 3307 loopback only; socket setup, root secured, anonymous/TCP root disabled, escaped schema grant `` `democa\_dental\_saas\_dev`.* ``.
-    * Preflight: Authoritative config envelope source-read, live identity, zero schema entities confirmed before worker.
-    * Guarded worker: `scripts/DeveloperSandboxWorker.php --apply` created 69 physical base tables and applied 77 migrations in 77 sequential batches; runtime `WRITEPATH` redirected to harness writable, app `writable/` hashes verified untouched (0 mutations).
-    * Physical verifications: 69 base tables, 77 migration records, dynamic RBAC (42 permissions, 8 roles, grant mappings resolved via canonical `module.action` keys), canonical settings (clinic 6, global 21 with legitimate migration defaults accepted, all 27; dynamic scheduling strictly 0), `CHECK TABLE` OK on all 69 tables, foreign key structure partial validator passed (4 core constraints; explicit non-exhaustive limitation recorded), 0 orphans across 6 relationships.
-    * CI4 model queries: 2 clinics, 5 personas, 8 roles, 1 plan verified via real framework models (`ClinicModel`, `UserModel`, `RoleModel`, `PlanModel`).
-    * Lifecycle & cleanup: MariaDB stopped gracefully, port 3307 confirmed free; package downloads and plaintext credentials cleaned after receipt verification; audit journal and receipt (`trial_receipt.json`) preserved privately; intended developer datadir retained stopped on disk.
-  - Pure tests: 40 tests, 160 assertions passed in `DeveloperSandboxTrialControllerTest.php`.
+  - Fast-forward push of reviewed corrective commit `c1f98552` to `origin/release/production-20261017` completed cleanly after verifying expected remote `231bb86a`.
+  - Reused official MariaDB 10.11.19 binaries from established harness (`/home/t3dev/.trial-harness-issue29-ee3b5ff36090/runtime`) with proven sha256 hashes verified (`mariadbd: 9b44b62c...`, `mariadb: 1fdce5e4...`, `mariadb-admin: e0118687...`); dev harness retained stopped on disk (360MB).
+  - Executed actual ACCOUNTING and tenant route regression against isolated disposable test schema `democa_dental_saas_test` in new private mode 0700 harness (`/home/t3dev/.test-harness-routing-ee3b5ff36090`):
+    * Ports: 3306 OFF, 3307 FREE before & after; loopback 127.0.0.1:3307 only.
+    * Datadir: Fresh private datadir initialized with random marker `TESTDATADIR_MARKER_5ef5787801dd8a146ada02f6ac260765.txt`; root secured, anonymous disabled, escaped test grant `` `democa\_dental\_saas\_test`.* `` for `democa_test`.
+    * Isolation: Repository `TestDatabasePreflight` verified pre-connection, live identity (`SELECT DATABASE() = democa_dental_saas_test`), and disjointness.
+    * Provisioning: Canonical `scripts/provision_test_db.php` applied pre-migration schema, 77 migrations, deterministic synthetic reference fixtures (groups, roles, synthetic clinic 1, plan 1), and `_test_db_marker`.
+    * Runtime redirection: `WRITEPATH` redirected to private harness writable dir before CI4 boot; repository `writable/` hashes (`.htaccess`, `index.html`) verified intact (0 mutations).
+    * Test execution: 13 routed HTTP tests / 158 assertions passed in `scripts/safe_test_runner.php`:
+      - `FinanceSalaryWorkflowHttpTest` (8 tests): salary initial states (pending/partial/paid) with dated receipts, remaining payment & replay idempotency over registered routes, permission denial without writes, error message diagnostic sanitization, CSRF rejection, invalid salary old-input preservation with 0 inserted rows, cross-tenant salary concealment, provider split payouts, payment replay, and history rendering.
+      - `PatientWorkflowRoutingHttpTest` (5 tests): search dialog gated by `patients.view`, clinic-scoped patient search & cross-tenant concealment, denied view/missing tenant 403 enforcement, treatment store denied without permission, owned examination resolution & foreign examination concealment.
+    * Teardown: MariaDB server stopped gracefully, port 3307 confirmed FREE, port 3306 untouched (OFF), temporary test datadir removed, test receipt preserved at `/home/t3dev/.test-harness-routing-ee3b5ff36090/test_receipt.json`.
+  - Tooling safety fix: added environment `WRITEPATH` redirection check to `scripts/TestRunnerConnectionBootstrap.php`, `scripts/safe_test_runner.php`, and `scripts/provision_test_db.php` before CI4 bootstrap, ensuring child test runners and provisioners honor redirected `WRITEPATH` and leave repo `writable/` untouched.
+  - Pure test suite & guardrails: 210 tests / 1498 assertions pass in `npm test` (including 74 preflight tests / 553 assertions, 40 trial controller verifier tests / 160 assertions); SaaS guardrails pass (0 DOM sinks, 2 group auth, 28 raw tenant queries, forbidden UI fonts check).
 - **Next bounded task:**
-  1. Supervisor review of local corrective diffs (`scripts/DeveloperSandboxTrialController.php`, `tests/unit/DeveloperSandboxTrialControllerTest.php`, `docs/WORK_PROGRAM.md`) and verified trial receipt (NO push of local commits until supervisor review; Issue #29 remains OPEN).
-  2. Retention of stopped developer datadir on disk pending supervised app acceptance.
+  1. Supervisor review of local commits (`scripts/TestRunnerConnectionBootstrap.php`, `scripts/safe_test_runner.php`, `scripts/provision_test_db.php`, `docs/WORK_PROGRAM.md`) and verified test receipt (NO push of local commits until supervisor review; Issue #29 remains OPEN).
+  2. Retention of stopped developer harness (360MB) and test receipts pending supervised app acceptance.
 
 ## Working rules
 
