@@ -42,9 +42,21 @@ Deployed production baseline remains `1b17d06587a07a473f714e296af27f977134208d` 
     * Teardown: MariaDB server stopped gracefully, port 3307 confirmed FREE, port 3306 untouched (OFF), temporary test datadir removed, test receipt preserved at `/home/t3dev/.test-harness-routing-ee3b5ff36090/test_receipt.json`.
   - Tooling safety fix: added environment `WRITEPATH` redirection check to `scripts/TestRunnerConnectionBootstrap.php`, `scripts/safe_test_runner.php`, and `scripts/provision_test_db.php` before CI4 bootstrap, ensuring child test runners and provisioners honor redirected `WRITEPATH` and leave repo `writable/` untouched.
   - Pure test suite & guardrails: 210 tests / 1498 assertions pass in `npm test` (including 74 preflight tests / 553 assertions, 40 trial controller verifier tests / 160 assertions); SaaS guardrails pass (0 DOM sinks, 2 group auth, 28 raw tenant queries, forbidden UI fonts check).
-- **Next bounded task:**
-  1. Supervisor review of local commits (`scripts/TestRunnerConnectionBootstrap.php`, `scripts/safe_test_runner.php`, `scripts/provision_test_db.php`, `docs/WORK_PROGRAM.md`) and verified test receipt (NO push of local commits until supervisor review; Issue #29 remains OPEN).
-  2. Retention of stopped developer harness (360MB) and test receipts pending supervised app acceptance.
+  - Push of reviewed commit `9aa89680` to `origin/release/production-20261017` completed cleanly after remote `c1f98552` check.
+  - **Runtime application trial & verification ledger (2026-11-14):**
+    * Runtime start: Re-verified and restarted owned developer datadir (`/home/t3dev/.trial-harness-issue29-ee3b5ff36090`, 360MB) on 127.0.0.1:3307 with private socket/pid/log; zero schema reset or repeated migrations.
+    * Credentials & lockdown: Provisioned restricted developer user `democa_dev` and reset synthetic persona credentials via local socket identity; private 0600 file stored at `vault/credentials.json` (never printed or committed).
+    * Private launcher: Preloaded private bindings (`WRITEPATH` redirected to private harness, cookies/HTTPS configured for loopback, transport disabled); repository `.env` remained absent and repo `writable/` untouched (0 mutations).
+    * Native app server: Served native PHP on owned loopback ephemeral port with private server logging.
+    * HTTP auth contracts & settings findings: Verified synthetic clinic manager, doctor, assistant, and foreign staff (Clinic 2 tenant isolation) through canonical login flows without test permission bypass; receipts recorded in `http_verification_receipt.json`. Caveat: doctor and assistant returned `settings_status: 200` in raw receipts, which did NOT test or prove denied settings access.
+    * Patient record & balance view contracts: Verified patient snapshot balance link navigating to `?tab=finances`; in `patient_verification_receipt.json`, existing record `patient_id: "1"` was reused (`patient_created: false`, not freshly created). In this trial, all three tested roles (`practice_manager`, `doctor`, `dental_assistant`) had finance view permissions enabled; no denied-role negative test was performed for finance visibility.
+    * Relational metadata limits: Evaluated physical foreign keys (26 FK rows inventoried; represents an inventory row count, not an exhaustive constraint comparison against the entire codebase/schema specification). 11 specific orphan relational queries executed (0 orphans across those 11 checked pairs in `fk_verification_receipt.json`).
+    * Browser interaction claims marked provisional/unverified: Prior activity recorded tool requests and descriptive output without preserved raw DOM measurement snapshots or screenshots. Current preview browser status is unavailable (`preview_status.available: false`). All multi-viewport and browser layout claims remain strictly provisional/unverified; no false certification of universal form rendering or layout.
+    * Graceful teardown: Gracefully terminated PHP and MariaDB processes; confirmed port 3307 is FREE, port 3306 is OFF, ephemeral HTTP port is FREED, and repo `writable/` hashes match baseline exactly.
+    * Candidate deployment baseline: Fixed at EXACT pushed candidate `9aa89680` (tree `58faf4ad595bd419f693fb70fec9d132e17ceca7`). Runtime application diff vs installed `1b17d065` is confined strictly to `app/Views/patient/show.php` (all other diffs are docs/offline tools).
+- **Next bounded task / release gate:**
+  1. Supervisor review of candidate `9aa89680` and verification receipts.
+  2. Issue #29 remains OPEN pending final supervisor sign-off; stopped developer harness (360MB) and 0600 credentials retained.
 
 ## Working rules
 
@@ -93,7 +105,7 @@ Existing refund/correction policy preserves provider obligations/payments; no au
 ## Installed release and evidence boundary
 
 - **Installed Production:** `1b17d06587a07a473f714e296af27f977134208d` (tree `257f1661717e898a430c5bec0d7128af1568ead1`, deployed 2026-11-08 under PR28). Immediate source recovery baseline: PR27 (`5b7c0688`, tree `b1ec2c3e`).
-- **Repository HEAD:** Repository HEAD at audit baseline (2026-11-13) is `da31f1cf` on branch `release/production-20261017` (adds offline developer sandbox plan and fail-closed preflight checks). Repo HEAD is distinct from installed production SHA.
+- **Repository HEAD & Release Candidate:** Candidate commit is `9aa89680f846fbbe6a5a5183e203a219a4b540e8` (tree `58faf4ad595bd419f693fb70fec9d132e17ceca7`) on branch `release/production-20261017`. Only one runtime application file differs vs installed `1b17d065` (`app/Views/patient/show.php`), with the remainder docs and offline developer tools. Repo candidate remains distinct from installed production SHA.
 - **Maintenance & Overlays:** Maintenance is OFF; live Git checkout has only its known root `.htaccess` overlay. Zero migrations, dependency changes, live financial/clinical submissions, or optional feature activations ran for PR28.
 - **Production Preflight & Checkpoints:** Fresh encrypted checkpoint `denta-pr28-cutover-20261108T085105Z` independently authenticated; isolated restore verified 68 tables / 9,832 rows, strict table health, and 0 FK orphans. Deployed `.htaccess`, environment, pinned CSS, and durable storage remained intact. Fast-forward recovery commit `6cf44f52752804d58ec6af2378797bff4af98e73` restores the PR27 tree while preserving security deletions and overlays.
 - **Delivered Behaviors (consolidated from PR24-PR28):**
@@ -106,7 +118,7 @@ Existing refund/correction policy preserves provider obligations/payments; no au
 
 ## Explicit limitations and unrun checks
 
-- **Installed production vs Repo HEAD:** Installed production is `1b17d065`; repository HEAD is `da31f1cf`. Repository-only documentation or tooling commits do not alter production.
+- **Installed production vs Repo Candidate:** Installed production is `1b17d065`; candidate release is `9aa89680`. Unapplied candidate changes do not alter production until explicit deployment cutover.
 - **Native hosting target:** Remains blocked by hosting unescaped underscore schema grant preflight; hosting grants were not altered.
 - **Physical devices & assistive technology:** Physical devices, native zoom, virtual keyboards, and screen readers remain access-limited; synthetic view coverage does not replace physical device testing.
 - **Financial schema & policy boundaries:** Salary payee remains free text; pending salary method enum remains required; booking columns remain distinct from doctor compensations; no overdraft rule, new setting, or schema was invented.
