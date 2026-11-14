@@ -710,13 +710,31 @@ final class DeveloperSandboxTrialController
             }
 
             if (is_array($result)) {
-                $msgType = (string) ($result['Msg_type'] ?? ($result['msg_type'] ?? 'status'));
-                $msgText = (string) ($result['Msg_text'] ?? ($result['msg_text'] ?? ''));
+                $rawType = null;
+                foreach (['Msg_type', 'msg_type', 'MSG_TYPE'] as $typeKey) {
+                    if (array_key_exists($typeKey, $result)) {
+                        $rawType = $result[$typeKey];
+                        break;
+                    }
+                }
+                if ($rawType === null || trim((string) $rawType) === '') {
+                    $errors[] = "Table `{$table}` CHECK TABLE result is missing Msg_type.";
+                    continue;
+                }
+                $msgType = (string) $rawType;
 
-                if (trim($msgText) === '') {
+                $rawText = null;
+                foreach (['Msg_text', 'msg_text', 'MSG_TEXT'] as $textKey) {
+                    if (array_key_exists($textKey, $result)) {
+                        $rawText = $result[$textKey];
+                        break;
+                    }
+                }
+                if ($rawText === null || trim((string) $rawText) === '') {
                     $errors[] = "Table `{$table}` CHECK TABLE result is missing Msg_text.";
                     continue;
                 }
+                $msgText = (string) $rawText;
 
                 $normType = strtolower(trim($msgType));
                 $normText = strtolower(trim($msgText));
@@ -733,6 +751,8 @@ final class DeveloperSandboxTrialController
                 $normText = strtolower(trim($msgText));
                 if (!in_array($normText, $acceptedStatusTexts, true)) {
                     $errors[] = "Table `{$table}` CHECK TABLE reported unhealthy status: {$msgText}";
+                } else {
+                    $errors[] = "Table `{$table}` CHECK TABLE result is missing Msg_type.";
                 }
             }
         }

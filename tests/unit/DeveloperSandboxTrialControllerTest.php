@@ -660,15 +660,15 @@ final class DeveloperSandboxTrialControllerTest extends TestCase
 
         // 2. Corrupt / error status
         $resCorrupt = DeveloperSandboxTrialController::verifyTableCheckIntegrity([
-            'users' => ['Msg_text' => 'Corrupt index block'],
+            'users' => ['Msg_type' => 'status', 'Msg_text' => 'Corrupt index block'],
         ]);
         $this->assertFalse($resCorrupt['valid']);
         $this->assertStringContainsString('reported unhealthy status: Corrupt index block', implode('; ', $resCorrupt['errors']));
 
-        // 3. Valid status
+        // 3. Valid status with explicit Msg_type (case-insensitive aliases)
         $resOk = DeveloperSandboxTrialController::verifyTableCheckIntegrity([
-            'users' => ['Msg_text' => 'OK'],
-            'settings' => ['Msg_text' => 'Table is already up to date'],
+            'users' => ['Msg_type' => 'status', 'Msg_text' => 'OK'],
+            'settings' => ['msg_type' => 'status', 'msg_text' => 'Table is already up to date'],
         ]);
         $this->assertTrue($resOk['valid']);
 
@@ -883,7 +883,16 @@ final class DeveloperSandboxTrialControllerTest extends TestCase
         $this->assertFalse($resEmpty['valid']);
         $this->assertStringContainsString('missing Msg_text', implode('; ', $resEmpty['errors']));
 
-        // Negative 4: String input with corrupt status
+        // Negative 4: Missing Msg_type must strictly FAIL closed even if Msg_text is OK
+        $resMissingType = DeveloperSandboxTrialController::verifyTableCheckIntegrity([
+            'patients' => [
+                'Msg_text' => 'OK',
+            ],
+        ]);
+        $this->assertFalse($resMissingType['valid']);
+        $this->assertStringContainsString('missing Msg_type', implode('; ', $resMissingType['errors']));
+
+        // Negative 5: String input with corrupt status
         $resStringBad = DeveloperSandboxTrialController::verifyTableCheckIntegrity([
             'patients' => 'corrupt',
         ]);
