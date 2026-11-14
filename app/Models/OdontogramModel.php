@@ -173,7 +173,7 @@ class OdontogramModel extends TenantAwareModel
         return $query->first();
     }
 
-    private function countByCondition(int $patientId, array $conditionTypes = null, bool $exclude = false, $examinationId = null): int
+    private function countByCondition(int $patientId, ?array $conditionTypes = null, bool $exclude = false, $examinationId = null): int
     {
         $builder = $this->db->table('odontograms')
             ->where('patient_id', $patientId);

@@ -487,7 +487,7 @@ class Finance extends BaseController
         return null;
     }
 
-    private function buildExpenseViewData(array $finance = null): array
+    private function buildExpenseViewData(?array $finance = null): array
     {
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
         $hasSettlementEntries = ($clinicId > 0 && !empty($finance['id']))

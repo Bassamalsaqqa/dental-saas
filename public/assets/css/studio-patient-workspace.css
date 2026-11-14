@@ -15,3 +15,6 @@
 
 .patient-shell-nav>.patient-section-choice{display:flex;gap:8px;padding:12px;background:var(--color-surface-heading);border-radius:var(--radius-panel);margin-bottom:12px}.patient-workspace .patient-section-choice button{border:0;border-radius:var(--radius-control);padding:12px 18px;min-height:44px;font:inherit;font-weight:var(--weight-label);color:var(--color-ink-muted);background:transparent;cursor:pointer}.patient-workspace .patient-section-choice button[aria-pressed=true]{background:var(--color-frame);color:var(--color-on-frame)}.patient-shell-nav .tab-button[hidden]{display:none}.patient-section-choice button:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
 @media(max-width:600px){.patient-workspace .patient-section-choice button{flex:1;font-size:var(--studio-font-16,16px);padding:10px}.patient-shell-nav nav[role=tablist]{display:flex;flex-wrap:wrap}}
+
+/* Keep financial tables inside their scroll region in both text directions. */
+.patient-finance-workspace .patient-form-stack{grid-template-columns:minmax(0,1fr)}

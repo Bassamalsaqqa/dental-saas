@@ -1098,6 +1098,44 @@ final class DeveloperSandboxTrialControllerTest extends TestCase
         $this->assertFalse($resWildcardExtra['valid']);
         $errorStr = implode('; ', $resWildcardExtra['errors']);
         $this->assertStringContainsString("Unexpected extra permission 'backdoor.exploit'", $errorStr);
+
+        // 6. Rejects permission with empty name even if module and action are present (PermissionModel requires name)
+        $blankNamePerms = $dbPerms;
+        $blankNamePerms[0]['name'] = '';
+        $resBlankName = DeveloperSandboxTrialController::verifyRbacDynamic($blankNamePerms, $dbRoles);
+        $this->assertFalse($resBlankName['valid']);
+        $this->assertStringContainsString("Permission at index [0] has empty name.", implode('; ', $resBlankName['errors']));
+
+        // 7. Accepts descriptive names as synced by PermissionSyncService
+        $defPerms = Permissions::getDefaultPermissions();
+        $descriptivePerms = [];
+        $pId = 1;
+        foreach ($defPerms as $module => $actions) {
+            foreach ($actions as $action => $desc) {
+                $descriptivePerms[] = [
+                    'id' => $pId++,
+                    'name' => $desc,
+                    'module' => $module,
+                    'action' => $action,
+                ];
+            }
+        }
+        $resDescriptive = DeveloperSandboxTrialController::verifyRbacDynamic($descriptivePerms, $dbRoles);
+        $this->assertTrue($resDescriptive['valid'], implode('; ', $resDescriptive['errors']));
+
+        // 8. Preserves legacy name-only mock compatibility (without module/action keys)
+        $legacyNameOnlyPerms = [];
+        $pId = 1;
+        foreach ($defPerms as $module => $actions) {
+            foreach ($actions as $action => $desc) {
+                $legacyNameOnlyPerms[] = [
+                    'id' => $pId++,
+                    'name' => "{$module}.{$action}",
+                ];
+            }
+        }
+        $resLegacy = DeveloperSandboxTrialController::verifyRbacDynamic($legacyNameOnlyPerms, $dbRoles);
+        $this->assertTrue($resLegacy['valid'], implode('; ', $resLegacy['errors']));
     }
 
     public function testVerifyForeignKeyStructureReportsPartialStatus(): void

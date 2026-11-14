@@ -523,6 +523,8 @@ foreach ($finances as $financeItem) {
         'method_label' => $financeMethodLabel($financeItem['payment_method'] ?? null),
         'status_label' => $financeStatusLabel($financeItem['payment_status'] ?? null),
         'status_key' => $paymentStatus !== '' ? $paymentStatus : 'recorded',
+        'payment_url' => $financeId > 0 && $transactionType === 'invoice' && $paymentStatus !== 'cancelled' && $balanceDue > 0.009 && has_permission('finance', 'edit')
+            ? workflow_context_url('finance/' . $financeId, $patientContextReturnTo) . '#record-payment' : null,
         'action_url' => workflow_context_url('finance/' . $financeId, $patientContextReturnTo),
         'clinical_sources' => $clinicalSourcesByFinanceId[$financeId] ?? [],
         'provider_payouts' => $providerPayoutsByFinanceId[$financeId] ?? [],

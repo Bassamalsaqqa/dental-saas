@@ -104,6 +104,9 @@
                                                             <td >
                                                                 <div class="patient-table-actions">
                                                                     <a href="<?= esc($ledgerRow['action_url']) ?>" class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><?= esc(lang('UI.patientView')) ?></a>
+                                                                    <?php if (!empty($ledgerRow['payment_url']) && has_permission('finance', 'edit')): ?>
+                                                                        <a href="<?= esc($ledgerRow['payment_url'], 'attr') ?>" class="patient-table-action"><?= esc(lang('Finance.payInvoice')) ?></a>
+                                                                    <?php endif; ?>
                                                                 </div>
                                                             </td>
                                                         </tr>

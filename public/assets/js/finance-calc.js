@@ -252,8 +252,16 @@
       }
     };
 
+    const notifyInitialValuesReady = () => {
+      form.dispatchEvent(new Event('studio:initial-values-ready', { bubbles: true }));
+    };
+
     recomputeAll();
-    setTimeout(recomputeAll, 0);
+    notifyInitialValuesReady();
+    setTimeout(() => {
+      recomputeAll();
+      notifyInitialValuesReady();
+    }, 0);
   };
 
   const init = (root) => {

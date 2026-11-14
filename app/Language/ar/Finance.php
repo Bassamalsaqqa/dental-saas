@@ -237,6 +237,7 @@ return [
     'providerUser' => 'مستخدم من العيادة',
     'reasonOptionalPrompt' => 'سبب إغلاق هذا الرصيد (اختياري):',
     'recordExpense' => 'تسجيل مصروف',
+    'payInvoice' => 'دفع الفاتورة',
     'recordLabBill' => 'تسجيل فاتورة مختبر',
     'recordSalary' => 'تسجيل راتب موظف',
     'salaryExpense' => 'راتب موظف',

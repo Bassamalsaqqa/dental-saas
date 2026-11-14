@@ -337,7 +337,7 @@ final class DeveloperSandboxTrialController
             $action = isset($perm['action']) ? (string) $perm['action'] : '';
             $canonicalKey = ($module !== '' && $action !== '') ? "{$module}.{$action}" : $name;
             $id = $perm['id'] ?? null;
-            if ($name === '' && $canonicalKey === '') {
+            if ($name === '') {
                 $errors[] = "Permission at index [{$index}] has empty name.";
                 continue;
             }
