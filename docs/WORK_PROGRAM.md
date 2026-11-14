@@ -55,13 +55,32 @@ Deployed production baseline remains `1b17d06587a07a473f714e296af27f977134208d` 
     * Graceful teardown: Gracefully terminated PHP and MariaDB processes; confirmed port 3307 is FREE, port 3306 is OFF, ephemeral HTTP port is FREED, and repo `writable/` hashes match baseline exactly.
     * Candidate deployment baseline: Fixed at EXACT pushed candidate `9aa89680` (tree `58faf4ad595bd419f693fb70fec9d132e17ceca7`). Runtime application diff vs installed `1b17d065` is confined strictly to `app/Views/patient/show.php` (all other diffs are docs/offline tools).
 - **Next bounded task / release gate:**
-  1. Release deployment helper status: `helperNOTREADY` for production cutover; prior helper `59ee...` rejected for incomplete source integration (omitted git ff-only, skipped offline tools/docs), lack of CLI auth flag / checkpoint gate, unchecked rollback, and synthetic mock classes. Concrete replacement release helper (`denta_release_helper_9aa89680.php`) and rigorous offline test suite completed in scratch with full 35-file git diff manifest, real ff-only integration, private 0700 vault / 0600 preimages, in-memory AEAD checkpoint gate, and source-only recovery commit object prepared; NO production deployment executed.
+  1. Release deployment helper correction & gate hardening:
+     * Helper implementation (`denta_release_helper_9aa89680.php`, SHA256 `a90948f4241f4beae09c5ad3e8995d98664c88f78df765c2e01e585bfd99e747`):
+       - `safeCommand`: replaced sequential blocking pipes with concurrent non-blocking drain (`stream_select`), bounded 30s timeout, bounded 10MB memory buffer, owned child process cleanup (`SIGTERM`/`SIGKILL`), and credential-free error reporting.
+       - Canonical execution lock: anchored under `.git/release_9aa89680.lock` with symlink parent traversal verification, preventing alternate vault bypass; gates (live, candidate, manifest hashes, protected hashes, checkpoint) rechecked after lock acquisition immediately before mutations.
+       - Prepared forward recovery commit: replaced disallowed `git checkout` with prepared forward recovery commit object (tree `257f1661717e898a430c5bec0d7128af1568ead1`, parent candidate `9aa89680f846fbbe6a5a5183e203a219a4b540e8`), kept reachable via private ref `refs/recovery/9aa89680` and bundle, executing true forward `git merge --ff-only` to preserve branch tracking without detached HEAD or reset.
+       - State classification & rollback prevention: exact Git HEAD/index/status classified before recovery; partial merge or unknown drift preserves preimages and journal on disk and reports FAILURE HOLD (no blind unlinking of added files); clean post-merge faults forward-recover to tree `257f1661` and verify full base tree, disk, modes, and protected overlays.
+       - Verified writes & permissions: preimages and journal written with `fsync`, readback SHA256 verification, checked `chmod()` returns, exact file modes based on Git manifest, and strict umask 0077 restored in `finally`.
+       - Maintenance gate: explicit caller-verified `--maintenance-active` required; helper makes no maintenance claims unless owned; release-on-success gated on authenticated postflight.
+     * Offline test suite (13/13 test groups passed with real outputs, receipt saved):
+       - `stderrlarge` (concurrent non-blocking drain >128KB stdout/stderr without blocking), `timeout` (1.05s timeout and child kill), `happy` (35 manifest files and overlay verified), `forwardrecovery` (forward recovery to tree 257f1661 and parent 9aa89680), `integrationpartialfailure` (partial merge classified as FAILURE HOLD without blind unlink), `recoveryfailure` (fail-closed maintenance held), `afterlockdrift` (after-lock recheck catches post-preflight drift), and isolated denials for wrong commit, tree, overlay, untracked files, symlinks, missing auth flag, and missing maintenance gate.
+     * Durable storage archive analysis (223/223 manifest file coverage):
+       - In-memory AEAD authentication of checkpoint passed (38,430,763 bytes, SHA256 `3a69bee9...`); 4 outer members verified.
+       - Inner archive `durable_storage.tar.gz` decompressed and parsed in memory supporting GNU Longlink (`L`/`K`), PAX headers (`x`/`g`), and hardlinks (`1`).
+       - Disclosed parser anomaly resolution: previous duplicate parser alert caused by GNU longlink headers (`././@LongLink` 4 name headers, 2 link headers) and 12 directory entries; archive contains 221 regular files, 2 hardlinks, and 0 actual duplicate files.
+       - Exactly 223 / 223 manifest files in `remote_manifest.json` matched with 100% SHA256 hash and byte size coverage; 0 plaintexts extracted to disk; key and receipt kept at mode 0600.
+     * Staging & Hostinger preflight:
+       - Helper staged outside public html to `~/.denta-stage-candidate-9aa89680/denta_release_helper_9aa89680.php` (mode 0600); native PHP 8.3 lint passed with 0 errors.
+       - READONLY live preflight confirmed live target baseline (`1b17d06587a07a473f714e296af27f977134208d`, tree `257f1661717e898a430c5bec0d7128af1568ead1`, only `.htaccess` overlay `af27aced...`), and truthfully reported precise preflight blocks: candidate commit `9aa89680` missing from remote Git object store, and decryption key held strictly off-host.
+     * Postflight authentication requirements:
+       - Authenticated production postflight requires operator login credentials; secret identified as `DENTAL_PRODUCTION_OPERATOR_AUTH_CREDENTIALS` (to be requested by parent agent via single `request_secret`).
   2. Runtime verification caveats retained in ledger:
      * Browser claims provisional / unverified: `preview_status.available: false`, no raw DOM snapshots or screenshots preserved; multi-viewport claims remain uncertified.
      * Auth contracts: doctor and assistant returned HTTP 200 on settings in raw receipts (`AuthHTTP200noproofdenial`), which did not test or prove denied settings access.
      * Relational metadata: 26 FK rows inventoried represents an inventory row count, not an exhaustive constraint comparison against the entire codebase/schema specification (`FK26inventory11checks limited`); only 11 specific orphan relational queries were checked.
-  3. Encrypted checkpoint receipt: verified in memory (38,430,763 bytes, SHA256 `3a69bee9...`); receipt file permissions corrected to mode 0600; factual disclosure of exporter timestamp anomaly (`20261114T233959Z` generated while physical creation was `2026-11-13 23:39:59 GMT` / ~01:40 local) recorded without altering original archive or rotating keys.
-  4. Repository commit policy: docs committed locally only; no automatic push of local doc commits to remote origin unless reviewed. Production baseline remains unchanged candidate `9aa89680`. Issue #29 remains OPEN.
+  3. Release status & safety posture:
+     * Production remains completely OFF, safe, and unmodified; candidate baseline remains unchanged at `9aa89680`. Local doc commit only (no auto-push). Issue #29 remains OPEN.
 
 ## Working rules
 
