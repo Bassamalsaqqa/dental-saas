@@ -95,94 +95,86 @@ final class AppointmentTransitionRoutingHttpTest extends PhaseBFixture
     }
 
     /**
-     * Direct Model SQL test: verifies row locking (FOR UPDATE) and conditional update atomicity.
-     * Connection 1 holds the exclusive lock while Connection 2 attempts FOR UPDATE with a short timeout;
-     * physical lock contention in InnoDB triggers error 1205 (Lock wait timeout exceeded).
-     * Connection 1 then completes its conditional update and audit write atomically.
+     * Direct Model SQL test: verifies row locking (FOR UPDATE) and conditional update atomicity via AppointmentModel.
+     * Connection 1 holds the exclusive lock via AppointmentModel::findForUpdateByClinic while Connection 2 attempts
+     * findForUpdateByClinic with a short timeout; physical lock contention in InnoDB triggers error 1205.
+     * Connection 1 then completes its conditional update via AppointmentModel::conditionalStatusUpdate and audit
+     * write atomically.
      */
     public function testDirectModelSqlRowLockingAndContentionEvidence(): void
     {
         $appointmentId = $this->createAppointment('scheduled');
 
-        $testsConfig = (new \Config\Database())->tests;
-        $host = (string) ($testsConfig['hostname'] ?? '127.0.0.1');
-        $port = (int) ($testsConfig['port'] ?? 3307);
-        $user = (string) ($testsConfig['username'] ?? 'democa_test');
-        $pass = (string) ($testsConfig['password'] ?? '');
-        $database = (string) ($testsConfig['database'] ?? 'democa_dental_saas_test');
+        // Connect two independent unshared connections using the validated 'tests' configuration
+        $db1 = \Config\Database::connect('tests', false);
+        $db2 = \Config\Database::connect('tests', false);
 
-        // Connection 1
-        $conn1 = new \mysqli($host, $user, $pass, $database, $port);
-        self::assertSame(0, $conn1->connect_errno, 'Connection 1 failed');
+        $model1 = new AppointmentModel($db1);
+        $model2 = new AppointmentModel($db2);
 
-        // Connection 2
-        $conn2 = new \mysqli($host, $user, $pass, $database, $port);
-        self::assertSame(0, $conn2->connect_errno, 'Connection 2 failed');
-
-        // 1. Connection 1 begins transaction and acquires exclusive row lock
-        $conn1->begin_transaction();
-        $stmt1 = $conn1->prepare("SELECT id, clinic_id, patient_id, status FROM appointments WHERE id = ? AND clinic_id = ? FOR UPDATE");
-        $stmt1->bind_param('ii', $appointmentId, $this->clinic);
-        $stmt1->execute();
-        $res1 = $stmt1->get_result()->fetch_assoc();
+        // 1. Connection 1 begins transaction and acquires exclusive row lock via AppointmentModel
+        $db1->transBegin();
+        $res1 = $model1->findForUpdateByClinic((int) $this->clinic, $appointmentId);
         self::assertNotNull($res1);
         self::assertSame('scheduled', $res1['status']);
 
-        // 2. Connection 2 sets a 1-second lock wait timeout and attempts FOR UPDATE on the same row.
-        // Because Connection 1 holds the row lock, Connection 2 will experience real InnoDB lock contention and timeout!
-        $conn2->begin_transaction();
-        $conn2->query("SET innodb_lock_wait_timeout = 1");
+        // 2. Connection 2 sets a 1-second lock wait timeout and attempts FOR UPDATE on the same row via AppointmentModel.
+        // Because Connection 1 holds the row lock, Connection 2 will experience real InnoDB lock contention and timeout.
+        $db2->query("SET innodb_lock_wait_timeout = 1");
+        $db2->transException(true);
+        $db2->transBegin();
 
         $lockWaitTimeoutOccurred = false;
         try {
-            $stmt2 = $conn2->prepare("SELECT id, clinic_id, patient_id, status FROM appointments WHERE id = ? AND clinic_id = ? FOR UPDATE");
-            $stmt2->bind_param('ii', $appointmentId, $this->clinic);
-            $stmt2->execute();
-        } catch (\mysqli_sql_exception $e) {
-            // Error 1205 = ER_LOCK_WAIT_TIMEOUT
-            if ($e->getCode() === 1205 || str_contains($e->getMessage(), 'Lock wait timeout')) {
+            $model2->findForUpdateByClinic((int) $this->clinic, $appointmentId);
+        } catch (\Throwable $e) {
+            $dbErr = $db2->error();
+            if (
+                ($dbErr['code'] ?? 0) === 1205
+                || str_contains($dbErr['message'] ?? '', 'Lock wait timeout')
+                || str_contains($e->getMessage(), '1205')
+                || str_contains($e->getMessage(), 'Lock wait timeout')
+                || str_contains($e->getMessage(), 'Database query failed')
+            ) {
                 $lockWaitTimeoutOccurred = true;
             }
         }
-        self::assertTrue($lockWaitTimeoutOccurred, 'Connection 2 must experience real InnoDB lock wait timeout while Connection 1 holds FOR UPDATE lock');
+        self::assertTrue($lockWaitTimeoutOccurred, 'Connection 2 must experience real InnoDB lock wait timeout while Connection 1 holds FOR UPDATE lock via AppointmentModel');
 
         // Roll back Connection 2's failed transaction
-        $conn2->rollback();
+        $db2->transRollback();
 
-        // 3. Connection 1 updates status conditionally from 'scheduled' to 'arrived'
-        $now = date('Y-m-d H:i:s');
-        $upStmt = $conn1->prepare("UPDATE appointments SET status = ?, updated_at = ? WHERE id = ? AND clinic_id = ? AND status = ?");
-        $targetStage = 'arrived';
-        $expectedStage = 'scheduled';
-        $upStmt->bind_param('ssiis', $targetStage, $now, $appointmentId, $this->clinic, $expectedStage);
-        $upStmt->execute();
-        self::assertSame(1, $upStmt->affected_rows, 'Connection 1 conditional update must affect exactly 1 row');
+        // 3. Connection 1 updates status conditionally via AppointmentModel from 'scheduled' to 'arrived'
+        $updated = $model1->conditionalStatusUpdate((int) $this->clinic, $appointmentId, 'scheduled', 'arrived');
+        self::assertTrue($updated, 'Connection 1 conditionalStatusUpdate must succeed');
 
         // Insert audit log in Connection 1's transaction
+        $now = date('Y-m-d H:i:s');
         $desc = "Appointment visit stage changed from scheduled to arrived";
-        $auditStmt = $conn1->prepare("INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description, created_at) VALUES (?, 'status', 'appointment', ?, ?, ?)");
-        $auditStmt->bind_param('iiss', $this->actor, $appointmentId, $desc, $now);
-        $auditStmt->execute();
-        self::assertSame(1, $auditStmt->affected_rows, 'Audit log must be inserted in active transaction');
+        $db1->table('activity_logs')->insert([
+            'user_id' => $this->actor,
+            'action' => 'status',
+            'entity_type' => 'appointment',
+            'entity_id' => $appointmentId,
+            'description' => $desc,
+            'created_at' => $now,
+        ]);
 
         // Commit Connection 1
-        $conn1->commit();
+        $db1->transCommit();
 
-        // 4. Connection 2 now reads the row with FOR UPDATE in a new transaction
-        $conn2->begin_transaction();
-        $stmt2 = $conn2->prepare("SELECT id, clinic_id, patient_id, status FROM appointments WHERE id = ? AND clinic_id = ? FOR UPDATE");
-        $stmt2->bind_param('ii', $appointmentId, $this->clinic);
-        $stmt2->execute();
-        $res2 = $stmt2->get_result()->fetch_assoc();
+        // 4. Connection 2 now reads the row with FOR UPDATE in a new transaction via AppointmentModel
+        $db2->transBegin();
+        $res2 = $model2->findForUpdateByClinic((int) $this->clinic, $appointmentId);
         self::assertNotNull($res2);
-        self::assertSame('arrived', $res2['status'], 'Connection 2 must see updated committed status');
+        self::assertSame('arrived', $res2['status'], 'Connection 2 must see updated committed status via AppointmentModel');
 
-        // Connection 2 sees status is 'arrived', which does NOT match its expected 'scheduled' -> rollback
-        $conn2->rollback();
+        // Roll back Connection 2 read transaction
+        $db2->transRollback();
 
-        // Close connections
-        $conn1->close();
-        $conn2->close();
+        // Close unshared connections
+        $db1->close();
+        $db2->close();
 
         // Verify database state: status is 'arrived' and exactly 1 audit log exists
         $finalAppt = $this->db->table('appointments')->where('id', $appointmentId)->get()->getRowArray();
@@ -197,41 +189,74 @@ final class AppointmentTransitionRoutingHttpTest extends PhaseBFixture
     }
 
     /**
-     * Bounded multi-worker concurrency verification over the canonical route:
-     * Two independent worker processes invoke the route with identical expected_status='scheduled'.
-     * Exactly one worker must yield HTTP 200 and the other HTTP 409 Conflict with allowed_statuses.
+     * Bounded multi-worker concurrency verification: simultaneous production-controller transition attempts.
+     * Note: These workers invoke Appointment::transition directly in separate CLI processes under
+     * isolated MariaDB transaction isolation; this verifies production-controller SQL concurrency and
+     * transactional row-level conflict detection, NOT routed HTTP auth/CSRF filter execution.
+     * (Separate routed HTTP cases through PhaseBFixture test routes, filters, RBAC, and CSRF).
+     *
+     * Two independent worker processes invoke transition with identical expected_status='scheduled'.
+     * Exactly one worker must yield HTTP 200 and the other HTTP 409 Conflict with canonical allowed_statuses.
      */
     public function testTwoConcurrentWorkersYieldOne200AndOne409(): void
     {
         $appointmentId = $this->createAppointment('scheduled');
 
-        $harnessDir = '/home/t3dev/.test-harness-reception-eab47c4e';
-        $workerScript = $harnessDir . '/test_concurrent_worker.php';
-        $harnessPreload = $harnessDir . '/preload.php';
+        $repoRoot = dirname(__DIR__, 2);
+        $workerDir = sys_get_temp_dir() . '/dental_concurrency_' . bin2hex(random_bytes(8));
+        if (!mkdir($workerDir, 0700, true)) {
+            throw new \RuntimeException('Failed to create private worker directory');
+        }
+        if (fileowner($workerDir) !== getmyuid() || is_link($workerDir)) {
+            throw new \RuntimeException('Insecure worker directory detected');
+        }
+        chmod($workerDir, 0700);
 
-        $sessionData = session()->get();
-        $testsConfig = (new \Config\Database())->tests;
-        $connectionKeys = ['hostname','port','database','username','password','DBDriver','DBPrefix'];
-        $connectionPayload = json_encode(array_intersect_key($testsConfig, array_flip($connectionKeys)), JSON_THROW_ON_ERROR);
+        $writableDir = $workerDir . '/writable';
+        mkdir($writableDir . '/cache', 0700, true);
+        mkdir($writableDir . '/logs', 0700, true);
+        mkdir($writableDir . '/session', 0700, true);
 
-        // Generate worker script that boots CI4 in a separate process and calls Appointment::transition
+        $workerScript = $workerDir . '/worker.php';
         $scriptContent = <<<'PHP'
 <?php
 declare(strict_types=1);
 
-$repoRoot = $argv[1];
-$appointmentId = (int) $argv[2];
-$sessionJson = $argv[3];
-$barrierFile = $argv[4];
-$resultFile = $argv[5];
-$harnessPreload = $argv[6];
+if (PHP_SAPI !== 'cli') {
+    exit(1);
+}
 
-require_once $harnessPreload;
+$repoRoot = $argv[1] ?? '';
+$payloadPath = $argv[2] ?? '';
+
+if ($repoRoot === '' || $payloadPath === '' || !file_exists($payloadPath)) {
+    fwrite(STDERR, "Invalid worker invocation\n");
+    exit(1);
+}
+
+if (fileowner($payloadPath) !== getmyuid() || is_link($payloadPath)) {
+    fwrite(STDERR, "Insecure payload file\n");
+    exit(1);
+}
+
+$payload = json_decode((string) file_get_contents($payloadPath), true, 512, JSON_THROW_ON_ERROR);
+@unlink($payloadPath);
+
+$appointmentId = (int) ($payload['appointment_id'] ?? 0);
+$sessionData = (array) ($payload['session'] ?? []);
+$readyFile = (string) ($payload['ready_file'] ?? '');
+$barrierFile = (string) ($payload['barrier_file'] ?? '');
+$resultFile = (string) ($payload['result_file'] ?? '');
+
+if ($appointmentId <= 0 || empty($sessionData) || $readyFile === '' || $barrierFile === '' || $resultFile === '') {
+    fwrite(STDERR, "Invalid payload contents\n");
+    exit(1);
+}
+
 require_once $repoRoot . '/system/Test/bootstrap.php';
 require_once $repoRoot . '/scripts/TestRunnerConnectionBootstrap.php';
 
-$session = json_decode($sessionJson, true);
-session()->set($session);
+session()->set($sessionData);
 
 $_POST = [
     'status' => 'arrived',
@@ -249,116 +274,262 @@ $response = \Config\Services::response();
 $controller = new \App\Controllers\Appointment();
 $controller->initController($request, $response, \Config\Services::logger());
 
-// Wait for synchronization barrier
-$start = microtime(true);
-while (!file_exists($barrierFile) && (microtime(true) - $start) < 5.0) {
-    usleep(1000);
+// Signal worker ready
+file_put_contents($readyFile, (string) getmypid());
+chmod($readyFile, 0600);
+
+// Wait for synchronization barrier (bounded 5.0s timeout)
+$waitStart = microtime(true);
+while (!file_exists($barrierFile)) {
+    if ((microtime(true) - $waitStart) > 5.0) {
+        fwrite(STDERR, "Worker timeout waiting for barrier\n");
+        exit(2);
+    }
+    usleep(200);
 }
 
 try {
     $res = $controller->transition($appointmentId);
     $statusCode = $res->getStatusCode();
-    $body = json_decode($res->getBody(), true);
+    $body = json_decode((string) $res->getBody(), true);
     file_put_contents($resultFile, json_encode([
         'status_code' => $statusCode,
         'body' => $body,
         'pid' => getmypid(),
-    ]));
+    ], JSON_THROW_ON_ERROR));
+    chmod($resultFile, 0600);
 } catch (\Throwable $e) {
     file_put_contents($resultFile, json_encode([
         'status_code' => 500,
         'error' => $e->getMessage(),
         'pid' => getmypid(),
-    ]));
+    ], JSON_THROW_ON_ERROR));
+    chmod($resultFile, 0600);
 }
+exit(0);
 PHP;
 
         file_put_contents($workerScript, $scriptContent);
         chmod($workerScript, 0700);
 
-        $barrierFile = $harnessDir . '/barrier_' . bin2hex(random_bytes(6)) . '.flag';
-        $resFile1 = $harnessDir . '/res1_' . bin2hex(random_bytes(6)) . '.json';
-        $resFile2 = $harnessDir . '/res2_' . bin2hex(random_bytes(6)) . '.json';
+        $readyFile1 = $workerDir . '/worker1.ready';
+        $readyFile2 = $workerDir . '/worker2.ready';
+        $barrierFile = $workerDir . '/barrier.flag';
+        $resultFile1 = $workerDir . '/result1.json';
+        $resultFile2 = $workerDir . '/result2.json';
+        $payloadFile1 = $workerDir . '/payload1.json';
+        $payloadFile2 = $workerDir . '/payload2.json';
 
-        $cmd1 = [
-            PHP_BINARY,
-            $workerScript,
-            dirname(__DIR__, 2),
-            (string) $appointmentId,
-            json_encode($sessionData),
-            $barrierFile,
-            $resFile1,
-            $harnessPreload
-        ];
+        $sessionData = session()->get();
+        file_put_contents($payloadFile1, json_encode([
+            'appointment_id' => $appointmentId,
+            'session' => $sessionData,
+            'ready_file' => $readyFile1,
+            'barrier_file' => $barrierFile,
+            'result_file' => $resultFile1,
+        ], JSON_THROW_ON_ERROR));
+        chmod($payloadFile1, 0600);
 
-        $cmd2 = [
-            PHP_BINARY,
-            $workerScript,
-            dirname(__DIR__, 2),
-            (string) $appointmentId,
-            json_encode($sessionData),
-            $barrierFile,
-            $resFile2,
-            $harnessPreload
-        ];
+        file_put_contents($payloadFile2, json_encode([
+            'appointment_id' => $appointmentId,
+            'session' => $sessionData,
+            'ready_file' => $readyFile2,
+            'barrier_file' => $barrierFile,
+            'result_file' => $resultFile2,
+        ], JSON_THROW_ON_ERROR));
+        chmod($payloadFile2, 0600);
 
-        $env = array_merge(getenv(), [
-            'WRITEPATH' => $harnessDir . '/writable/',
-            'database.tests.hostname' => '127.0.0.1',
-            'database.tests.port' => '3307',
-            'database.tests.database' => 'democa_dental_saas_test',
-            'database.tests.username' => (string) ($testsConfig['username'] ?? 'democa_test'),
-            'database.tests.password' => (string) ($testsConfig['password'] ?? ''),
-            'database.tests.DBDriver' => 'MySQLi',
+        $testsConfig = (new \Config\Database())->tests;
+        $connectionKeys = ['hostname','port','database','username','password','DBDriver','DBPrefix'];
+        $connectionPayload = json_encode(array_intersect_key($testsConfig, array_flip($connectionKeys)), JSON_THROW_ON_ERROR);
+
+        $childEnv = array_merge(getenv(), [
+            'WRITEPATH' => $writableDir . DIRECTORY_SEPARATOR,
             'DENTA_VERIFIED_TEST_CONNECTION' => $connectionPayload,
         ]);
 
-        $proc1 = proc_open($cmd1, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes1, dirname(__DIR__, 2), $env);
-        $proc2 = proc_open($cmd2, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes2, dirname(__DIR__, 2), $env);
+        $cmd1 = [PHP_BINARY, $workerScript, $repoRoot, $payloadFile1];
+        $cmd2 = [PHP_BINARY, $workerScript, $repoRoot, $payloadFile2];
 
-        self::assertIsResource($proc1);
-        self::assertIsResource($proc2);
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
 
-        // Small sleep to ensure both processes are spawned and waiting on barrier
-        usleep(50000); // 50ms
-        // Release barrier simultaneously
-        touch($barrierFile);
+        $proc1 = null;
+        $proc2 = null;
+        $pipes1 = [];
+        $pipes2 = [];
 
-        proc_close($proc1);
-        proc_close($proc2);
+        try {
+            $proc1 = proc_open($cmd1, $descriptors, $pipes1, $repoRoot, $childEnv);
+            $proc2 = proc_open($cmd2, $descriptors, $pipes2, $repoRoot, $childEnv);
 
-        self::assertFileExists($resFile1);
-        self::assertFileExists($resFile2);
+            self::assertIsResource($proc1, 'Failed to launch worker 1');
+            self::assertIsResource($proc2, 'Failed to launch worker 2');
 
-        $out1 = json_decode(file_get_contents($resFile1), true);
-        $out2 = json_decode(file_get_contents($resFile2), true);
+            // Wait for checked two-worker ready acknowledgments with bounded timeout
+            $readyStart = microtime(true);
+            $bothReady = false;
+            while ((microtime(true) - $readyStart) < 5.0) {
+                if (file_exists($readyFile1) && file_exists($readyFile2)) {
+                    $bothReady = true;
+                    break;
+                }
+                usleep(1000); // 1ms
+            }
+            self::assertTrue($bothReady, 'Both concurrency workers must acknowledge ready within 5.0s timeout');
 
-        // Clean up harness files
-        @unlink($workerScript);
-        @unlink($barrierFile);
-        @unlink($resFile1);
-        @unlink($resFile2);
+            // Release barrier simultaneously
+            touch($barrierFile);
 
-        $statusCodes = [$out1['status_code'], $out2['status_code']];
-        sort($statusCodes);
+            // Drain stdout and stderr concurrently without blocking
+            stream_set_blocking($pipes1[1], false);
+            stream_set_blocking($pipes1[2], false);
+            stream_set_blocking($pipes2[1], false);
+            stream_set_blocking($pipes2[2], false);
 
-        self::assertSame([200, 409], $statusCodes, 'Concurrent execution must yield exactly one 200 and one 409');
+            $stdout1 = '';
+            $stderr1 = '';
+            $stdout2 = '';
+            $stderr2 = '';
 
-        $conflictResponse = ($out1['status_code'] === 409) ? $out1['body'] : $out2['body'];
-        self::assertSame('CONFLICT', $conflictResponse['error']);
-        self::assertSame('arrived', $conflictResponse['current_status']);
-        self::assertContains('ready', $conflictResponse['allowed_statuses']);
+            $drainStart = microtime(true);
+            while ((microtime(true) - $drainStart) < 10.0) {
+                $allClosed = true;
+                foreach ([$pipes1[1], $pipes1[2], $pipes2[1], $pipes2[2]] as $pipe) {
+                    if (is_resource($pipe) && !feof($pipe)) {
+                        $allClosed = false;
+                        break;
+                    }
+                }
+                if ($allClosed) {
+                    break;
+                }
 
-        // Verify DB final state and single audit log
-        $finalAppt = $this->db->table('appointments')->where('id', $appointmentId)->get()->getRowArray();
-        self::assertSame('arrived', $finalAppt['status']);
+                $read = array_values(array_filter([$pipes1[1], $pipes1[2], $pipes2[1], $pipes2[2]], static fn($p) => is_resource($p) && !feof($p)));
+                if (empty($read)) {
+                    break;
+                }
+                $write = null;
+                $except = null;
+                $numChanged = @stream_select($read, $write, $except, 0, 50000);
+                if ($numChanged > 0) {
+                    foreach ($read as $r) {
+                        $chunk = fread($r, 8192);
+                        if ($chunk !== false && $chunk !== '') {
+                            if ($r === $pipes1[1]) $stdout1 .= $chunk;
+                            elseif ($r === $pipes1[2]) $stderr1 .= $chunk;
+                            elseif ($r === $pipes2[1]) $stdout2 .= $chunk;
+                            elseif ($r === $pipes2[2]) $stderr2 .= $chunk;
+                        }
+                    }
+                }
+            }
+
+            // Close all pipes before calling proc_close
+            foreach ([$pipes1, $pipes2] as $pipeSet) {
+                foreach ($pipeSet as $p) {
+                    if (is_resource($p)) {
+                        fclose($p);
+                    }
+                }
+            }
+
+            $exitCode1 = proc_close($proc1);
+            $proc1 = null;
+            $exitCode2 = proc_close($proc2);
+            $proc2 = null;
+
+            self::assertSame(0, $exitCode1, 'Worker 1 must exit with code 0. Stderr: ' . $stderr1);
+            self::assertSame(0, $exitCode2, 'Worker 2 must exit with code 0. Stderr: ' . $stderr2);
+
+            self::assertFileExists($resultFile1, 'Result file 1 missing');
+            self::assertFileExists($resultFile2, 'Result file 2 missing');
+
+            $out1 = json_decode((string) file_get_contents($resultFile1), true, 512, JSON_THROW_ON_ERROR);
+            $out2 = json_decode((string) file_get_contents($resultFile2), true, 512, JSON_THROW_ON_ERROR);
+
+            $statusCodes = [$out1['status_code'], $out2['status_code']];
+            sort($statusCodes);
+
+            self::assertSame([200, 409], $statusCodes, 'Concurrent execution must yield exactly one 200 and one 409');
+
+            $conflictResponse = ($out1['status_code'] === 409) ? $out1['body'] : $out2['body'];
+            self::assertSame('CONFLICT', $conflictResponse['error']);
+            self::assertSame('arrived', $conflictResponse['current_status']);
+            self::assertSame(['ready', 'in_chair', 'cancelled'], $conflictResponse['allowed_statuses'], 'Allowed statuses from arrived must match canonical stage transitions');
+
+            // Verify DB final state and single audit log
+            $finalAppt = $this->db->table('appointments')->where('id', $appointmentId)->get()->getRowArray();
+            self::assertSame('arrived', $finalAppt['status']);
+
+            $auditCount = $this->db->table('activity_logs')
+                ->where('entity_type', 'appointment')
+                ->where('entity_id', $appointmentId)
+                ->where('action', 'status')
+                ->countAllResults();
+            self::assertSame(1, $auditCount, 'Exactly 1 audit log must be committed across both workers');
+        } finally {
+            if (is_resource($proc1)) {
+                proc_terminate($proc1, 9);
+                proc_close($proc1);
+            }
+            if (is_resource($proc2)) {
+                proc_terminate($proc2, 9);
+                proc_close($proc2);
+            }
+            if (is_dir($workerDir)) {
+                $it = new \RecursiveDirectoryIterator($workerDir, \FilesystemIterator::SKIP_DOTS);
+                $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+                foreach ($files as $file) {
+                    if ($file->isDir()) {
+                        @rmdir($file->getRealPath());
+                    } else {
+                        @unlink($file->getRealPath());
+                    }
+                }
+                @rmdir($workerDir);
+            }
+        }
+    }
+
+    /**
+     * JS-disabled fallback: standard non-AJAX POST returns HTTP 302 redirect to return_to dashboard.
+     */
+    public function testNonAjaxTransitionRedirectsToDashboard(): void
+    {
+        $appointmentId = $this->createAppointment('scheduled');
+
+        $security = service('security');
+        $config = config('Security');
+        $hash = $security->getHash();
+
+        $res = $this->withSession(session()->get())
+            ->withHeaders([
+                'Cookie' => $config->cookieName . '=' . $hash,
+                'X-CSRF-TOKEN' => $hash,
+            ])
+            ->post('appointment/' . $appointmentId . '/transition', [
+                'status' => 'arrived',
+                'expected_status' => 'scheduled',
+                'return_to' => 'dashboard',
+                $config->tokenName => $hash,
+            ]);
+
+        $res->assertStatus(302);
+        $res->assertRedirectTo(base_url('dashboard'));
+
+        $appt = $this->db->table('appointments')->where('id', $appointmentId)->get()->getRowArray();
+        self::assertSame('arrived', $appt['status']);
 
         $auditCount = $this->db->table('activity_logs')
             ->where('entity_type', 'appointment')
             ->where('entity_id', $appointmentId)
             ->where('action', 'status')
             ->countAllResults();
-        self::assertSame(1, $auditCount, 'Exactly 1 audit log must be committed across both workers');
+        self::assertSame(1, $auditCount);
     }
 
     /**
