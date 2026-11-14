@@ -449,29 +449,64 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
     {
         [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'en');
 
-        // Check filter buttons group in panel-today
-        $filterBtns = $xpath->query('//*[@id="panel-today"]//div[contains(@class,"filter-group")]//button');
-        $this->assertGreaterThanOrEqual(3, $filterBtns->length, 'Must have All, Waiting, and In Chair filter buttons.');
+        // Verify single tablist outside panels with stable IDs
+        $tablists = $xpath->query('//div[@role="tablist"]');
+        $this->assertSame(1, $tablists->length, 'Must have exactly one tablist outside panels');
+
+        $tabButtons = $xpath->query('//button[@data-tab]');
+        $this->assertSame(2, $tabButtons->length, 'Must have exactly two tab buttons (Today and Upcoming)');
+
+        $todayTab = $xpath->query('//button[@id="tab-today"]');
+        $this->assertSame(1, $todayTab->length);
+        $this->assertSame('panel-today', $todayTab->item(0)->getAttribute('aria-controls'));
+        $this->assertSame('true', $todayTab->item(0)->getAttribute('aria-selected'));
+
+        $upcomingTab = $xpath->query('//button[@id="tab-upcoming"]');
+        $this->assertSame(1, $upcomingTab->length);
+        $this->assertSame('panel-upcoming', $upcomingTab->item(0)->getAttribute('aria-controls'));
+        $this->assertSame('false', $upcomingTab->item(0)->getAttribute('aria-selected'));
+
+        // Verify tabpanels have matching aria-labelledby
+        $todayPanel = $xpath->query('//*[@id="panel-today"]');
+        $this->assertSame(1, $todayPanel->length);
+        $this->assertSame('tab-today', $todayPanel->item(0)->getAttribute('aria-labelledby'));
+
+        $upcomingPanel = $xpath->query('//*[@id="panel-upcoming"]');
+        $this->assertSame(1, $upcomingPanel->length);
+        $this->assertSame('tab-upcoming', $upcomingPanel->item(0)->getAttribute('aria-labelledby'));
+
+        // Verify single visit-filter select
+        $visitFilters = $xpath->query('//select[@id="visit-filter"]');
+        $this->assertSame(1, $visitFilters->length, 'Must have exactly one visit-filter select element');
+
+        // Check filter buttons group in appointment-desk toolbar
+        $filterBtns = $xpath->query('//section[contains(@class,"appointment-desk")]//div[contains(@class,"filter-group")]//button');
+        $this->assertGreaterThanOrEqual(3, $filterBtns->length, 'Must have All, Waiting, In Chair, and Other filter buttons.');
 
         // Verify 'All' button count is 6 (total visits)
-        $allBtn = $xpath->query('//*[@id="panel-today"]//div[contains(@class,"filter-group")]//button[@data-filter="all"]');
+        $allBtn = $xpath->query('//div[contains(@class,"filter-group")]//button[@data-filter="all"]');
         $this->assertSame(1, $allBtn->length);
         $this->assertStringContainsString('(6)', $allBtn->item(0)->textContent);
 
-        // Verify 'Waiting' button count is 4 (scheduled:101, confirmed:102, arrived:103, ready:104)
-        $waitingBtn = $xpath->query('//*[@id="panel-today"]//div[contains(@class,"filter-group")]//button[@data-filter="waiting"]');
+        // Verify 'Waiting' button count is 2 (arrived:103, ready:104; scheduled:101 and confirmed:102 are not waiting)
+        $waitingBtn = $xpath->query('//div[contains(@class,"filter-group")]//button[@data-filter="waiting"]');
         $this->assertSame(1, $waitingBtn->length);
-        $this->assertStringContainsString('(4)', $waitingBtn->item(0)->textContent);
+        $this->assertStringContainsString('(2)', $waitingBtn->item(0)->textContent);
 
         // Verify 'In Chair' button count is 1 (in_chair:105)
-        $inChairBtn = $xpath->query('//*[@id="panel-today"]//div[contains(@class,"filter-group")]//button[@data-filter="in_chair"]');
+        $inChairBtn = $xpath->query('//div[contains(@class,"filter-group")]//button[@data-filter="in_chair"]');
         $this->assertSame(1, $inChairBtn->length);
         $this->assertStringContainsString('(1)', $inChairBtn->item(0)->textContent);
 
-        // Verify 'Other' button count is 1 (completed:106)
-        $otherBtn = $xpath->query('//*[@id="panel-today"]//div[contains(@class,"filter-group")]//button[@data-filter="other"]');
+        // Verify 'Other' button count is 3 (scheduled:101, confirmed:102, completed:106)
+        $otherBtn = $xpath->query('//div[contains(@class,"filter-group")]//button[@data-filter="other"]');
         $this->assertSame(1, $otherBtn->length);
-        $this->assertStringContainsString('(1)', $otherBtn->item(0)->textContent);
+        $this->assertStringContainsString('(3)', $otherBtn->item(0)->textContent);
+
+        // Verify filter-empty paragraph has localized Studio.emptyList
+        $emptyPs = $xpath->query('//p[contains(@class,"filter-empty")]');
+        $this->assertGreaterThanOrEqual(1, $emptyPs->length);
+        $this->assertSame('No matching records.', trim($emptyPs->item(0)->textContent));
     }
 
     public function testThreeCanonicalAttentionQueuesInDesktopRailAndMobileDisclosure(): void

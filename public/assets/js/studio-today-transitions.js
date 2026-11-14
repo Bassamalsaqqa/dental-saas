@@ -170,20 +170,22 @@
     }
 
     function checkActiveFilter(row, newStage) {
+      const activeFilterBtn = document.querySelector('.visit-filters-bar .filter-btn.active');
       const filter = document.getElementById('visit-filter');
-      if (filter && filter.value !== 'all') {
-        const val = filter.value;
-        const waitingStages = ['scheduled', 'confirmed', 'arrived', 'ready'];
-        const nonOtherStages = ['scheduled', 'confirmed', 'arrived', 'ready', 'in_chair'];
+      const val = activeFilterBtn?.dataset.filter || filter?.value || 'all';
+      if (val !== 'all') {
+        const waitingStages = ['arrived', 'ready'];
         if (val === 'waiting') {
           row.hidden = !waitingStages.includes(newStage);
         } else if (val === 'in_chair') {
           row.hidden = (newStage !== 'in_chair');
         } else if (val === 'other') {
-          row.hidden = nonOtherStages.includes(newStage);
+          row.hidden = waitingStages.includes(newStage) || newStage === 'in_chair';
         } else {
           row.hidden = (val !== newStage);
         }
+      } else {
+        row.hidden = false;
       }
       return row.hidden;
     }
@@ -201,7 +203,7 @@
         return;
       }
       const filter = document.getElementById('visit-filter');
-      if (filter && filter.tabIndex >= 0) {
+      if (filter && filter.tabIndex >= 0 && !filter.matches?.('[aria-hidden="true"], [hidden], .sr-only')) {
         filter.focus();
       }
     }
@@ -233,72 +235,158 @@
       }
     }
 
-    function initFilterButtons() {
-      const filterButtons = document.querySelectorAll('.visit-filters-bar .filter-btn');
+    function refreshCountsAndFilter(targetValue) {
       const selectFilter = document.getElementById('visit-filter');
-      if (!filterButtons.length) return;
+      const filterButtons = document.querySelectorAll('.visit-filters-bar .filter-btn');
+      const activeBtn = document.querySelector('.visit-filters-bar .filter-btn.active');
+      const currentFilter = targetValue || (selectFilter && selectFilter.value ? selectFilter.value : activeBtn?.dataset.filter) || 'all';
 
-      function applyFilter(targetValue) {
-        if (selectFilter) {
-          selectFilter.value = targetValue;
-        }
-        filterButtons.forEach(function (btn) {
-          const isMatch = btn.dataset.filter === targetValue;
-          btn.classList.toggle('active', isMatch);
-          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
-        });
-
-        document.querySelectorAll('[role="tabpanel"]').forEach(function (panel) {
-          const rows = panel.querySelectorAll('.visit-entry');
-          const waitingStages = ['scheduled', 'confirmed', 'arrived', 'ready'];
-          const nonOtherStages = ['scheduled', 'confirmed', 'arrived', 'ready', 'in_chair'];
-          let visibleCount = 0;
-
-          rows.forEach(function (row) {
-            const stage = row.dataset.stage || '';
-            let show = true;
-            if (targetValue === 'all') {
-              show = true;
-            } else if (targetValue === 'waiting') {
-              show = waitingStages.includes(stage);
-            } else if (targetValue === 'in_chair') {
-              show = (stage === 'in_chair');
-            } else if (targetValue === 'other') {
-              show = !nonOtherStages.includes(stage);
-            } else {
-              show = (stage === targetValue);
-            }
-            row.hidden = !show;
-            if (show) visibleCount++;
-          });
-
-          const emptyMsg = panel.querySelector('.filter-empty');
-          if (emptyMsg) {
-            emptyMsg.hidden = (visibleCount > 0);
-          }
-        });
+      if (selectFilter && selectFilter.value !== currentFilter) {
+        selectFilter.value = currentFilter;
       }
 
       filterButtons.forEach(function (btn) {
+        const isMatch = btn.dataset.filter === currentFilter;
+        btn.classList.toggle('active', isMatch);
+        btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+      });
+
+      const waitingStages = ['arrived', 'ready'];
+
+      document.querySelectorAll('[role="tabpanel"]').forEach(function (panel) {
+        const rows = panel.querySelectorAll('.visit-entry');
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+          const stage = row.dataset.stage || '';
+          let show = true;
+          if (currentFilter === 'all') {
+            show = true;
+          } else if (currentFilter === 'waiting') {
+            show = waitingStages.includes(stage);
+          } else if (currentFilter === 'in_chair') {
+            show = (stage === 'in_chair');
+          } else if (currentFilter === 'other') {
+            show = (!waitingStages.includes(stage) && stage !== 'in_chair');
+          } else {
+            show = (stage === currentFilter);
+          }
+          row.hidden = !show;
+          if (show) visibleCount++;
+        });
+
+        const emptyMsg = panel.querySelector('.filter-empty');
+        if (emptyMsg) {
+          emptyMsg.hidden = (visibleCount > 0);
+        }
+      });
+
+      // Update count badges based on active tabpanel
+      const activePanel = document.querySelector('[role="tabpanel"]:not([hidden])') || document.querySelector('[role="tabpanel"]');
+      if (activePanel) {
+        const panelRows = activePanel.querySelectorAll('.visit-entry');
+        let countAll = panelRows.length;
+        let countWaiting = 0;
+        let countInChair = 0;
+        let countOther = 0;
+
+        panelRows.forEach(function (row) {
+          const st = row.dataset.stage || '';
+          if (waitingStages.includes(st)) {
+            countWaiting++;
+          } else if (st === 'in_chair') {
+            countInChair++;
+          } else {
+            countOther++;
+          }
+        });
+
+        const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+        if (allBtn) {
+          const cnt = allBtn.querySelector('.filter-count');
+          if (cnt) cnt.textContent = '(' + countAll + ')';
+        }
+
+        const waitBtn = document.querySelector('.filter-btn[data-filter="waiting"]');
+        if (waitBtn) {
+          const cnt = waitBtn.querySelector('.filter-count');
+          if (cnt) cnt.textContent = '(' + countWaiting + ')';
+        }
+
+        const inChairBtn = document.querySelector('.filter-btn[data-filter="in_chair"]');
+        if (inChairBtn) {
+          const cnt = inChairBtn.querySelector('.filter-count');
+          if (cnt) cnt.textContent = '(' + countInChair + ')';
+        }
+
+        const otherBtn = document.querySelector('.filter-btn[data-filter="other"]');
+        if (otherBtn) {
+          const cnt = otherBtn.querySelector('.filter-count');
+          if (cnt) cnt.textContent = '(' + countOther + ')';
+          // Make Other available when checkout or other appears after transition even if initial 0
+          if (countOther > 0 || currentFilter === 'other') {
+            otherBtn.hidden = false;
+          }
+        }
+      }
+
+      // Update tab badge counts
+      const todayPanel = document.getElementById('panel-today');
+      if (todayPanel) {
+        const countTabToday = document.getElementById('count-tab-today') || document.querySelector('#tab-today .dashboard-tab-badge');
+        if (countTabToday) countTabToday.textContent = String(todayPanel.querySelectorAll('.visit-entry').length);
+      }
+      const upcomingPanel = document.getElementById('panel-upcoming');
+      if (upcomingPanel) {
+        const countTabUpcoming = document.getElementById('count-tab-upcoming') || document.querySelector('#tab-upcoming .dashboard-tab-badge');
+        if (countTabUpcoming) countTabUpcoming.textContent = String(upcomingPanel.querySelectorAll('.visit-entry').length);
+      }
+    }
+
+    window.StudioFilterVisits = refreshCountsAndFilter;
+
+    function initFilterButtons() {
+      const filterButtons = document.querySelectorAll('.visit-filters-bar .filter-btn');
+      const selectFilter = document.getElementById('visit-filter');
+      if (!filterButtons.length && !selectFilter) return;
+
+      filterButtons.forEach(function (btn) {
         btn.addEventListener('click', function () {
-          applyFilter(btn.dataset.filter);
+          refreshCountsAndFilter(btn.dataset.filter);
         });
         btn.addEventListener('keydown', function (e) {
-          const btnList = Array.from(filterButtons);
-          const idx = btnList.indexOf(btn);
+          const visibleButtons = Array.from(filterButtons).filter(b => !b.hidden && (typeof getComputedStyle === 'undefined' || getComputedStyle(b).display !== 'none'));
+          const idx = visibleButtons.indexOf(btn);
+          if (idx === -1) return;
           if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
             e.preventDefault();
-            const next = btnList[(idx + 1) % btnList.length];
+            const next = visibleButtons[(idx + 1) % visibleButtons.length];
             next.focus();
-            applyFilter(next.dataset.filter);
+            refreshCountsAndFilter(next.dataset.filter);
           } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
             e.preventDefault();
-            const prev = btnList[(idx - 1 + btnList.length) % btnList.length];
+            const prev = visibleButtons[(idx - 1 + visibleButtons.length) % visibleButtons.length];
             prev.focus();
-            applyFilter(prev.dataset.filter);
+            refreshCountsAndFilter(prev.dataset.filter);
+          } else if (e.key === 'Home') {
+            e.preventDefault();
+            visibleButtons[0].focus();
+            refreshCountsAndFilter(visibleButtons[0].dataset.filter);
+          } else if (e.key === 'End') {
+            e.preventDefault();
+            visibleButtons[visibleButtons.length - 1].focus();
+            refreshCountsAndFilter(visibleButtons[visibleButtons.length - 1].dataset.filter);
           }
         });
       });
+
+      if (selectFilter) {
+        selectFilter.addEventListener('change', function () {
+          refreshCountsAndFilter(selectFilter.value);
+        });
+      }
+
+      refreshCountsAndFilter();
     }
 
     initFilterButtons();
@@ -368,6 +456,8 @@
               actionCell.replaceChildren(createActionElement(confirmedStatus, visitId, patientName, row));
             }
 
+            refreshCountsAndFilter();
+
             const isHidden = checkActiveFilter(row, confirmedStatus);
             if (isHidden) {
               moveFocusWhenRowDisappears(row);
@@ -395,6 +485,7 @@
                 const patientName = getRowPatientName(row);
                 actionCell.replaceChildren(createActionElement(currentStatus, visitId, patientName, row));
               }
+              refreshCountsAndFilter();
             }
 
             const isHidden = currentStatus ? checkActiveFilter(row, currentStatus) : row.hidden;

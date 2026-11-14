@@ -1,8 +1,13 @@
 /* Dashboard Reinvention Scoped Stylesheet - Denta+ Clinic Work
  * Modern calm component-based operational layout.
  * Desktop compact aligned work rows (~80-100px) -> Mobile flat cards (~120-150px single / <=175px two actions).
- * 0 horizontal hunt on mobile. High contrast, 17-18px Arabic typography, WCAG AA compliant.
+ * 0 horizontal hunt on mobile. High contrast, 17-18px Arabic typography.
  */
+
+/* Hidden elements safeguard against grid/flex display overrides */
+[hidden] {
+  display: none !important;
+}
 
 /* Layout Container */
 .dashboard-workspace {

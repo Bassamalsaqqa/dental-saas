@@ -14,6 +14,7 @@ function createElement(tagName, attributes = {}) {
   const classList = new Set();
   const dataset = {};
   const attrs = {};
+  const listeners = new Map();
 
   if (attributes.className) {
     attributes.className.split(/\s+/).filter(Boolean).forEach(c => classList.add(c));
@@ -53,7 +54,40 @@ function createElement(tagName, attributes = {}) {
     classList: {
       add: (...tokens) => tokens.forEach(t => classList.add(t)),
       remove: (...tokens) => tokens.forEach(t => classList.delete(t)),
+      toggle: (token, force) => {
+        if (force === undefined) {
+          classList.has(token) ? classList.delete(token) : classList.add(token);
+        } else if (force) {
+          classList.add(token);
+        } else {
+          classList.delete(token);
+        }
+      },
       contains: token => classList.has(token),
+    },
+
+    addEventListener(event, fn) {
+      if (!listeners.has(event)) listeners.set(event, []);
+      listeners.get(event).push(fn);
+    },
+
+    removeEventListener(event, fn) {
+      if (!listeners.has(event)) return;
+      const list = listeners.get(event);
+      const idx = list.indexOf(fn);
+      if (idx !== -1) list.splice(idx, 1);
+    },
+
+    dispatchEvent(evt) {
+      const type = typeof evt === 'string' ? evt : evt.type;
+      const list = listeners.get(type);
+      if (list) {
+        list.forEach(fn => fn.call(el, evt));
+      }
+    },
+
+    click() {
+      this.dispatchEvent({ type: 'click', target: el, preventDefault() {} });
     },
 
     getAttribute(name) {
@@ -178,9 +212,15 @@ function querySelectorAll(root, selector) {
   }
 
   function matchesSelector(el, sel) {
-    if (sel.includes('tr.visit-entry:not([hidden])')) {
+    if (sel.includes('tr.visit-entry:not([hidden])') || sel.includes('.visit-entry:not([hidden])')) {
       const tr = el.closest && el.closest('.visit-entry');
       return tr && !tr.hidden && el.closest && el.closest('.visit-action') && (el.tagName === 'BUTTON' || el.tagName === 'A');
+    }
+    if (sel === '[role="tabpanel"]' || sel === '[role=tabpanel]') {
+      return el.getAttribute('role') === 'tabpanel';
+    }
+    if (sel === '[role="tabpanel"]:not([hidden])' || sel === '[role=tabpanel]:not([hidden])') {
+      return el.getAttribute('role') === 'tabpanel' && !el.hidden;
     }
     if (sel === 'form[data-appointment-transition]') {
       return el.tagName === 'FORM' && ('appointmentTransition' in el.dataset || el.hasAttribute('data-appointment-transition'));
@@ -202,6 +242,29 @@ function querySelectorAll(root, selector) {
     }
     if (sel === 'input') {
       return el.tagName === 'INPUT';
+    }
+    if (sel.includes('data-filter=')) {
+      const m = sel.match(/data-filter="?([^"\]]+)"?/);
+      const matchesFilter = Boolean(m && el.dataset.filter === m[1]);
+      if (sel.includes('.filter-btn')) {
+        return matchesFilter && Boolean(el.classList && el.classList.contains('filter-btn'));
+      }
+      return matchesFilter;
+    }
+    if (sel.includes('.filter-btn.active')) {
+      return el.classList && el.classList.contains('filter-btn') && el.classList.contains('active');
+    }
+    if (sel.includes('.filter-btn')) {
+      return el.classList && el.classList.contains('filter-btn');
+    }
+    if (sel.includes('.filter-count')) {
+      return el.classList && el.classList.contains('filter-count');
+    }
+    if (sel.includes('.filter-empty')) {
+      return el.classList && el.classList.contains('filter-empty');
+    }
+    if (sel.includes('.visit-filters-bar')) {
+      return el.classList && el.classList.contains('visit-filters-bar');
     }
     if (sel.startsWith('.')) {
       return el.classList && el.classList.contains(sel.slice(1));
@@ -256,13 +319,47 @@ function setupHarness(fetchHandler, options = {}) {
   metaCsrfHeader.name = 'csrf-header';
   metaCsrfHeader.setAttribute('content', 'X-CSRF-TOKEN');
 
-  const container = createElement('DIV', { className: 'panel-today-container' });
+  const container = createElement('DIV', { className: 'dashboard-workspace' });
+
+  const filterBar = createElement('DIV', { className: 'visit-filters-bar' });
+  const filterGroup = createElement('DIV', { className: 'filter-group' });
+  const btnAll = createElement('BUTTON', { className: 'filter-btn active', dataset: { filter: 'all' } });
+  const countAll = createElement('SPAN', { className: 'filter-count', textContent: '(1)' });
+  btnAll.appendChild(countAll);
+  const btnWait = createElement('BUTTON', { className: 'filter-btn', dataset: { filter: 'waiting' } });
+  const countWait = createElement('SPAN', { className: 'filter-count', textContent: '(0)' });
+  btnWait.appendChild(countWait);
+  const btnInChair = createElement('BUTTON', { className: 'filter-btn', dataset: { filter: 'in_chair' } });
+  const countInChair = createElement('SPAN', { className: 'filter-count', textContent: '(0)' });
+  btnInChair.appendChild(countInChair);
+  const btnOther = createElement('BUTTON', { className: 'filter-btn', dataset: { filter: 'other' } });
+  btnOther.hidden = true;
+  const countOther = createElement('SPAN', { className: 'filter-count', textContent: '(0)' });
+  btnOther.appendChild(countOther);
+
+  filterGroup.appendChild(btnAll);
+  filterGroup.appendChild(btnWait);
+  filterGroup.appendChild(btnInChair);
+  filterGroup.appendChild(btnOther);
+  filterBar.appendChild(filterGroup);
+  container.appendChild(filterBar);
+
+  const panelToday = createElement('DIV', { className: 'tabpanel-today' });
+  panelToday.setAttribute('id', 'panel-today');
+  panelToday.setAttribute('role', 'tabpanel');
+
   const tableScroll = createElement('DIV', { className: 'visit-table-scroll' });
   const table = createElement('TABLE', { className: 'visit-table' });
   const tbody = createElement('TBODY');
   table.appendChild(tbody);
   tableScroll.appendChild(table);
-  container.appendChild(tableScroll);
+  panelToday.appendChild(tableScroll);
+
+  const filterEmpty = createElement('P', { className: 'filter-empty', textContent: 'No matching records.' });
+  filterEmpty.hidden = true;
+  panelToday.appendChild(filterEmpty);
+
+  container.appendChild(panelToday);
 
   const patientName1 = options.patientName !== undefined ? options.patientName : 'Sarah Jenkins';
   const initialStage = options.initialStage || 'scheduled';
@@ -377,6 +474,7 @@ function setupHarness(fetchHandler, options = {}) {
     getElementById(id) {
       if (id === 'today-transitions-config') return configEl;
       if (id === 'visit-filter') return visitFilter;
+      if (id === 'panel-today') return panelToday;
       return null;
     },
     querySelector(selector) {
@@ -446,6 +544,14 @@ function setupHarness(fetchHandler, options = {}) {
     statusBadgeText,
     metaCsrfToken,
     csrfInput,
+    filterBar,
+    btnAll,
+    btnWait,
+    btnInChair,
+    btnOther,
+    panelToday,
+    filterEmpty,
+    context,
     getRefreshedToken: () => refreshedToken,
     submitForm: (targetBtn) => {
       const btnToSubmit = targetBtn || button;
@@ -1022,6 +1128,170 @@ async function runTests() {
 
     const forms = harness.actionCell.querySelectorAll('form');
     assert.equal(forms.length, 0, 'No mutation forms rendered without canEdit');
+  }
+
+  // Test 15: Filter Buttons switching and row visibility with exact waiting stage ['arrived', 'ready']
+  {
+    const harness = setupHarness(async () => ({ ok: true, status: 200, json: async () => ({ success: true }) }), {
+      initialStage: 'arrived',
+      addSecondRow: true, // secondRow has stage: 'scheduled'
+    });
+
+    // Add a 3rd row with stage in_chair
+    const thirdRow = createElement('TR', {
+      className: 'visit-entry',
+      dataset: { visitId: '44', stage: 'in_chair', patientName: 'InChair Patient' }
+    });
+    harness.panelToday.querySelector('tbody').appendChild(thirdRow);
+
+    // Initial counts on buttons
+    harness.context.window.StudioFilterVisits();
+    const allBtn = harness.container.querySelector('.filter-btn[data-filter="all"]');
+    const waitBtn = harness.container.querySelector('.filter-btn[data-filter="waiting"]');
+    const inChairBtn = harness.container.querySelector('.filter-btn[data-filter="in_chair"]');
+    const otherBtn = harness.container.querySelector('.filter-btn[data-filter="other"]');
+
+    assert.equal(allBtn.querySelector('.filter-count').textContent, '(3)');
+    assert.equal(waitBtn.querySelector('.filter-count').textContent, '(1)', 'Waiting count must only include arrived (not scheduled)');
+    assert.equal(inChairBtn.querySelector('.filter-count').textContent, '(1)');
+    assert.equal(otherBtn.querySelector('.filter-count').textContent, '(1)', 'Other count includes scheduled row');
+
+    // Click 'waiting' filter: arrived row must be visible, scheduled and in_chair must be hidden
+    waitBtn.click();
+    assert.equal(harness.row.hidden, false, 'Arrived row must be visible under waiting filter');
+    assert.equal(harness.secondRow.hidden, true, 'Scheduled row must NOT be visible under waiting filter');
+    assert.equal(thirdRow.hidden, true, 'In_chair row must NOT be visible under waiting filter');
+
+    // Click 'in_chair' filter
+    inChairBtn.click();
+    assert.equal(harness.row.hidden, true);
+    assert.equal(harness.secondRow.hidden, true);
+    assert.equal(thirdRow.hidden, false, 'In_chair row must be visible under in_chair filter');
+
+    // Click 'other' filter
+    otherBtn.click();
+    assert.equal(harness.row.hidden, true);
+    assert.equal(harness.secondRow.hidden, false, 'Scheduled row must be visible under other filter');
+    assert.equal(thirdRow.hidden, true);
+
+    // Click 'all' filter
+    allBtn.click();
+    assert.equal(harness.row.hidden, false);
+    assert.equal(harness.secondRow.hidden, false);
+    assert.equal(thirdRow.hidden, false);
+  }
+
+  // Test 16: Dynamic count badge update and 'Other' button unhiding after transition to checkout
+  {
+    const harness = setupHarness(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        success: true,
+        status: 'checkout',
+        current_status: 'checkout',
+        csrf_token: 'tok-chk'
+      })
+    }), {
+      initialStage: 'in_chair',
+      initialTargetStatus: 'checkout',
+      initialButtonText: 'Ready for reception',
+    });
+
+    harness.context.window.StudioFilterVisits();
+    const otherBtn = harness.container.querySelector('.filter-btn[data-filter="other"]');
+    assert.equal(otherBtn.hidden, true, 'Other button initially hidden when countOther is 0');
+
+    // Perform transition in_chair -> checkout
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    assert.equal(harness.row.dataset.stage, 'checkout');
+
+    // Check counts dynamically refreshed from confirmed DOM row
+    const inChairBtn = harness.container.querySelector('.filter-btn[data-filter="in_chair"]');
+    const otherBtnEl = harness.container.querySelector('.filter-btn[data-filter="other"]');
+    const inChairCount = inChairBtn.querySelector('.filter-count');
+    const otherCount = otherBtnEl.querySelector('.filter-count');
+
+    assert.equal(inChairCount.textContent, '(0)', 'In-chair count decremented to 0');
+    assert.equal(otherCount.textContent, '(1)', 'Other count incremented to 1');
+    assert.equal(otherBtn.hidden, false, 'Other button must be unhidden and available when checkout appears');
+  }
+
+  // Test 17: Dynamic count badge update on 409 Conflict
+  {
+    const harness = setupHarness(async () => ({
+      ok: false,
+      status: 409,
+      json: async () => ({
+        error: 'CONFLICT',
+        message: 'The appointment status has changed.',
+        current_status: 'ready',
+        csrf_token: 'tok-409-cnt'
+      })
+    }), {
+      initialStage: 'scheduled',
+    });
+
+    harness.context.window.StudioFilterVisits();
+    const waitBtn = harness.container.querySelector('.filter-btn[data-filter="waiting"]');
+    const otherBtn = harness.container.querySelector('.filter-btn[data-filter="other"]');
+    const waitCount = waitBtn.querySelector('.filter-count');
+    const otherCount = otherBtn.querySelector('.filter-count');
+    assert.equal(waitCount.textContent, '(0)');
+    assert.equal(otherCount.textContent, '(1)');
+
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    assert.equal(harness.row.dataset.stage, 'ready');
+    assert.equal(waitCount.textContent, '(1)', 'Waiting count incremented to 1 after 409 reconciliation to ready');
+    assert.equal(otherCount.textContent, '(0)', 'Other count decremented to 0');
+  }
+
+  // Test 18: Keyboard navigation between filter buttons skips hidden buttons
+  {
+    const harness = setupHarness(async () => ({ ok: true, status: 200, json: async () => ({ success: true }) }), {
+      initialStage: 'arrived',
+    });
+    const allBtn = harness.container.querySelector('.filter-btn[data-filter="all"]');
+    const waitBtn = harness.container.querySelector('.filter-btn[data-filter="waiting"]');
+    const inChairBtn = harness.container.querySelector('.filter-btn[data-filter="in_chair"]');
+    const otherBtn = harness.container.querySelector('.filter-btn[data-filter="other"]');
+
+    otherBtn.hidden = true;
+
+    let focusedEl = null;
+    allBtn.focus = () => { focusedEl = allBtn; };
+    waitBtn.focus = () => { focusedEl = waitBtn; };
+    inChairBtn.focus = () => { focusedEl = inChairBtn; };
+    otherBtn.focus = () => { focusedEl = otherBtn; };
+
+    // Navigate ArrowRight from inChairBtn: since otherBtn is hidden, must wrap to allBtn
+    inChairBtn.dispatchEvent({
+      type: 'keydown',
+      key: 'ArrowRight',
+      preventDefault() {}
+    });
+
+    assert.equal(focusedEl, allBtn, 'ArrowRight from in_chair must wrap to all when other is hidden');
+
+    // Navigate ArrowLeft from allBtn: must wrap to inChairBtn
+    allBtn.dispatchEvent({
+      type: 'keydown',
+      key: 'ArrowLeft',
+      preventDefault() {}
+    });
+
+    assert.equal(focusedEl, inChairBtn, 'ArrowLeft from all must wrap to in_chair when other is hidden');
+  }
+
+  // Test 19: studio.js tab and unified filter interop
+  {
+    const studioJsSource = fs.readFileSync(path.join(__dirname, '../../public/assets/js/studio.js'), 'utf8');
+    assert.ok(studioJsSource.includes('StudioFilterVisits'), 'studio.js must coordinate with window.StudioFilterVisits');
+    assert.ok(!studioJsSource.includes("row.dataset.stage!==value"), 'studio.js must NOT use naive exact comparison that hides all rows on waiting');
   }
 
   console.log('All DashboardTodayTransitionsTest unit tests passed successfully.');

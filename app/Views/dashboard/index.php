@@ -32,7 +32,7 @@ $studioStageLabels = [
     'no_show'   => 'appointmentStageNoShow'
 ];
 
-$waitingStages = ['scheduled', 'confirmed', 'arrived', 'ready'];
+$waitingStages = ['arrived', 'ready'];
 
 $studioDocs = $clinical_documentation_queue ?? [];
 $studioRecovery = $appointment_recovery_queue ?? [];
@@ -71,69 +71,70 @@ $studioAccepted = $accepted_treatment_queue ?? [];
     <section class="appointment-desk" aria-labelledby="desk-title">
       <h2 id="desk-title" class="sr-only"><?= esc(lang('Studio.day')) ?></h2>
 
-      <?php if ($studioCanVisits): ?>
-        <?php foreach (['today' => $studioVisits, 'upcoming' => $studioUpcoming] as $tab => $rows):
-          $countAll = count($rows);
-          $countWaiting = 0;
-          $countInChair = 0;
-          $countOther = 0;
-          foreach ($rows as $r) {
-              $st = $r['status'] ?? 'scheduled';
-              if (in_array($st, $waitingStages, true)) {
-                  $countWaiting++;
-              } elseif ($st === 'in_chair') {
-                  $countInChair++;
-              } else {
-                  $countOther++;
-              }
-          }
-        ?>
-        <div role="tabpanel" id="panel-<?= $tab ?>" aria-labelledby="tab-<?= $tab ?>" <?= $tab !== $studioInitialTab ? 'hidden' : '' ?>>
-          <!-- Toolbar: Navigation Tabs & Restrained Plain Filter Controls -->
-          <div class="dashboard-toolbar desk-controls">
-            <div class="dashboard-tabs segment" role="tablist" aria-label="<?= esc(lang('Studio.day')) ?>">
-              <button type="button" id="tab-today-<?= $tab ?>" class="dashboard-tab-btn" role="tab" data-tab="today" aria-controls="panel-today" aria-selected="<?= $tab === 'today' ? 'true' : 'false' ?>">
-                <span><?= esc(lang('Studio.todayTab')) ?></span>
-                <span class="dashboard-tab-badge"><?= count($studioVisits) ?></span>
-              </button>
-              <button type="button" id="tab-upcoming-<?= $tab ?>" class="dashboard-tab-btn" role="tab" data-tab="upcoming" aria-controls="panel-upcoming" aria-selected="<?= $tab === 'upcoming' ? 'true' : 'false' ?>">
-                <span><?= esc(lang('Studio.upcoming')) ?></span>
-                <span class="dashboard-tab-badge"><?= count($studioUpcoming) ?></span>
-              </button>
-            </div>
+      <?php if ($studioCanVisits):
+        $studioInitialRows = $studioInitialTab === 'today' ? $studioVisits : $studioUpcoming;
+        $countAll = count($studioInitialRows);
+        $countWaiting = 0;
+        $countInChair = 0;
+        $countOther = 0;
+        foreach ($studioInitialRows as $r) {
+            $st = (string)($r['status'] ?? 'scheduled');
+            if (in_array($st, $waitingStages, true)) {
+                $countWaiting++;
+            } elseif ($st === 'in_chair') {
+                $countInChair++;
+            } else {
+                $countOther++;
+            }
+        }
+      ?>
+      <!-- Toolbar: Navigation Tabs & Restrained Plain Filter Controls -->
+      <div class="dashboard-toolbar desk-controls">
+        <div class="dashboard-tabs segment" role="tablist" aria-label="<?= esc(lang('Studio.day')) ?>">
+          <button type="button" id="tab-today" class="dashboard-tab-btn" role="tab" data-tab="today" aria-controls="panel-today" aria-selected="<?= $studioInitialTab === 'today' ? 'true' : 'false' ?>">
+            <span><?= esc(lang('Studio.todayTab')) ?></span>
+            <span class="dashboard-tab-badge" id="count-tab-today"><?= count($studioVisits) ?></span>
+          </button>
+          <button type="button" id="tab-upcoming" class="dashboard-tab-btn" role="tab" data-tab="upcoming" aria-controls="panel-upcoming" aria-selected="<?= $studioInitialTab === 'upcoming' ? 'true' : 'false' ?>">
+            <span><?= esc(lang('Studio.upcoming')) ?></span>
+            <span class="dashboard-tab-badge" id="count-tab-upcoming"><?= count($studioUpcoming) ?></span>
+          </button>
+        </div>
 
-            <div class="visit-filters-bar" role="toolbar" aria-label="<?= esc(lang('Studio.filtered')) ?>">
-              <div class="filter-group" role="radiogroup" aria-label="<?= esc(lang('Studio.filtered')) ?>">
-                <button type="button" class="filter-btn active" data-filter="all" role="radio" aria-checked="true">
-                  <span><?= esc(lang('Studio.all')) ?></span>
-                  <span class="filter-count" dir="ltr">(<?= $countAll ?>)</span>
-                </button>
-                <button type="button" class="filter-btn" data-filter="waiting" role="radio" aria-checked="false">
-                  <span><?= esc(lang('Studio.lane_waiting')) ?></span>
-                  <span class="filter-count" dir="ltr">(<?= $countWaiting ?>)</span>
-                </button>
-                <button type="button" class="filter-btn" data-filter="in_chair" role="radio" aria-checked="false">
-                  <span><?= esc(lang('UI.appointmentStageInChair')) ?></span>
-                  <span class="filter-count" dir="ltr">(<?= $countInChair ?>)</span>
-                </button>
-                <?php if ($countOther > 0): ?>
-                  <button type="button" class="filter-btn" data-filter="other" role="radio" aria-checked="false">
-                    <span><?= esc(lang('Finance.other')) ?></span>
-                    <span class="filter-count" dir="ltr">(<?= $countOther ?>)</span>
-                  </button>
-                <?php endif; ?>
-              </div>
-              <label for="visit-filter" class="sr-only"><?= esc(lang('Studio.filtered')) ?></label>
-              <select id="visit-filter" class="sr-only" tabindex="-1" aria-hidden="true">
-                <option value="all"><?= esc(lang('Studio.all')) ?></option>
-                <option value="waiting"><?= esc(lang('Studio.lane_waiting')) ?></option>
-                <option value="in_chair"><?= esc(lang('UI.appointmentStageInChair')) ?></option>
-                <?php foreach ($studioStageLabels as $status => $label): ?>
-                  <option value="<?= esc($status) ?>"><?= esc(lang('UI.'.$label)) ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
+        <div class="visit-filters-bar" role="toolbar" aria-label="<?= esc(lang('Studio.filtered')) ?>">
+          <div class="filter-group" role="radiogroup" aria-label="<?= esc(lang('Studio.filtered')) ?>">
+            <button type="button" class="filter-btn active" data-filter="all" role="radio" aria-checked="true">
+              <span><?= esc(lang('Studio.all')) ?></span>
+              <span class="filter-count" dir="ltr">(<?= $countAll ?>)</span>
+            </button>
+            <button type="button" class="filter-btn" data-filter="waiting" role="radio" aria-checked="false">
+              <span><?= esc(lang('Studio.lane_waiting')) ?></span>
+              <span class="filter-count" dir="ltr">(<?= $countWaiting ?>)</span>
+            </button>
+            <button type="button" class="filter-btn" data-filter="in_chair" role="radio" aria-checked="false">
+              <span><?= esc(lang('UI.appointmentStageInChair')) ?></span>
+              <span class="filter-count" dir="ltr">(<?= $countInChair ?>)</span>
+            </button>
+            <button type="button" class="filter-btn" data-filter="other" role="radio" aria-checked="false" <?= $countOther === 0 ? 'hidden' : '' ?>>
+              <span><?= esc(lang('Finance.other')) ?></span>
+              <span class="filter-count" dir="ltr">(<?= $countOther ?>)</span>
+            </button>
           </div>
+          <label for="visit-filter" class="sr-only"><?= esc(lang('Studio.filtered')) ?></label>
+          <select id="visit-filter" class="sr-only" aria-label="<?= esc(lang('Studio.filtered')) ?>">
+            <option value="all"><?= esc(lang('Studio.all')) ?></option>
+            <option value="waiting"><?= esc(lang('Studio.lane_waiting')) ?></option>
+            <option value="in_chair"><?= esc(lang('UI.appointmentStageInChair')) ?></option>
+            <option value="other"><?= esc(lang('Finance.other')) ?></option>
+            <?php foreach ($studioStageLabels as $status => $label): ?>
+              <option value="<?= esc($status) ?>"><?= esc(lang('UI.'.$label)) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      </div>
+
+      <?php foreach (['today' => $studioVisits, 'upcoming' => $studioUpcoming] as $tab => $rows): ?>
+        <div role="tabpanel" id="panel-<?= $tab ?>" aria-labelledby="tab-<?= $tab ?>" <?= $tab !== $studioInitialTab ? 'hidden' : '' ?>>
 
           <?php if (!$rows): ?>
             <div class="empty-agenda">
@@ -306,7 +307,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
                 <?php endforeach; ?>
               </div>
             </div>
-            <p class="filter-empty" hidden><?= esc(lang('Studio.noUpcoming')) ?></p>
+            <p class="filter-empty" hidden><?= esc(lang('Studio.emptyList')) ?></p>
           <?php endif; ?>
         </div>
         <?php endforeach; ?>
