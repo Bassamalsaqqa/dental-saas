@@ -129,13 +129,12 @@ final class AppointmentTransitionRoutingHttpTest extends PhaseBFixture
             $model2->findForUpdateByClinic((int) $this->clinic, $appointmentId);
         } catch (\Throwable $e) {
             $dbErr = $db2->error();
-            if (
-                ($dbErr['code'] ?? 0) === 1205
-                || str_contains($dbErr['message'] ?? '', 'Lock wait timeout')
-                || str_contains($e->getMessage(), '1205')
-                || str_contains($e->getMessage(), 'Lock wait timeout')
-                || str_contains($e->getMessage(), 'Database query failed')
-            ) {
+            $isDriver1205 = ($dbErr['code'] ?? 0) === 1205
+                || (stripos($dbErr['message'] ?? '', '1205') !== false || stripos($dbErr['message'] ?? '', 'Lock wait timeout') !== false);
+            $isWrapped1205 = str_contains($e->getMessage(), '1205')
+                || stripos($e->getMessage(), 'Lock wait timeout') !== false;
+
+            if ($isDriver1205 || $isWrapped1205) {
                 $lockWaitTimeoutOccurred = true;
             }
         }
