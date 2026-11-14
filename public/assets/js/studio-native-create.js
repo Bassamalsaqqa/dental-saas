@@ -12,7 +12,7 @@ document.querySelectorAll('[data-native-create-dialog]').forEach(dialog=>{
  function syncChrome(triggerUrl){
   if(!form)return;
   const cat=form.elements.namedItem('expense_category');
-  const isSalary=mode==='expense'&&(cat?.value==='salaries'||(!cat?.value&&triggerUrl?.searchParams.get('category')==='salaries'));
+  const isSalary=mode==='expense'&&cat?.value==='salaries';
   const titleEl=dialog.querySelector('[data-native-title]'),
         submitEl=dialog.querySelector('[data-native-submit]'),
         fullpageEl=dialog.querySelector('[data-native-fullpage]');
@@ -26,7 +26,7 @@ document.querySelectorAll('[data-native-create-dialog]').forEach(dialog=>{
    let dest=triggerUrl?.href||dialog.dataset.fullPage;
    if(mode==='expense'){
     const destination=new URL(dialog.dataset.expenseFullPage||dialog.dataset.fullPage,location.href);
-    const currentCat=cat?.value||(triggerUrl?.searchParams.get('category')??'');
+    const currentCat=cat&&Array.from(cat.options).some(option=>option.value===cat.value)?cat.value:'';
     if(currentCat)destination.searchParams.set('category',currentCat);
     else destination.searchParams.delete('category');
     if(!destination.searchParams.get('return_to'))destination.searchParams.set('return_to','finance');

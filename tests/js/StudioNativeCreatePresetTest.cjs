@@ -105,7 +105,7 @@ class MockElement {
   reset() {}
 }
 
-function createHarness() {
+function createHarness(serverCategory = '') {
   const document = new MockElement('document');
   const body = new MockElement('body');
   document.body = body;
@@ -184,6 +184,7 @@ function createHarness() {
       // Cloned tree
       const formClone = new MockElement('form');
       const catClone = new MockElement('select', 'expense_category');
+      catClone.value = serverCategory;
       for (const optVal of ['', 'salaries', 'rent', 'laboratory', 'utilities']) {
         const opt = new MockElement('option');
         opt.value = optVal;
@@ -352,38 +353,33 @@ function createHarness() {
   assert.equal(fullpageUrl.searchParams.get('return_to'), 'finance');
 }
 
-// 3. Validation reopen does not override server-rendered category state
-{
-  const { document, dialog } = createHarness();
-  dialog.dataset.openOnLoad = 'true';
-  dialog.dataset.reopenMode = 'expense';
-
-  // Suppose server already rendered rent in the form
-  const trigger = new MockElement('a');
-  trigger.href = 'https://example.test/finance/expenses/create?category=laboratory';
-  trigger.dataset.nativeCreate = 'finance-create-dialog';
-
-  // Even if trigger url had laboratory, reopen preservation must not override cat
-  const form = dialog.querySelector('form');
-  if (form) {
-    const cat = form.elements.namedItem('expense_category');
-    cat.value = 'rent';
+// Validation reopen preserves the exact server value, including an explicitly cleared category.
+for (const serverCategory of ['rent', '']) {
+  for (const requestedCategory of ['laboratory', 'salaries']) {
+    const { document, dialog, titleEl, fullpageEl } = createHarness(serverCategory);
+    dialog.dataset.openOnLoad = 'true';
+    dialog.dataset.reopenMode = 'expense';
+    const trigger = new MockElement('a');
+    trigger.href = `https://example.test/finance/expenses/create?category=${requestedCategory}`;
+    for (const handler of document.listeners.click || []) {
+      handler({ target: { closest: () => trigger }, defaultPrevented: false, button: 0, preventDefault() {} });
+    }
+    assert.equal(dialog.querySelector('form').elements.namedItem('expense_category').value, serverCategory);
+    assert.equal(new URL(fullpageEl.href).searchParams.get('category'), serverCategory || null);
+    assert.equal(titleEl.textContent, 'New Expense');
   }
-
-  // Trigger click
-  for (const h of document.listeners['click'] || []) {
-    h({
-      target: { closest: () => trigger },
-      defaultPrevented: false,
-      button: 0,
-      preventDefault: () => {}
-    });
-  }
-
-  const activeForm = dialog.querySelector('form');
-  const catAfter = activeForm.elements.namedItem('expense_category');
-  // On openOnLoad === 'true', mount does not override catSelect.value
-  assert.notEqual(catAfter.value, 'laboratory', 'Validation reopen must not override with trigger query preset');
 }
 
-console.log('StudioNativeCreatePresetTest: All targeted JS assertions passed (fresh preset, category switch fullpage, validation reopen, dirty check).');
+// Unknown URL presets never reach either the form selection or full-page destination.
+{
+  const { document, dialog, fullpageEl } = createHarness();
+  const trigger = new MockElement('a');
+  trigger.href = 'https://example.test/finance/expenses/create?category=unknown_category';
+  for (const handler of document.listeners.click || []) {
+    handler({ target: { closest: () => trigger }, defaultPrevented: false, button: 0, preventDefault() {} });
+  }
+  assert.equal(dialog.querySelector('form').elements.namedItem('expense_category').value, '');
+  assert.equal(new URL(fullpageEl.href).searchParams.has('category'), false);
+}
+
+console.log('StudioNativeCreatePresetTest: All targeted JS assertions passed.');
