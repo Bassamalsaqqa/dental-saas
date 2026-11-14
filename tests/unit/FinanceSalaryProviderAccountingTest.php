@@ -380,8 +380,11 @@ final class FinanceSalaryProviderAccountingTest extends CIUnitTestCase
         helper(['asset', 'url', 'settings', 'form', 'navigation']);
 
         // Case 1: GET category=salaries sets categoryValue to salaries and isSalary to true
+        $getCategoryValue = 'salaries';
         $requestMock = $this->createMock(IncomingRequest::class);
-        $requestMock->method('getGet')->with('category')->willReturn('salaries');
+        $requestMock->method('getGet')->with('category')->willReturnCallback(static function () use (&$getCategoryValue) {
+            return $getCategoryValue;
+        });
         $oldInput = [];
         $requestMock->method('getOldInput')->willReturnCallback(static function ($key) use (&$oldInput) {
             return $oldInput[$key] ?? null;
@@ -461,6 +464,87 @@ final class FinanceSalaryProviderAccountingTest extends CIUnitTestCase
         $this->assertNotNull($paid);
         $this->assertTrue($paid->hasAttribute('readonly'));
         $this->assertSame('1000', $paid->getAttribute('value'));
+
+        // Case 4: Lab preset and precedence
+        $getCategoryValue = 'laboratory';
+        $labData = [
+            'studioExpense' => true,
+            'studioEditing' => false,
+            'finance' => [],
+            'studioInDialog' => true,
+            'base_currency' => 'ILS',
+            'expense_category_options' => ['salaries' => 'Salaries', 'rent' => 'Rent', 'laboratory' => 'Laboratory'],
+            'supplier_directory' => [['id' => 1, 'name' => 'Synthetic Vendor']],
+            'currency_options' => ['ILS'],
+        ];
+
+        // 4a: Fresh lab preset selects laboratory and uses standard expense labels/title
+        $labHtml = view('finance/partials/studio_transaction_form', $labData);
+        $this->assertStringContainsString('selected>Laboratory</option>', $labHtml);
+        $this->assertStringContainsString('data-label-payee="', $labHtml);
+        $this->assertStringContainsString('>' . lang('Finance.payeeVendorRequired') . '</label>', $labHtml);
+        $this->assertStringContainsString('"expenseSubmit":"' . lang('Finance.recordExpense') . '"', $labHtml);
+        $this->assertStringContainsString('"expenseTitle":"' . lang('Finance.newExpense') . '"', $labHtml);
+
+        // 4b: Old input rent beats lab GET preset
+        $oldInput = ['expense_category' => 'rent'];
+        $oldRentHtml = view('finance/partials/studio_transaction_form', $labData);
+        $this->assertStringContainsString('selected>Rent</option>', $oldRentHtml);
+        $this->assertStringNotContainsString('selected>Laboratory</option>', $oldRentHtml);
+
+        // 4c: Old input empty beats lab GET preset
+        $oldInput = ['expense_category' => ''];
+        $oldEmptyHtml = view('finance/partials/studio_transaction_form', $labData);
+        $this->assertStringNotContainsString('selected>Laboratory</option>', $oldEmptyHtml);
+        $this->assertStringNotContainsString('selected>Rent</option>', $oldEmptyHtml);
+        $oldInput = [];
+
+        // 4d: Editing stored category beats lab GET preset
+        $editLabData = array_merge($labData, [
+            'studioEditing' => true,
+            'finance' => [
+                'id' => 102,
+                'transaction_id' => 'EXP-102',
+                'transaction_type' => 'expense',
+                'expense_category' => 'rent',
+                'amount' => 500.00,
+                'currency' => 'ILS',
+            ],
+        ]);
+        $editLabHtml = view('finance/partials/studio_transaction_form', $editLabData);
+        $this->assertStringContainsString('selected>Rent</option>', $editLabHtml);
+        $this->assertStringNotContainsString('selected>Laboratory</option>', $editLabHtml);
+
+        // 4e: Malformed array GET is ignored warning-free
+        $getCategoryValue = ['malformed' => 'array'];
+        $arrayGetHtml = view('finance/partials/studio_transaction_form', $labData);
+        $this->assertStringNotContainsString('selected>Laboratory</option>', $arrayGetHtml);
+
+        // 4f: Unknown string GET is ignored warning-free
+        $getCategoryValue = 'unknown_category_xyz';
+        $unknownGetHtml = view('finance/partials/studio_transaction_form', $labData);
+        $this->assertStringNotContainsString('selected>Laboratory</option>', $unknownGetHtml);
+
+        // 4g: Cancel return URL resolution and dialog permission visibility
+        $getCategoryValue = null;
+        $cancelData = array_merge($labData, ['return_to' => 'finance']);
+        $cancelHtml = view('finance/partials/studio_transaction_form', $cancelData);
+        $this->assertStringContainsString('<input type="hidden" name="return_to" value="finance">', $cancelHtml);
+        $this->assertSame(base_url('finance'), workflow_cancel('finance', 'finance'));
+
+        $permContext = implode(':', [(int) session('user_id'), (int) session('active_clinic_id'), (int) (bool) session('global_mode'), (int) (bool) session('is_impersonating')]);
+        $dialogAllowedHtml = view('finance/partials/studio_create_dialog', array_merge($labData, [
+            'v4Can' => static fn (string $module, string $action): bool => ($module === 'finance' && $action === 'create'),
+            'v4PermissionContext' => $permContext,
+        ]));
+        $this->assertStringContainsString('id="finance-create-dialog"', $dialogAllowedHtml);
+        $this->assertStringContainsString('data-expense-full-page="' . base_url('finance/expenses/create?return_to=finance') . '"', $dialogAllowedHtml);
+
+        $dialogDeniedHtml = view('finance/partials/studio_create_dialog', array_merge($labData, [
+            'v4Can' => static fn (string $module, string $action): bool => false,
+            'v4PermissionContext' => $permContext,
+        ]));
+        $this->assertStringNotContainsString('id="finance-create-dialog"', $dialogDeniedHtml);
     }
 
     private function mockRequestWithSiteUri(string $path = 'finance', array $oldInput = []): IncomingRequest

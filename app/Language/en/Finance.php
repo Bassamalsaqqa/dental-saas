@@ -237,6 +237,7 @@ return [
     'providerUser' => 'Clinic User',
     'reasonOptionalPrompt' => 'Reason for closing this balance (optional):',
     'recordExpense' => 'Record Expense',
+    'recordLabBill' => 'Lab bill',
     'recordSalary' => 'Record staff salary',
     'salaryExpense' => 'Staff salary',
     'expenseSettlementGuidance' => 'Paid records full settlement on the selected payment date; Unpaid tracks the balance in Bills & payables; Partial records the amount paid with remainder in Bills & payables.',

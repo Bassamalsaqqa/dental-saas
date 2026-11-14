@@ -25,7 +25,12 @@ document.querySelectorAll('[data-native-create-dialog]').forEach(dialog=>{
   if(fullpageEl){
    let dest=triggerUrl?.href||dialog.dataset.fullPage;
    if(mode==='expense'){
-    dest=isSalary?(dialog.dataset.salaryFullPage||dialog.dataset.expenseFullPage):(dialog.dataset.expenseFullPage||dialog.dataset.fullPage);
+    const destination=new URL(dialog.dataset.expenseFullPage||dialog.dataset.fullPage,location.href);
+    const currentCat=cat?.value||(triggerUrl?.searchParams.get('category')??'');
+    if(currentCat)destination.searchParams.set('category',currentCat);
+    else destination.searchParams.delete('category');
+    if(!destination.searchParams.get('return_to'))destination.searchParams.set('return_to','finance');
+    dest=destination.href;
    }else if(mode==='transaction'){
     const destination=new URL(dest,location.href),type=form.elements.namedItem('transaction_type')?.value;
     if(transactionTypes.includes(type))destination.searchParams.set('transaction_type',type);
@@ -50,11 +55,14 @@ document.querySelectorAll('[data-native-create-dialog]').forEach(dialog=>{
   type?.addEventListener('change',()=>syncChrome(url));
   const catSelect=form.elements.namedItem('expense_category');
   if(catSelect){
-   if(dialog.dataset.openOnLoad!=='true'&&url?.searchParams.get('category')==='salaries'&&!catSelect.value){
-    catSelect.value='salaries';
-    catSelect.dispatchEvent(new Event('change',{bubbles:true}));
-   }
    catSelect.addEventListener('change',()=>syncChrome(null));
+   const presetCat=url?.searchParams.get('category');
+   if(dialog.dataset.openOnLoad!=='true'&&presetCat&&!catSelect.value){
+    if(Array.from(catSelect.options).some(o=>o.value===presetCat)){
+     catSelect.value=presetCat;
+     catSelect.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+   }
   }
   syncChrome(url);
   bind();original=snapshot();setTimeout(()=>{original=snapshot();},0);
