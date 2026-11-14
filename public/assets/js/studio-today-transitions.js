@@ -52,7 +52,7 @@
 
     function getRowPatientName(row) {
       if (!row) return '';
-      return (row.dataset.patientName || row.querySelector('.visit-identity strong')?.textContent || '').trim();
+      return (row.dataset.patientName || row.querySelector('.visit-identity strong, .patient-name')?.textContent || '').trim();
     }
 
     function getScopedAriaLabel(actionLabel, patientName) {
@@ -172,20 +172,36 @@
     function checkActiveFilter(row, newStage) {
       const filter = document.getElementById('visit-filter');
       if (filter && filter.value !== 'all') {
-        row.hidden = (filter.value !== newStage);
+        const val = filter.value;
+        const waitingStages = ['scheduled', 'confirmed', 'arrived', 'ready'];
+        const nonOtherStages = ['scheduled', 'confirmed', 'arrived', 'ready', 'in_chair'];
+        if (val === 'waiting') {
+          row.hidden = !waitingStages.includes(newStage);
+        } else if (val === 'in_chair') {
+          row.hidden = (newStage !== 'in_chair');
+        } else if (val === 'other') {
+          row.hidden = nonOtherStages.includes(newStage);
+        } else {
+          row.hidden = (val !== newStage);
+        }
       }
       return row.hidden;
     }
 
     function moveFocusWhenRowDisappears(row) {
       const tableBody = row.parentElement;
-      const nextVisible = tableBody ? tableBody.querySelector('tr.visit-entry:not([hidden]) .visit-action button, tr.visit-entry:not([hidden]) .visit-action a') : null;
+      const nextVisible = tableBody ? tableBody.querySelector('.visit-entry:not([hidden]) .visit-action button, .visit-entry:not([hidden]) .visit-action a, tr.visit-entry:not([hidden]) .visit-action button, tr.visit-entry:not([hidden]) .visit-action a') : null;
       if (nextVisible) {
         nextVisible.focus();
         return;
       }
+      const activeFilter = document.querySelector('.filter-btn.active, .filter-group button');
+      if (activeFilter) {
+        activeFilter.focus();
+        return;
+      }
       const filter = document.getElementById('visit-filter');
-      if (filter) {
+      if (filter && filter.tabIndex >= 0) {
         filter.focus();
       }
     }
@@ -217,11 +233,81 @@
       }
     }
 
+    function initFilterButtons() {
+      const filterButtons = document.querySelectorAll('.visit-filters-bar .filter-btn');
+      const selectFilter = document.getElementById('visit-filter');
+      if (!filterButtons.length) return;
+
+      function applyFilter(targetValue) {
+        if (selectFilter) {
+          selectFilter.value = targetValue;
+        }
+        filterButtons.forEach(function (btn) {
+          const isMatch = btn.dataset.filter === targetValue;
+          btn.classList.toggle('active', isMatch);
+          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+        });
+
+        document.querySelectorAll('[role="tabpanel"]').forEach(function (panel) {
+          const rows = panel.querySelectorAll('.visit-entry');
+          const waitingStages = ['scheduled', 'confirmed', 'arrived', 'ready'];
+          const nonOtherStages = ['scheduled', 'confirmed', 'arrived', 'ready', 'in_chair'];
+          let visibleCount = 0;
+
+          rows.forEach(function (row) {
+            const stage = row.dataset.stage || '';
+            let show = true;
+            if (targetValue === 'all') {
+              show = true;
+            } else if (targetValue === 'waiting') {
+              show = waitingStages.includes(stage);
+            } else if (targetValue === 'in_chair') {
+              show = (stage === 'in_chair');
+            } else if (targetValue === 'other') {
+              show = !nonOtherStages.includes(stage);
+            } else {
+              show = (stage === targetValue);
+            }
+            row.hidden = !show;
+            if (show) visibleCount++;
+          });
+
+          const emptyMsg = panel.querySelector('.filter-empty');
+          if (emptyMsg) {
+            emptyMsg.hidden = (visibleCount > 0);
+          }
+        });
+      }
+
+      filterButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          applyFilter(btn.dataset.filter);
+        });
+        btn.addEventListener('keydown', function (e) {
+          const btnList = Array.from(filterButtons);
+          const idx = btnList.indexOf(btn);
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = btnList[(idx + 1) % btnList.length];
+            next.focus();
+            applyFilter(next.dataset.filter);
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = btnList[(idx - 1 + btnList.length) % btnList.length];
+            prev.focus();
+            applyFilter(prev.dataset.filter);
+          }
+        });
+      });
+    }
+
+    initFilterButtons();
+
     document.addEventListener('submit', function (event) {
       const form = event.target.closest('form[data-appointment-transition]');
       if (!form) return;
 
-      const row = form.closest('tr.visit-entry');
+      const row = form.closest('.visit-entry');
       if (!row) return;
 
       const button = form.querySelector('button[type="submit"]');
@@ -319,7 +405,7 @@
             staleNotice.textContent = config.statusStale;
 
             if (isHidden) {
-              const container = row.closest('.visit-table-scroll') || row.closest('table') || row.parentElement;
+              const container = row.closest('.visit-table-scroll') || row.closest('.visit-deck') || row.closest('table') || row.parentElement;
               if (container && container.parentElement) {
                 container.parentElement.querySelectorAll('.visit-stale-notice--global').forEach(function (el) { el.remove(); });
                 staleNotice.classList.add('visit-stale-notice--global');
