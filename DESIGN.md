@@ -40,7 +40,7 @@ components:
 # Denta+ design proof and design system
 
 ## Overview
-Denta+ is a working, deployed application running CodeIgniter 4, native PHP views, Tailwind 3 and shared Studio CSS/JS. PR27 (incorporating PR26) is deployed and verified in production at `5b7c0688a1afa4626a4ed913e759a763eb282c12`. This campaign focuses on workflow ergonomics, discoverability, accessibility, responsive fit and performance improvements across the existing application, not an unfinished rewrite or speculative frontend migration.
+Denta+ is a working, deployed application running CodeIgniter 4, native PHP views, Tailwind 3 and shared Studio CSS/JS. [PROJECT_STATE.md](docs/PROJECT_STATE.md) records the current installed release and recovery authority. This campaign improves workflow clarity, accessibility, responsive fit and performance within the existing architecture.
 
 The dashboard visual anchor at `99c9ecb` established the accepted forest/sage identity. The system is governed by shared Studio components, semantic theme roles in `public/assets/css/studio-theme.css`, and the contracts in `docs/UI_STUDIO_COMPONENTS.md`. `docs/UI_REBUILD_COVERAGE.csv` is historical rebuild evidence; current routes, source and the active work register determine present coverage.
 
