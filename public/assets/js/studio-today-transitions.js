@@ -48,7 +48,16 @@
       });
     }
 
-    function buildTransitionForm(visitId, targetStatus, expectedStatus, buttonClass, buttonText) {
+    function getRowPatientName(row) {
+      if (!row) return '';
+      return (row.dataset.patientName || row.querySelector('.visit-identity strong')?.textContent || '').trim();
+    }
+
+    function getScopedAriaLabel(actionLabel, patientName) {
+      return patientName ? (actionLabel + ' - ' + patientName) : actionLabel;
+    }
+
+    function buildTransitionForm(visitId, targetStatus, expectedStatus, buttonClass, buttonText, patientName) {
       const form = document.createElement('form');
       form.method = 'post';
       form.action = config.baseUrl + visitId + '/transition';
@@ -77,35 +86,37 @@
       btn.type = 'submit';
       btn.className = buttonClass;
       btn.textContent = buttonText;
+      btn.setAttribute('aria-label', getScopedAriaLabel(buttonText, patientName));
       form.appendChild(btn);
 
       return form;
     }
 
-    function buildViewLink(visitId) {
+    function buildViewLink(visitId, patientName) {
       const viewLink = document.createElement('a');
       viewLink.className = 'button secondary';
       viewLink.href = config.baseUrl + visitId + '?return_to=dashboard';
       viewLink.textContent = config.actionView;
+      viewLink.setAttribute('aria-label', getScopedAriaLabel(config.actionView, patientName));
       return viewLink;
     }
 
-    function createActionElement(stage, visitId) {
+    function createActionElement(stage, visitId, patientName) {
       const group = document.createElement('div');
       group.className = 'visit-action-group';
 
       if (config.canEdit) {
         if (stage === 'scheduled' || stage === 'confirmed') {
-          group.appendChild(buildTransitionForm(visitId, 'arrived', stage, 'button primary transition-btn', config.actionArrival));
+          group.appendChild(buildTransitionForm(visitId, 'arrived', stage, 'button primary transition-btn', config.actionArrival, patientName));
           return group;
         }
         if (stage === 'arrived') {
-          group.appendChild(buildTransitionForm(visitId, 'ready', 'arrived', 'button secondary transition-btn', config.actionReady));
+          group.appendChild(buildTransitionForm(visitId, 'ready', 'arrived', 'button secondary transition-btn', config.actionReady, patientName));
           return group;
         }
       }
 
-      group.appendChild(buildViewLink(visitId));
+      group.appendChild(buildViewLink(visitId, patientName));
       return group;
     }
 
@@ -162,7 +173,8 @@
       notice.textContent = config.statusUncertain;
 
       const visitId = row.dataset.visitId || form.action.match(/\/appointment\/(\d+)\//)?.[1];
-      const reviewLink = buildViewLink(visitId);
+      const patientName = getRowPatientName(row);
+      const reviewLink = buildViewLink(visitId, patientName);
 
       const actionCell = row.querySelector('.visit-action');
       if (actionCell) {
@@ -233,7 +245,8 @@
             const actionCell = row.querySelector('.visit-action');
             if (actionCell) {
               const visitId = row.dataset.visitId || form.action.match(/\/appointment\/(\d+)\//)?.[1];
-              actionCell.replaceChildren(createActionElement(confirmedStatus, visitId));
+              const patientName = getRowPatientName(row);
+              actionCell.replaceChildren(createActionElement(confirmedStatus, visitId, patientName));
             }
 
             const isHidden = checkActiveFilter(row, confirmedStatus);
@@ -260,7 +273,8 @@
               updateRowBadge(row, currentStatus);
               if (actionCell) {
                 const visitId = row.dataset.visitId || form.action.match(/\/appointment\/(\d+)\//)?.[1];
-                actionCell.replaceChildren(createActionElement(currentStatus, visitId));
+                const patientName = getRowPatientName(row);
+                actionCell.replaceChildren(createActionElement(currentStatus, visitId, patientName));
               }
             }
 

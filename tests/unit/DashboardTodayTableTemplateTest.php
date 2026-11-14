@@ -185,4 +185,68 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         $this->assertSame(1, $scripts->length, 'studio-today-transitions.js script tag must be included.');
         $this->assertTrue($scripts->item(0)->hasAttribute('defer'), 'Script tag must have defer attribute.');
     }
+
+    public function testAccessiblePatientScopedLabelsAndScrollRegionParity(): void
+    {
+        [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'en');
+
+        // Verify scrollable region accessibility attributes
+        $scrollContainer = $xpath->query('//div[contains(@class,"visit-table-scroll")]');
+        $this->assertSame(1, $scrollContainer->length);
+        $this->assertSame('0', $scrollContainer->item(0)->getAttribute('tabindex'));
+        $this->assertSame('region', $scrollContainer->item(0)->getAttribute('role'));
+        $this->assertSame('appointments today', $scrollContainer->item(0)->getAttribute('aria-label'));
+
+        // Verify data-patient-name and scoped labels on all rows
+        $expected = [
+            '101' => ['patient' => 'Scheduled Patient', 'action' => 'button', 'text' => 'Arrival', 'label' => 'Arrival - Scheduled Patient'],
+            '102' => ['patient' => 'Confirmed Patient', 'action' => 'button', 'text' => 'Arrival', 'label' => 'Arrival - Confirmed Patient'],
+            '103' => ['patient' => 'Arrived Patient', 'action' => 'button', 'text' => 'Ready', 'label' => 'Ready - Arrived Patient'],
+            '104' => ['patient' => 'InChair Patient', 'action' => 'a', 'text' => 'View', 'label' => 'View - InChair Patient'],
+            '105' => ['patient' => 'Completed Patient', 'action' => 'a', 'text' => 'View', 'label' => 'View - Completed Patient'],
+        ];
+
+        foreach ($expected as $visitId => $exp) {
+            $row = $xpath->query('//tr[@data-visit-id="' . $visitId . '"]');
+            $this->assertSame(1, $row->length, "Row {$visitId} must exist");
+            $this->assertSame($exp['patient'], $row->item(0)->getAttribute('data-patient-name'));
+
+            if ($exp['action'] === 'button') {
+                $btn = $xpath->query('.//button[@type="submit"]', $row->item(0));
+                $this->assertSame(1, $btn->length);
+                $this->assertSame($exp['text'], trim($btn->item(0)->textContent));
+                $this->assertSame($exp['label'], $btn->item(0)->getAttribute('aria-label'));
+            } else {
+                $link = $xpath->query('.//td[contains(@class,"visit-action")]//a', $row->item(0));
+                $this->assertSame(1, $link->length);
+                $this->assertSame($exp['text'], trim($link->item(0)->textContent));
+                $this->assertSame($exp['label'], $link->item(0)->getAttribute('aria-label'));
+            }
+        }
+    }
+
+    public function testAccessiblePatientScopedLabelsInArabic(): void
+    {
+        [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'ar');
+
+        $scrollContainer = $xpath->query('//div[contains(@class,"visit-table-scroll")]');
+        $this->assertSame(1, $scrollContainer->length);
+        $this->assertSame('0', $scrollContainer->item(0)->getAttribute('tabindex'));
+        $this->assertSame('region', $scrollContainer->item(0)->getAttribute('role'));
+
+        // Check scheduled row in Arabic (arrival action)
+        $btn101 = $xpath->query('//tr[@data-visit-id="101"]//button[@type="submit"]');
+        $this->assertSame(1, $btn101->length);
+        $this->assertStringContainsString('Scheduled Patient', $btn101->item(0)->getAttribute('aria-label'));
+
+        // Check arrived row in Arabic (ready action)
+        $btn103 = $xpath->query('//tr[@data-visit-id="103"]//button[@type="submit"]');
+        $this->assertSame(1, $btn103->length);
+        $this->assertStringContainsString('Arrived Patient', $btn103->item(0)->getAttribute('aria-label'));
+
+        // Check completed row in Arabic (view action)
+        $link105 = $xpath->query('//tr[@data-visit-id="105"]//td[contains(@class,"visit-action")]//a');
+        $this->assertSame(1, $link105->length);
+        $this->assertStringContainsString('Completed Patient', $link105->item(0)->getAttribute('aria-label'));
+    }
 }

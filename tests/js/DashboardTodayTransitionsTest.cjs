@@ -262,22 +262,56 @@ function setupHarness(fetchHandler, options = {}) {
   tableScroll.appendChild(table);
   container.appendChild(tableScroll);
 
+  const patientName1 = options.patientName !== undefined ? options.patientName : 'Sarah Jenkins';
   const row = createElement('TR', {
     className: 'visit-entry',
-    dataset: { visitId: '42', stage: 'scheduled' }
+    dataset: { visitId: '42', stage: 'scheduled', patientName: patientName1 }
   });
+  const idCell1 = createElement('TD', { className: 'visit-identity' });
+  const idStrong1 = createElement('STRONG', { textContent: patientName1 });
+  idCell1.appendChild(idStrong1);
+  row.appendChild(idCell1);
   tbody.appendChild(row);
 
   let secondRow = null;
   let secondBtn = null;
+  let secondForm = null;
   if (options.addSecondRow) {
+    const patientName2 = options.secondPatientName !== undefined ? options.secondPatientName : 'Tariq Mansour';
     secondRow = createElement('TR', {
       className: 'visit-entry',
-      dataset: { visitId: '43', stage: 'scheduled' }
+      dataset: { visitId: '43', stage: 'scheduled', patientName: patientName2 }
     });
+    const idCell2 = createElement('TD', { className: 'visit-identity' });
+    const idStrong2 = createElement('STRONG', { textContent: patientName2 });
+    idCell2.appendChild(idStrong2);
+    secondRow.appendChild(idCell2);
+
+    const secondStatusCell = createElement('TD', { className: 'visit-status' });
+    const secondStatusBadge = createElement('SPAN', { className: 'status-badge status-scheduled' });
+    const secondStatusBadgeText = createElement('SPAN', { className: 'status-badge-text', textContent: 'Scheduled' });
+    secondStatusBadge.appendChild(secondStatusBadgeText);
+    secondStatusCell.appendChild(secondStatusBadge);
+    secondRow.appendChild(secondStatusCell);
+
     const secondActionCell = createElement('TD', { className: 'visit-action' });
-    secondBtn = createElement('BUTTON', { type: 'submit', textContent: 'Arrival' });
-    secondActionCell.appendChild(secondBtn);
+    const secondActionGroup = createElement('DIV', { className: 'visit-action-group' });
+    secondForm = createElement('FORM', {
+      method: 'POST',
+      action: '/appointment/43/transition',
+      dataset: { appointmentTransition: '1' }
+    });
+    const secondCsrf = createElement('INPUT', { type: 'hidden', name: 'csrf_test_name', value: 'token-initial-111' });
+    const secondStatus = createElement('INPUT', { type: 'hidden', name: 'status', value: 'arrived' });
+    const secondExpected = createElement('INPUT', { type: 'hidden', name: 'expected_status', value: 'scheduled' });
+    secondBtn = createElement('BUTTON', { type: 'submit', className: 'button primary transition-btn', textContent: 'Arrival' });
+    secondBtn.setAttribute('aria-label', 'Arrival - ' + patientName2);
+    secondForm.appendChild(secondCsrf);
+    secondForm.appendChild(secondStatus);
+    secondForm.appendChild(secondExpected);
+    secondForm.appendChild(secondBtn);
+    secondActionGroup.appendChild(secondForm);
+    secondActionCell.appendChild(secondActionGroup);
     secondRow.appendChild(secondActionCell);
     tbody.appendChild(secondRow);
   }
@@ -387,6 +421,7 @@ function setupHarness(fetchHandler, options = {}) {
     row,
     secondRow,
     secondBtn,
+    secondForm,
     container,
     visitFilter,
     form,
@@ -397,10 +432,11 @@ function setupHarness(fetchHandler, options = {}) {
     metaCsrfToken,
     csrfInput,
     getRefreshedToken: () => refreshedToken,
-    submitForm: () => {
+    submitForm: (targetBtn) => {
+      const btnToSubmit = targetBtn || button;
       let defaultPrevented = false;
       const event = {
-        target: button,
+        target: btnToSubmit,
         preventDefault: () => { defaultPrevented = true; }
       };
       const submitHandlers = eventListeners.get('submit') || [];
@@ -462,6 +498,9 @@ async function runTests() {
     assert.equal(nextStatus.value, 'ready');
     const nextExpected = nextForm.querySelector('input[name="expected_status"]');
     assert.equal(nextExpected.value, 'arrived');
+    const nextBtn = nextForm.querySelector('button[type="submit"]');
+    assert.ok(nextBtn);
+    assert.equal(nextBtn.getAttribute('aria-label'), 'Ready - Sarah Jenkins', 'Replacement Ready button must preserve patient-scoped aria-label');
   }
 
   // Test 2: HTTP 409 Conflict / Stale Status Handling (uses localized message, synchronizes actual stage)
@@ -498,6 +537,10 @@ async function runTests() {
     assert.equal(harness.row.dataset.stage, 'ready');
     assert.equal(harness.statusBadge.className, 'status-badge status-ready');
     assert.equal(harness.statusBadgeText.textContent, 'Ready');
+
+    const conflictAction = harness.actionCell.querySelector('button, a');
+    assert.ok(conflictAction, 'Replacement action element must exist after 409 sync');
+    assert.equal(conflictAction.getAttribute('aria-label'), 'View - Sarah Jenkins', 'Conflict replacement button must preserve patient-scoped aria-label');
   }
 
   // Test 3: HTTP 500 Failure Handling (No blind retry, localized statusError)
@@ -614,6 +657,7 @@ async function runTests() {
     const reviewLink = harness.actionCell.querySelector('a.button');
     assert.ok(reviewLink, 'Review link must be provided for reconciliation');
     assert.equal(reviewLink.textContent, 'View');
+    assert.equal(reviewLink.getAttribute('aria-label'), 'View - Sarah Jenkins', 'Uncertain review link must preserve patient-scoped aria-label');
     assert.equal(reviewLink._focused, true, 'Review action must receive focus');
   }
 
@@ -635,6 +679,50 @@ async function runTests() {
     const notice = harness.actionCell.querySelector('.visit-uncertain-notice');
     assert.ok(notice);
     assert.equal(notice.textContent, 'Cannot confirm change. Please review or refresh before another change.');
+  }
+
+  // Test 8: Multi-row regression test in EN and AR (preserves patient-scoped accessible names without cross-bleed)
+  {
+    const responses = {
+      '/appointment/42/transition': { success: true, status: 'arrived' },
+      '/appointment/43/transition': { success: true, status: 'ready' },
+    };
+
+    const harness = setupHarness(async (url) => {
+      const data = responses[url] || { success: true, status: 'arrived' };
+      return {
+        ok: true,
+        status: 200,
+        json: async () => data
+      };
+    }, {
+      addSecondRow: true,
+      patientName: 'Sarah Jenkins',
+      secondPatientName: 'طارق منصور'
+    });
+
+    // Initial check: SSR buttons have respective patient-scoped aria-labels
+    assert.equal(harness.button.textContent, 'Arrival');
+    assert.equal(harness.secondBtn.getAttribute('aria-label'), 'Arrival - طارق منصور');
+
+    // Submit row 1 (Sarah Jenkins)
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    // Submit row 2 (طارق منصور)
+    harness.submitForm(harness.secondBtn);
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    // Verify row 1 replaced button has 'Ready - Sarah Jenkins'
+    const row1Btn = harness.actionCell.querySelector('button[type="submit"]');
+    assert.ok(row1Btn);
+    assert.equal(row1Btn.getAttribute('aria-label'), 'Ready - Sarah Jenkins', 'Row 1 replacement button must retain Row 1 patient name');
+
+    // Verify row 2 replaced link has 'View - طارق منصور'
+    const row2ActionCell = harness.secondRow.querySelector('.visit-action');
+    const row2Link = row2ActionCell.querySelector('a');
+    assert.ok(row2Link);
+    assert.equal(row2Link.getAttribute('aria-label'), 'View - طارق منصور', 'Row 2 replacement link must retain Row 2 Arabic patient name');
   }
 
   console.log('All DashboardTodayTransitionsTest unit tests passed successfully.');
