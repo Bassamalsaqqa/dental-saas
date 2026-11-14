@@ -21,9 +21,9 @@ This is the authoritative active document map for Denta+. Read only the document
 
 ## Current release and maintenance
 
-PR #28 was deployed on 2026-11-08 at installed commit `1b17d06587a07a473f714e296af27f977134208d` (tree `257f1661717e898a430c5bec0d7128af1568ead1`). Repository HEAD at audit baseline (2026-11-13) is `da31f1cf` on `release/production-20261017` (adds offline developer sandbox plan and fail-closed preflight checks). PR27 (`5b7c0688`) is the immediate source-recovery baseline and PR22 the schema-history baseline; PR28 applied no migrations. The GitHub default and deployment branch is `release/production-20261017`; historical `main` is not current application source.
+Production is installed commit `bc5dbaa6f67dd60f8a074496180a4421facd2ffb` (tree `8d9a18636a18f9634168f5ae100b3b8d8105a481`) with maintenance OFF. The immediate source-recovery baseline is `1b17d06587a07a473f714e296af27f977134208d` (tree `257f1661717e898a430c5bec0d7128af1568ead1`, PR #28). Repository HEAD on `release/production-20261017` contains docs-only updates following candidate `bc5dbaa6`. The GitHub default and deployment branch is `release/production-20261017`; historical `main` is not current application source.
 
-See `PROJECT_STATE.md` for the exact release, two-migration inventory, preservation results, retired rehearsal environments, and remaining limitations. Optional features remain OFF. Current Owner explicitly authorizes eventual commit/push/deploy; actual deployment execution remains bound to reviewed candidate and runbook preflight gates.
+See `PROJECT_STATE.md` for the exact release, two-migration inventory, preservation results, retired rehearsal environments, parent verified live state, and remaining limitations. Optional features remain OFF. Current Owner explicitly authorizes eventual commit/push/deploy; actual deployment execution remains bound to reviewed candidate and runbook preflight gates.
 
 ## Module State
 
