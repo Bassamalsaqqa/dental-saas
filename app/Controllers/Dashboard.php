@@ -43,6 +43,40 @@ class Dashboard extends BaseController
                 ? $this->appointmentModel->getAppointmentsByDateByClinic($clinicId, date('Y-m-d'))
                 : [];
 
+            if ($todayAppointments !== []) {
+                $todayAppointmentIds = array_values(array_filter(array_map(
+                    static fn(array $apt): int => (int) ($apt['id'] ?? 0),
+                    $todayAppointments
+                )));
+
+                $associatedExaminations = [];
+                if ($todayAppointmentIds !== []) {
+                    try {
+                        $associatedExaminations = $this->examinationModel->getAssociatedByAppointmentIdsForClinic((int) $clinicId, $todayAppointmentIds);
+                    } catch (\Throwable $e) {
+                        log_message('warning', 'Failed to batch load associated examinations for dashboard: ' . $e->getMessage());
+                        $associatedExaminations = [];
+                    }
+                }
+
+                $encounterResolver = new \App\Services\ClinicalEncounterActionResolver();
+                $canViewExams = has_permission('examinations', 'view');
+                $canCreateExams = has_permission('examinations', 'create');
+
+                foreach ($todayAppointments as &$appointment) {
+                    $aptId = (int) ($appointment['id'] ?? 0);
+                    $appointment['encounter_action'] = $encounterResolver->resolve(
+                        (int) $clinicId,
+                        $appointment,
+                        $associatedExaminations[$aptId] ?? [],
+                        $canViewExams,
+                        $canCreateExams,
+                        'dashboard'
+                    );
+                }
+                unset($appointment);
+            }
+
             $data = [
                 'title' => 'Dental Management Dashboard',
                 'pageTitle' => 'Dashboard',

@@ -5,7 +5,7 @@ return [
     'historyRecordedHealthyTeeth' => 'Explicitly recorded healthy teeth',
 
     'cbDraftConflict' => 'This draft changed, or its item submission was incomplete. No changes were saved. Reopen the draft and review every plan item before saving.',
-'today'=>'Today', 'overview'=>'Clinic overview', 'subtitle'=>'Your day, with a clear next step.',
+'today'=>'Today', 'overview'=>'Clinic overview', 'clinicWork'=>'Clinic work', 'subtitle'=>'Your day, with a clear next step.',
 'workspace'=>'Workspace','clinical'=>'Patient care','manage'=>'Management','search'=>'Find a patient',
 'searchShort'=>'Search patients…','searchHint'=>'Search by name or phone.','searchEmpty'=>'No matching patients. Try another name or phone number.',
 'searchStart'=>'Find the right record, faster.','searchFail'=>'Search is unavailable. Open the patient registry to try again.',

@@ -162,6 +162,18 @@ if ($scenario === 'all_stages') {
         [
             'id' => 104,
             'patient_id' => 504,
+            'first_name' => 'Ready',
+            'last_name' => 'Patient',
+            'status' => 'ready',
+            'appointment_time' => '11:30:00',
+            'appointment_date' => date('Y-m-d'),
+            'duration' => 30,
+            'chair_name' => 'Chair 1',
+            'appointment_type' => 'consultation',
+        ],
+        [
+            'id' => 105,
+            'patient_id' => 505,
             'first_name' => 'InChair',
             'last_name' => 'Patient',
             'status' => 'in_chair',
@@ -170,10 +182,18 @@ if ($scenario === 'all_stages') {
             'duration' => 60,
             'chair_name' => 'Chair 1',
             'appointment_type' => 'treatment',
+            'encounter_action' => [
+                'type' => 'view',
+                'url' => base_url('examination/801?return_to=dashboard'),
+                'label_key' => 'appointmentOpenExamination',
+                'default_label' => 'Open examination',
+                'count' => 1,
+                'examination_id' => 801,
+            ],
         ],
         [
-            'id' => 105,
-            'patient_id' => 505,
+            'id' => 106,
+            'patient_id' => 506,
             'first_name' => 'Completed',
             'last_name' => 'Patient',
             'status' => 'completed',
@@ -182,6 +202,52 @@ if ($scenario === 'all_stages') {
             'duration' => 30,
             'chair_name' => 'Chair 2',
             'appointment_type' => 'checkup',
+        ],
+    ];
+} elseif ($scenario === 'encounter_multiple') {
+    $visits = [
+        [
+            'id' => 105,
+            'patient_id' => 505,
+            'first_name' => 'InChair',
+            'last_name' => 'Patient',
+            'status' => 'in_chair',
+            'appointment_time' => '12:00:00',
+            'appointment_date' => date('Y-m-d'),
+            'duration' => 60,
+            'chair_name' => 'Chair 1',
+            'appointment_type' => 'treatment',
+            'encounter_action' => [
+                'type' => 'workspace',
+                'url' => base_url('patient/505?tab=examinations&return_to=dashboard'),
+                'label_key' => 'appointmentPatientExaminations',
+                'default_label' => 'Patient examinations',
+                'count' => 2,
+                'examination_id' => null,
+            ],
+        ],
+    ];
+} elseif ($scenario === 'encounter_none') {
+    $visits = [
+        [
+            'id' => 105,
+            'patient_id' => 505,
+            'first_name' => 'InChair',
+            'last_name' => 'Patient',
+            'status' => 'in_chair',
+            'appointment_time' => '12:00:00',
+            'appointment_date' => date('Y-m-d'),
+            'duration' => 60,
+            'chair_name' => 'Chair 1',
+            'appointment_type' => 'treatment',
+            'encounter_action' => [
+                'type' => 'create',
+                'url' => base_url('examination/create?patient_id=505&appointment_id=105&return_to=dashboard'),
+                'label_key' => 'appointmentStartExamination',
+                'default_label' => 'Start examination',
+                'count' => 0,
+                'examination_id' => null,
+            ],
         ],
     ];
 } elseif ($scenario === 'empty') {

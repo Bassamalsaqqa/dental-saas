@@ -22,6 +22,45 @@ class ExaminationModel extends TenantAwareModel
         return $counts;
     }
 
+    /**
+     * Page-scoped batch loader for examinations explicitly associated with appointments for a clinic.
+     * Prevents N+1 queries while enforcing clinic tenant scope.
+     *
+     * @param int $clinicId
+     * @param array<int> $appointmentIds
+     * @return array<int, array<int, array>> Map of appointment_id => list of associated examination records
+     */
+    public function getAssociatedByAppointmentIdsForClinic(int $clinicId, array $appointmentIds): array
+    {
+        if ($clinicId <= 0) {
+            throw new \InvalidArgumentException('Active clinic required.');
+        }
+        $ids = array_values(array_unique(array_filter(array_map('intval', $appointmentIds), static fn(int $id): bool => $id > 0)));
+        if ($ids === []) {
+            return [];
+        }
+
+        $map = array_fill_keys($ids, []);
+        foreach (array_chunk($ids, 500) as $chunk) {
+            $rows = $this->db->table('examinations')
+                ->select('id, examination_id, clinic_id, patient_id, appointment_id, status, examination_date, examination_type')
+                ->where('clinic_id', $clinicId)
+                ->whereIn('appointment_id', $chunk)
+                ->orderBy('id', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            foreach ($rows as $row) {
+                $aptId = (int) ($row['appointment_id'] ?? 0);
+                if (isset($map[$aptId])) {
+                    $map[$aptId][] = $row;
+                }
+            }
+        }
+
+        return $map;
+    }
+
     protected $table = 'examinations';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

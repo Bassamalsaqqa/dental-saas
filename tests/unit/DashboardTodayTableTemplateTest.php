@@ -11,12 +11,18 @@ use DOMXPath;
 /**
  * DB-Free template test for dashboard/index.php
  *
- * Verifies Reception Today table enhancements:
- * - Subtitle removal per Owner instruction
+ * Verifies Reception and Clinical Handoff enhancements:
+ * - Main label 'Clinic work' / 'عمل العيادة', no subtitle/tagline/secondary header/KPI
+ * - Single accessible scroll region carrying visit-table-scroll and grid-scroll classes
  * - 7th column Actions header with 7-column grid layout
- * - Arrival and Ready action forms gated by appointments.edit
- * - View action for later stages and non-permitted roles
+ * - Arrival form for scheduled/confirmed
+ * - Ready form for arrived
+ * - Start visit form for ready ('بدء الزيارة / Start visit')
+ * - In-chair actions: direct clinical encounter link + Ready for reception form ('جاهز للاستقبال / Ready for reception')
+ * - Direct clinical encounter action variations (single, multiple, none)
+ * - View action for terminal stages and non-permitted roles
  * - No nested buttons inside anchors
+ * - Patient-scoped aria-labels across all interactive controls in EN and AR
  * - today-transitions-config and studio-today-transitions.js inclusion
  */
 final class DashboardTodayTableTemplateTest extends CIUnitTestCase
@@ -40,9 +46,13 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         return [$html, $dom, $xpath];
     }
 
-    public function testSubtitleIsRemovedFromHeader(): void
+    public function testMainLabelIsClinicWorkWithoutSubtitleInEnglish(): void
     {
         [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'en');
+
+        $headingNodes = $xpath->query('//div[contains(@class,"page-title-row")]//h1');
+        $this->assertSame(1, $headingNodes->length, 'Page title row must contain exactly one h1.');
+        $this->assertStringContainsString('Clinic work', $headingNodes->item(0)->textContent);
 
         $this->assertStringNotContainsString('Studio.subtitle', $html);
         $this->assertStringNotContainsString('Streamlined patient flow', $html);
@@ -52,9 +62,13 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         $this->assertSame(0, $subtitleNodes->length, 'Page title row must not contain any subtitle paragraph.');
     }
 
-    public function testSubtitleIsRemovedFromHeaderInArabic(): void
+    public function testMainLabelIsClinicWorkWithoutSubtitleInArabic(): void
     {
         [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'ar');
+
+        $headingNodes = $xpath->query('//div[contains(@class,"page-title-row")]//h1');
+        $this->assertSame(1, $headingNodes->length, 'Page title row must contain exactly one h1.');
+        $this->assertStringContainsString('عمل العيادة', $headingNodes->item(0)->textContent);
 
         $this->assertStringNotContainsString('Studio.subtitle', $html);
         $this->assertStringNotContainsString('Streamlined patient flow', $html);
@@ -62,6 +76,20 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
 
         $subtitleNodes = $xpath->query('//div[contains(@class,"page-title-row")]//p');
         $this->assertSame(0, $subtitleNodes->length, 'Page title row in Arabic must not contain any subtitle paragraph.');
+    }
+
+    public function testSingleScrollContainerWithGridScrollClass(): void
+    {
+        [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'en');
+
+        $scrollContainers = $xpath->query('//div[contains(@class,"visit-table-scroll")]');
+        $this->assertSame(1, $scrollContainers->length, 'Exactly one visit-table-scroll container must exist.');
+
+        $container = $scrollContainers->item(0);
+        $class = $container->getAttribute('class');
+        $this->assertStringContainsString('grid-scroll', $class, 'visit-table-scroll must also carry grid-scroll class to avoid duplicate wrappers.');
+        $this->assertSame('0', $container->getAttribute('tabindex'));
+        $this->assertSame('region', $container->getAttribute('role'));
     }
 
     public function testTableHasSevenColumnsWithActionsHeader(): void
@@ -128,21 +156,90 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         $this->assertSame('Ready', trim($button->item(0)->textContent));
     }
 
-    public function testViewDetailRenderedForLaterStages(): void
+    public function testStartVisitActionRenderedForReadyWhenPermitted(): void
     {
         [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'en');
 
-        // InChair (id=104) and Completed (id=105) must not have transition forms
-        $forms = $xpath->query('//tr[@data-visit-id="104" or @data-visit-id="105"]//form');
+        // Check ready row Start visit form (id=104)
+        $form = $xpath->query('//tr[@data-visit-id="104"]//form[@data-appointment-transition]');
+        $this->assertSame(1, $form->length, 'Ready row must render Start visit transition form.');
+        $statusInput = $xpath->query('.//input[@name="status"]', $form->item(0));
+        $this->assertSame('in_chair', $statusInput->item(0)->getAttribute('value'));
+        $expectedInput = $xpath->query('.//input[@name="expected_status"]', $form->item(0));
+        $this->assertSame('ready', $expectedInput->item(0)->getAttribute('value'));
+
+        $button = $xpath->query('.//button[@type="submit"]', $form->item(0));
+        $this->assertSame(1, $button->length);
+        $this->assertSame('Start visit', trim($button->item(0)->textContent));
+        $this->assertSame('Start visit - Ready Patient', $button->item(0)->getAttribute('aria-label'));
+    }
+
+    public function testInChairRendersEncounterLinkAndReadyForReceptionForm(): void
+    {
+        [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'en');
+
+        $row105 = $xpath->query('//tr[@data-visit-id="105"]');
+        $this->assertSame(1, $row105->length);
+
+        // Encounter link
+        $encounterLink = $xpath->query('.//td[contains(@class,"visit-action")]//a[contains(@class,"encounter-btn")]', $row105->item(0));
+        $this->assertSame(1, $encounterLink->length, 'In-chair row must render encounter action link.');
+        $this->assertSame('Open examination', trim($encounterLink->item(0)->textContent));
+        $this->assertStringContainsString('examination/801', $encounterLink->item(0)->getAttribute('href'));
+        $this->assertStringContainsString('return_to=dashboard', $encounterLink->item(0)->getAttribute('href'));
+        $this->assertSame('Open examination - InChair Patient', $encounterLink->item(0)->getAttribute('aria-label'));
+
+        // Transition form for checkout (Ready for reception)
+        $form = $xpath->query('.//td[contains(@class,"visit-action")]//form[@data-appointment-transition]', $row105->item(0));
+        $this->assertSame(1, $form->length, 'In-chair row must render Ready for reception transition form.');
+        $statusInput = $xpath->query('.//input[@name="status"]', $form->item(0));
+        $this->assertSame('checkout', $statusInput->item(0)->getAttribute('value'));
+        $expectedInput = $xpath->query('.//input[@name="expected_status"]', $form->item(0));
+        $this->assertSame('in_chair', $expectedInput->item(0)->getAttribute('value'));
+
+        $btn = $xpath->query('.//button[@type="submit"]', $form->item(0));
+        $this->assertSame(1, $btn->length);
+        $this->assertSame('Ready for reception', trim($btn->item(0)->textContent));
+        $this->assertSame('Ready for reception - InChair Patient', $btn->item(0)->getAttribute('aria-label'));
+    }
+
+    public function testEncounterMultipleRoutesToPatientWorkspace(): void
+    {
+        [$html, $dom, $xpath] = $this->renderDashboardView('encounter_multiple', true, 'en');
+
+        $encounterLink = $xpath->query('//tr[@data-visit-id="105"]//a[contains(@class,"encounter-btn")]');
+        $this->assertSame(1, $encounterLink->length);
+        $this->assertSame('Patient examinations', trim($encounterLink->item(0)->textContent));
+        $this->assertStringContainsString('patient/505', $encounterLink->item(0)->getAttribute('href'));
+        $this->assertStringContainsString('tab=examinations', $encounterLink->item(0)->getAttribute('href'));
+        $this->assertSame('Patient examinations - InChair Patient', $encounterLink->item(0)->getAttribute('aria-label'));
+    }
+
+    public function testEncounterNoneRoutesToExaminationCreate(): void
+    {
+        [$html, $dom, $xpath] = $this->renderDashboardView('encounter_none', true, 'en');
+
+        $encounterLink = $xpath->query('//tr[@data-visit-id="105"]//a[contains(@class,"encounter-btn")]');
+        $this->assertSame(1, $encounterLink->length);
+        $this->assertSame('Start examination', trim($encounterLink->item(0)->textContent));
+        $this->assertStringContainsString('examination/create', $encounterLink->item(0)->getAttribute('href'));
+        $this->assertStringContainsString('patient_id=505', $encounterLink->item(0)->getAttribute('href'));
+        $this->assertStringContainsString('appointment_id=105', $encounterLink->item(0)->getAttribute('href'));
+        $this->assertSame('Start examination - InChair Patient', $encounterLink->item(0)->getAttribute('aria-label'));
+    }
+
+    public function testViewDetailRenderedForCompletedStage(): void
+    {
+        [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', true, 'en');
+
+        // Completed (id=106) must not have transition forms
+        $forms = $xpath->query('//tr[@data-visit-id="106"]//form');
         $this->assertSame(0, $forms->length);
 
-        // Both rows must have View links
-        $links = $xpath->query('//tr[@data-visit-id="104" or @data-visit-id="105"]//td[contains(@class,"visit-action")]//a');
-        $this->assertSame(2, $links->length);
-        foreach ($links as $link) {
-            $this->assertSame('View', trim($link->textContent));
-            $this->assertStringContainsString('appointment/', $link->getAttribute('href'));
-        }
+        $link = $xpath->query('//tr[@data-visit-id="106"]//td[contains(@class,"visit-action")]//a');
+        $this->assertSame(1, $link->length);
+        $this->assertSame('View', trim($link->item(0)->textContent));
+        $this->assertStringContainsString('appointment/106', $link->item(0)->getAttribute('href'));
     }
 
     public function testWithoutEditPermissionAllRowsRenderViewOnly(): void
@@ -153,7 +250,7 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         $this->assertSame(0, $forms->length, 'No transition forms should render without appointments.edit permission.');
 
         $actionLinks = $xpath->query('//table[contains(@class,"visit-table")]//td[contains(@class,"visit-action")]//a');
-        $this->assertSame(5, $actionLinks->length);
+        $this->assertSame(6, $actionLinks->length);
         foreach ($actionLinks as $link) {
             $this->assertSame('View', trim($link->textContent));
         }
@@ -178,6 +275,8 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         $this->assertSame(1, $configEl->length, '#today-transitions-config element must exist.');
         $this->assertTrue($configEl->item(0)->hasAttribute('data-action-arrival'));
         $this->assertTrue($configEl->item(0)->hasAttribute('data-action-ready'));
+        $this->assertTrue($configEl->item(0)->hasAttribute('data-action-start-visit'));
+        $this->assertTrue($configEl->item(0)->hasAttribute('data-action-ready-for-reception'));
         $this->assertTrue($configEl->item(0)->hasAttribute('data-action-view'));
         $this->assertSame('1', $configEl->item(0)->getAttribute('data-can-edit'));
 
@@ -202,8 +301,8 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
             '101' => ['patient' => 'Scheduled Patient', 'action' => 'button', 'text' => 'Arrival', 'label' => 'Arrival - Scheduled Patient'],
             '102' => ['patient' => 'Confirmed Patient', 'action' => 'button', 'text' => 'Arrival', 'label' => 'Arrival - Confirmed Patient'],
             '103' => ['patient' => 'Arrived Patient', 'action' => 'button', 'text' => 'Ready', 'label' => 'Ready - Arrived Patient'],
-            '104' => ['patient' => 'InChair Patient', 'action' => 'a', 'text' => 'View', 'label' => 'View - InChair Patient'],
-            '105' => ['patient' => 'Completed Patient', 'action' => 'a', 'text' => 'View', 'label' => 'View - Completed Patient'],
+            '104' => ['patient' => 'Ready Patient', 'action' => 'button', 'text' => 'Start visit', 'label' => 'Start visit - Ready Patient'],
+            '106' => ['patient' => 'Completed Patient', 'action' => 'a', 'text' => 'View', 'label' => 'View - Completed Patient'],
         ];
 
         foreach ($expected as $visitId => $exp) {
@@ -244,9 +343,25 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         $this->assertSame(1, $btn103->length);
         $this->assertStringContainsString('Arrived Patient', $btn103->item(0)->getAttribute('aria-label'));
 
+        // Check ready row in Arabic (start visit action)
+        $btn104 = $xpath->query('//tr[@data-visit-id="104"]//button[@type="submit"]');
+        $this->assertSame(1, $btn104->length);
+        $this->assertSame('بدء الزيارة', trim($btn104->item(0)->textContent));
+        $this->assertStringContainsString('Ready Patient', $btn104->item(0)->getAttribute('aria-label'));
+
+        // Check in_chair row in Arabic (encounter action + ready for reception)
+        $row105 = $xpath->query('//tr[@data-visit-id="105"]');
+        $encounter105 = $xpath->query('.//a[contains(@class,"encounter-btn")]', $row105->item(0));
+        $this->assertSame(1, $encounter105->length);
+        $this->assertSame('فتح الفحص', trim($encounter105->item(0)->textContent));
+
+        $btn105 = $xpath->query('.//button[@type="submit"]', $row105->item(0));
+        $this->assertSame(1, $btn105->length);
+        $this->assertSame('جاهز للاستقبال', trim($btn105->item(0)->textContent));
+
         // Check completed row in Arabic (view action)
-        $link105 = $xpath->query('//tr[@data-visit-id="105"]//td[contains(@class,"visit-action")]//a');
-        $this->assertSame(1, $link105->length);
-        $this->assertStringContainsString('Completed Patient', $link105->item(0)->getAttribute('aria-label'));
+        $link106 = $xpath->query('//tr[@data-visit-id="106"]//td[contains(@class,"visit-action")]//a');
+        $this->assertSame(1, $link106->length);
+        $this->assertStringContainsString('Completed Patient', $link106->item(0)->getAttribute('aria-label'));
     }
 }

@@ -99,7 +99,7 @@ class Examination extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException($e->getMessage());
         }
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations', 'dashboard']);
         if (!$returnTo && !empty($selectedPatient['id'])) {
             $returnTo = 'patient/' . (int) $selectedPatient['id'];
         }
@@ -246,7 +246,7 @@ class Examination extends BaseController
 
             $returnTo = $this->resolveCreateReturnTo((int) $examinationData['patient_id'], $this->request->getPost('return_to'));
             if ($returnTo) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'examinations'])
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'examinations', 'dashboard'])
                     ->with('success', 'Examination created successfully');
             }
 
@@ -347,7 +347,7 @@ class Examination extends BaseController
             'selected_appointment_patient' => $selectedTreatmentPatient,
             'appointment_chair_options' => service('settings')->getBookingChairNames(),
             'appointment_type_prefill' => 'follow_up',
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations']),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations', 'dashboard']),
             'clinical_note_state' => $this->noteGovernanceService->state((int) $clinicId, (int) $id),
         ];
 
@@ -356,16 +356,20 @@ class Examination extends BaseController
 
     private function resolveCreateReturnTo(int $patientId, $returnToRaw): ?string
     {
-        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination', 'examinations']);
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination', 'examinations', 'dashboard']);
         if (!$returnTo) {
             return null;
         }
 
-        if (preg_match('#^(patients|examination|examinations)(\\?|$)#', $returnTo)) {
+        if (preg_match('#^(dashboard|patients|examination|examinations)(\?|$)#', $returnTo)) {
             return $returnTo;
         }
 
-        if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
+        if (preg_match('#^patient/(\d+)$#', $returnTo, $matches)) {
+            return ((int) $matches[1] === $patientId) ? $returnTo : null;
+        }
+
+        if (preg_match('#^patient/(\d+)\?tab=([a-zA-Z0-9_\-]+)$#', $returnTo, $matches)) {
             return ((int) $matches[1] === $patientId) ? $returnTo : null;
         }
 
@@ -404,7 +408,7 @@ class Examination extends BaseController
             'selected_patient' => $patient,
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations', 'dashboard'])
         ];
 
         return $this->view('examination/edit', $data);
@@ -532,23 +536,23 @@ class Examination extends BaseController
             }
         }
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations', 'dashboard']);
             if ($this->request->getPost('after_save') === 'odontogram') {
                 return $this->redirectAfterWorkflow(
                     'odontogram/' . (int) $examinationData['patient_id'] . '?examination_id=' . $id . '&return_to=examination/' . $id,
-                    ['patient', 'patients', 'examination', 'examinations'],
+                    ['patient', 'patients', 'examination', 'examinations', 'dashboard'],
                     null,
                     false
                 )
                     ->with('success', 'Examination updated successfully');
             }
             if ($returnTo) {
-                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'examinations'])
+                return $this->redirectAfterWorkflow($returnTo, ['patient', 'patients', 'examination', 'examinations', 'dashboard'])
                     ->with('success', 'Examination updated successfully');
             }
             
-            return $this->redirectAfterWorkflow('examination/' . $id, ['patient', 'patients', 'examination', 'examinations'])
-                ->with('success', 'Examination updated successfully');
+            return $this->redirectAfterWorkflow('examination/' . $id, ['patient', 'patients', 'examination', 'examinations', 'dashboard'])
+                    ->with('success', 'Examination updated successfully');
     }
 
     public function updateToothCondition()
@@ -687,7 +691,7 @@ class Examination extends BaseController
                 return $this->response->setJSON(['success' => true, 'message' => 'Examination completed successfully']);
             }
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations', 'dashboard']);
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Examination completed successfully');
             }

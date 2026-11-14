@@ -13,6 +13,8 @@
     const config = {
       actionArrival: configEl.dataset.actionArrival || 'Arrival',
       actionReady: configEl.dataset.actionReady || 'Ready',
+      actionStartVisit: configEl.dataset.actionStartVisit || 'Start visit',
+      actionReadyForReception: configEl.dataset.actionReadyForReception || 'Ready for reception',
       actionView: configEl.dataset.actionView || 'View',
       statusUpdating: configEl.dataset.statusUpdating || 'Updating...',
       statusStale: configEl.dataset.statusStale || 'The appointment status has changed. Please review the updated status.',
@@ -101,7 +103,7 @@
       return viewLink;
     }
 
-    function createActionElement(stage, visitId, patientName) {
+    function createActionElement(stage, visitId, patientName, row) {
       const group = document.createElement('div');
       group.className = 'visit-action-group';
 
@@ -112,6 +114,27 @@
         }
         if (stage === 'arrived') {
           group.appendChild(buildTransitionForm(visitId, 'ready', 'arrived', 'button secondary transition-btn', config.actionReady, patientName));
+          return group;
+        }
+        if (stage === 'ready') {
+          group.appendChild(buildTransitionForm(visitId, 'in_chair', 'ready', 'button primary transition-btn', config.actionStartVisit, patientName));
+          return group;
+        }
+        if (stage === 'in_chair') {
+          const encounterUrl = row?.dataset?.encounterUrl || '';
+          const encounterLabel = row?.dataset?.encounterLabel || '';
+          const encounterAriaLabel = row?.dataset?.encounterAriaLabel || '';
+
+          if (encounterUrl && encounterLabel) {
+            const encounterLink = document.createElement('a');
+            encounterLink.className = 'button secondary encounter-btn';
+            encounterLink.href = encounterUrl;
+            encounterLink.textContent = encounterLabel;
+            encounterLink.setAttribute('aria-label', encounterAriaLabel || getScopedAriaLabel(encounterLabel, patientName));
+            group.appendChild(encounterLink);
+          }
+
+          group.appendChild(buildTransitionForm(visitId, 'checkout', 'in_chair', 'button primary transition-btn', config.actionReadyForReception, patientName));
           return group;
         }
       }
@@ -246,7 +269,7 @@
             if (actionCell) {
               const visitId = row.dataset.visitId || form.action.match(/\/appointment\/(\d+)\//)?.[1];
               const patientName = getRowPatientName(row);
-              actionCell.replaceChildren(createActionElement(confirmedStatus, visitId, patientName));
+              actionCell.replaceChildren(createActionElement(confirmedStatus, visitId, patientName, row));
             }
 
             const isHidden = checkActiveFilter(row, confirmedStatus);
@@ -274,7 +297,7 @@
               if (actionCell) {
                 const visitId = row.dataset.visitId || form.action.match(/\/appointment\/(\d+)\//)?.[1];
                 const patientName = getRowPatientName(row);
-                actionCell.replaceChildren(createActionElement(currentStatus, visitId, patientName));
+                actionCell.replaceChildren(createActionElement(currentStatus, visitId, patientName, row));
               }
             }
 

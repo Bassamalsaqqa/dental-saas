@@ -185,7 +185,7 @@ function querySelectorAll(root, selector) {
     if (sel === 'form[data-appointment-transition]') {
       return el.tagName === 'FORM' && ('appointmentTransition' in el.dataset || el.hasAttribute('data-appointment-transition'));
     }
-    if (sel === 'button[type="submit"]') {
+    if (sel === 'button[type="submit"]' || sel === 'form button[type="submit"]') {
       return el.tagName === 'BUTTON' && el.type === 'submit';
     }
     if (sel === 'input[name="csrf_test_name"]') {
@@ -225,6 +225,8 @@ function setupHarness(fetchHandler, options = {}) {
     dataset: {
       actionArrival: 'Arrival',
       actionReady: 'Ready',
+      actionStartVisit: 'Start visit',
+      actionReadyForReception: 'Ready for reception',
       actionView: 'View',
       statusUpdating: 'Updating...',
       statusStale: 'The appointment status has changed. Please review the updated status.',
@@ -263,9 +265,20 @@ function setupHarness(fetchHandler, options = {}) {
   container.appendChild(tableScroll);
 
   const patientName1 = options.patientName !== undefined ? options.patientName : 'Sarah Jenkins';
+  const initialStage = options.initialStage || 'scheduled';
+  const initialTargetStatus = options.initialTargetStatus || 'arrived';
+  const initialButtonText = options.initialButtonText || 'Arrival';
+
   const row = createElement('TR', {
     className: 'visit-entry',
-    dataset: { visitId: '42', stage: 'scheduled', patientName: patientName1 }
+    dataset: {
+      visitId: '42',
+      stage: initialStage,
+      patientName: patientName1,
+      encounterUrl: options.encounterUrl !== undefined ? options.encounterUrl : '/examination/801?return_to=dashboard',
+      encounterLabel: options.encounterLabel !== undefined ? options.encounterLabel : 'Open examination',
+      encounterAriaLabel: options.encounterAriaLabel !== undefined ? options.encounterAriaLabel : ('Open examination - ' + patientName1),
+    }
   });
   const idCell1 = createElement('TD', { className: 'visit-identity' });
   const idStrong1 = createElement('STRONG', { textContent: patientName1 });
@@ -332,13 +345,14 @@ function setupHarness(fetchHandler, options = {}) {
   });
 
   const csrfInput = createElement('INPUT', { type: 'hidden', name: 'csrf_test_name', value: 'token-initial-111' });
-  const statusInput = createElement('INPUT', { type: 'hidden', name: 'status', value: 'arrived' });
-  const expectedInput = createElement('INPUT', { type: 'hidden', name: 'expected_status', value: 'scheduled' });
+  const statusInput = createElement('INPUT', { type: 'hidden', name: 'status', value: initialTargetStatus });
+  const expectedInput = createElement('INPUT', { type: 'hidden', name: 'expected_status', value: initialStage });
   const button = createElement('BUTTON', {
     type: 'submit',
     className: 'button primary transition-btn',
-    textContent: 'Arrival'
+    textContent: initialButtonText
   });
+  button.setAttribute('aria-label', initialButtonText + ' - ' + patientName1);
 
   form.appendChild(csrfInput);
   form.appendChild(statusInput);
@@ -540,7 +554,7 @@ async function runTests() {
 
     const conflictAction = harness.actionCell.querySelector('button, a');
     assert.ok(conflictAction, 'Replacement action element must exist after 409 sync');
-    assert.equal(conflictAction.getAttribute('aria-label'), 'View - Sarah Jenkins', 'Conflict replacement button must preserve patient-scoped aria-label');
+    assert.equal(conflictAction.getAttribute('aria-label'), 'Start visit - Sarah Jenkins', 'Conflict replacement button must preserve patient-scoped aria-label');
   }
 
   // Test 3: HTTP 500 Failure Handling (No blind retry, localized statusError)
@@ -718,11 +732,123 @@ async function runTests() {
     assert.ok(row1Btn);
     assert.equal(row1Btn.getAttribute('aria-label'), 'Ready - Sarah Jenkins', 'Row 1 replacement button must retain Row 1 patient name');
 
-    // Verify row 2 replaced link has 'View - طارق منصور'
+    // Verify row 2 replaced button has 'Start visit - طارق منصور'
     const row2ActionCell = harness.secondRow.querySelector('.visit-action');
-    const row2Link = row2ActionCell.querySelector('a');
-    assert.ok(row2Link);
-    assert.equal(row2Link.getAttribute('aria-label'), 'View - طارق منصور', 'Row 2 replacement link must retain Row 2 Arabic patient name');
+    const row2Btn = row2ActionCell.querySelector('button[type="submit"]');
+    assert.ok(row2Btn);
+    assert.equal(row2Btn.getAttribute('aria-label'), 'Start visit - طارق منصور', 'Row 2 replacement button must retain Row 2 Arabic patient name');
+  }
+
+  // Test 9: Ready -> In-chair -> Checkout transitions with clinical encounter action link
+  {
+    let step = 1;
+    const harness = setupHarness(async () => {
+      if (step === 1) {
+        step = 2;
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            success: true,
+            status: 'in_chair',
+            message: 'Visit stage updated',
+            csrf_token: 'token-step2-222'
+          })
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          status: 'checkout',
+          message: 'Visit stage updated',
+          csrf_token: 'token-step3-333'
+        })
+      };
+    }, {
+      initialStage: 'ready',
+      initialTargetStatus: 'in_chair',
+      initialButtonText: 'Start visit',
+      patientName: 'Maya Haddad',
+      encounterUrl: '/examination/777?return_to=dashboard',
+      encounterLabel: 'Open examination',
+      encounterAriaLabel: 'Open examination - Maya Haddad',
+    });
+
+    assert.equal(harness.button.textContent, 'Start visit');
+    assert.equal(harness.button.getAttribute('aria-label'), 'Start visit - Maya Haddad');
+
+    // Submit 'Start visit' -> transitions to in_chair
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    // Confirm badge updated to In chair
+    assert.equal(harness.row.dataset.stage, 'in_chair');
+
+    // Confirm both encounter link and Ready for reception button are rendered
+    const encounterLink = harness.actionCell.querySelector('a.encounter-btn');
+    assert.ok(encounterLink, 'Encounter action link must be rendered for in_chair visit');
+    assert.equal(encounterLink.href, '/examination/777?return_to=dashboard');
+    assert.equal(encounterLink.textContent, 'Open examination');
+    assert.equal(encounterLink.getAttribute('aria-label'), 'Open examination - Maya Haddad');
+
+    const checkoutForm = harness.actionCell.querySelector('form[data-appointment-transition]');
+    assert.ok(checkoutForm, 'Ready for reception transition form must be rendered');
+    const checkoutBtn = checkoutForm.querySelector('button[type="submit"]');
+    assert.ok(checkoutBtn);
+    assert.equal(checkoutBtn.textContent, 'Ready for reception');
+    assert.equal(checkoutBtn.getAttribute('aria-label'), 'Ready for reception - Maya Haddad');
+
+    // Submit 'Ready for reception' -> transitions to checkout
+    harness.submitForm(checkoutBtn);
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    // Confirm badge updated to Checkout
+    assert.equal(harness.row.dataset.stage, 'checkout');
+
+    // Confirm replaced with View link for later checkout stage
+    const viewLink = harness.actionCell.querySelector('a.button');
+    assert.ok(viewLink);
+    assert.equal(viewLink.textContent, 'View');
+    assert.equal(viewLink.getAttribute('aria-label'), 'View - Maya Haddad');
+  }
+
+  // Test 10: 409 conflict reconciliation to in_chair renders both encounter action and reception button
+  {
+    const harness = setupHarness(async () => {
+      return {
+        ok: false,
+        status: 409,
+        json: async () => ({
+          error: 'CONFLICT',
+          message: 'The appointment status has changed.',
+          current_status: 'in_chair',
+          allowed_statuses: ['checkout', 'completed'],
+          csrf_token: 'token-409-resolved'
+        })
+      };
+    }, {
+      patientName: 'Maya Haddad',
+      encounterUrl: '/examination/777?return_to=dashboard',
+      encounterLabel: 'Open examination',
+      encounterAriaLabel: 'Open examination - Maya Haddad',
+    });
+
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    assert.equal(harness.row.dataset.stage, 'in_chair');
+    const encounterLink = harness.actionCell.querySelector('a.encounter-btn');
+    assert.ok(encounterLink, '409 reconciliation to in_chair must render encounter action link');
+    assert.equal(encounterLink.textContent, 'Open examination');
+
+    const checkoutBtn = harness.actionCell.querySelector('form button[type="submit"]');
+    assert.ok(checkoutBtn, '409 reconciliation to in_chair must render Ready for reception button');
+    assert.equal(checkoutBtn.textContent, 'Ready for reception');
+
+    const staleNotice = harness.actionCell.querySelector('.visit-stale-notice');
+    assert.ok(staleNotice, 'Stale notice must be displayed');
   }
 
   console.log('All DashboardTodayTransitionsTest unit tests passed successfully.');
