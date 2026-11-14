@@ -186,7 +186,7 @@
 }
 
 .dashboard-workspace .dashboard-tab-btn {
-  min-height: 36px;
+  min-height: 44px;
   padding: 6px 14px;
   border-radius: 6px;
   border: 0;
@@ -246,7 +246,7 @@
 }
 
 .dashboard-workspace .filter-btn {
-  min-height: 36px;
+  min-height: 44px;
   padding: 6px 12px;
   border-radius: 8px;
   border: 1px solid rgba(21, 63, 54, 0.18);
@@ -725,7 +725,7 @@
   .dashboard-workspace .filter-btn {
     justify-content: center;
     padding: 6px 8px;
-    min-height: 40px;
+    min-height: 44px;
     font-size: var(--studio-font-13, 13px);
   }
 
@@ -853,7 +853,7 @@
 
   .dashboard-workspace .dashboard-btn-secondary,
   .dashboard-workspace .dashboard-btn-primary {
-    min-height: 40px;
+    min-height: 44px;
     font-size: var(--studio-font-12, 12px);
     padding: 6px 8px;
   }
@@ -865,7 +865,7 @@
   }
 
   .dashboard-workspace .dashboard-tab-btn {
-    min-height: 34px;
+    min-height: 44px;
     font-size: var(--studio-font-12, 12px);
     padding: 4px 8px;
   }
@@ -875,7 +875,7 @@
   }
 
   .dashboard-workspace .filter-btn {
-    min-height: 36px;
+    min-height: 44px;
     font-size: var(--studio-font-12, 12px);
     padding: 4px 6px;
   }
