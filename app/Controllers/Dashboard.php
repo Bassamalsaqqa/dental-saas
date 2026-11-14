@@ -49,26 +49,33 @@ class Dashboard extends BaseController
                     $todayAppointments
                 )));
 
-                $associatedExaminations = [];
-                if ($todayAppointmentIds !== []) {
+                $canViewExams = has_permission('examinations', 'view');
+                $canCreateExams = has_permission('examinations', 'create');
+                $canAccessExams = $canViewExams || $canCreateExams;
+
+                $associatedExaminations = null;
+                if ($canAccessExams && $todayAppointmentIds !== []) {
                     try {
                         $associatedExaminations = $this->examinationModel->getAssociatedByAppointmentIdsForClinic((int) $clinicId, $todayAppointmentIds);
                     } catch (\Throwable $e) {
                         log_message('warning', 'Failed to batch load associated examinations for dashboard: ' . $e->getMessage());
-                        $associatedExaminations = [];
+                        $associatedExaminations = null;
                     }
                 }
 
                 $encounterResolver = new \App\Services\ClinicalEncounterActionResolver();
-                $canViewExams = has_permission('examinations', 'view');
-                $canCreateExams = has_permission('examinations', 'create');
 
                 foreach ($todayAppointments as &$appointment) {
                     $aptId = (int) ($appointment['id'] ?? 0);
+                    $appointmentExams = null;
+                    if ($associatedExaminations !== null && array_key_exists($aptId, $associatedExaminations)) {
+                        $appointmentExams = $associatedExaminations[$aptId];
+                    }
+
                     $appointment['encounter_action'] = $encounterResolver->resolve(
                         (int) $clinicId,
                         $appointment,
-                        $associatedExaminations[$aptId] ?? [],
+                        $appointmentExams,
                         $canViewExams,
                         $canCreateExams,
                         'dashboard'

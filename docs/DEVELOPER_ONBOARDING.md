@@ -29,12 +29,12 @@ This guide is a practical companion to [`README.md`](../README.md), [`docs/START
 
 ## 2. Release Truth & Git Reference
 
-- **Deployed Production Commit:** `bc5dbaa6f67dd60f8a074496180a4421facd2ffb` (Tree SHA: `8d9a18636a18f9634168f5ae100b3b8d8105a481`, maintenance OFF).
-- **Immediate Source Recovery Baseline:** PR #28 at `1b17d06587a07a473f714e296af27f977134208d` (Tree SHA: `257f1661717e898a430c5bec0d7128af1568ead1`).
-- **Repository HEAD vs Installed Production:** Installed production is `bc5dbaa6` (tree `8d9a1863`), cutover under verified maintenance gate with zero migrations. Repository HEAD advances with docs-only commits after candidate `bc5dbaa6`; docs-only commits do not alter production runtime. Fast-forward recovery commit `c819c5b6dfde97312647e7b9e4748ffd4114d31a` restores base tree `257f1661` with reachable private ref.
+- **Deployed Production Commit:** `6ddc1fa717af12a99af70b9e22ae9c85c5d51421` (Tree SHA: `01131d8b805533ea5ce298252e5d11ba57476d02`, verified via independent SSH, maintenance OFF).
+- **Immediate Source Recovery Baseline:** `bc5dbaa6f67dd60f8a074496180a4421facd2ffb` (Tree SHA: `8d9a18636a18f9634168f5ae100b3b8d8105a481`); older PR #28 at `1b17d06587a07a473f714e296af27f977134208d` remains deeper history.
+- **Repository HEAD vs Installed Production:** Installed production is `6ddc1fa7` (tree `01131d8b`). Subsequent clinical handoff commits (`52c3dd4f` and corrections) remain strictly local and undeployed until parent review and isolated clinical acceptance.
 - **Authoritative Branch:** `release/production-20261017` is the GitHub default and deployment ref. Historical `main` remains preserved (`485a19824d08e35fcd1a2a68923c63ec265867ca`); do not deploy historical main.
 - **GitHub State:** 0 open pull requests; developer bootstrap branch (`7427b4a4`) source merged into release branch (remote feature branch retired after exact-tip ancestry checks).
-- **Production Git Working Copy:** On Hostinger, the live checkout is named `main` tracking historical `origin/main` with deployed application matching tree `8d9a18636a18f9634168f5ae100b3b8d8105a481` plus the known root `.htaccess` overlay (`af27aced...`), normal front controller `ad7c980a...` restored at 644, and `.env` at 600. Do not pull, rename, or reconfigure production Git refs during maintenance.
+- **Production Git Working Copy:** On Hostinger, the live checkout is named `main` tracking historical `origin/main` with deployed application matching tree `01131d8b805533ea5ce298252e5d11ba57476d02` plus the known root `.htaccess` overlay, normal front controller `public/index.php` (hash `7c980a040ddb863d402babf18e2e45eb27ca715fb42d41be8239c3d0837a8f`) restored at 644, and `.env` at 600. Do not pull, rename, or reconfigure production Git refs during maintenance.
 - Consult [`docs/PROJECT_STATE.md`](PROJECT_STATE.md) for authoritative release history and [`docs/WORK_PROGRAM.md`](WORK_PROGRAM.md) for active assignments.
 
 ---

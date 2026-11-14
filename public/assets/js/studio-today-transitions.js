@@ -107,6 +107,33 @@
       const group = document.createElement('div');
       group.className = 'visit-action-group';
 
+      if (stage === 'in_chair') {
+        const encounterType = row?.dataset?.encounterType || '';
+        const encounterUrl = row?.dataset?.encounterUrl || '';
+        const encounterLabel = row?.dataset?.encounterLabel || '';
+        const encounterAriaLabel = row?.dataset?.encounterAriaLabel || '';
+        const hasEncounter = encounterType !== 'fallback' && Boolean(encounterUrl && encounterLabel);
+
+        if (hasEncounter) {
+          const encounterLink = document.createElement('a');
+          encounterLink.className = 'button secondary encounter-btn';
+          encounterLink.href = encounterUrl;
+          encounterLink.textContent = encounterLabel;
+          encounterLink.setAttribute('aria-label', encounterAriaLabel || getScopedAriaLabel(encounterLabel, patientName));
+          group.appendChild(encounterLink);
+        }
+
+        if (config.canEdit) {
+          group.appendChild(buildTransitionForm(visitId, 'checkout', 'in_chair', 'button primary transition-btn', config.actionReadyForReception, patientName));
+        }
+
+        if (!hasEncounter) {
+          group.appendChild(buildViewLink(visitId, patientName));
+        }
+
+        return group;
+      }
+
       if (config.canEdit) {
         if (stage === 'scheduled' || stage === 'confirmed') {
           group.appendChild(buildTransitionForm(visitId, 'arrived', stage, 'button primary transition-btn', config.actionArrival, patientName));
@@ -118,23 +145,6 @@
         }
         if (stage === 'ready') {
           group.appendChild(buildTransitionForm(visitId, 'in_chair', 'ready', 'button primary transition-btn', config.actionStartVisit, patientName));
-          return group;
-        }
-        if (stage === 'in_chair') {
-          const encounterUrl = row?.dataset?.encounterUrl || '';
-          const encounterLabel = row?.dataset?.encounterLabel || '';
-          const encounterAriaLabel = row?.dataset?.encounterAriaLabel || '';
-
-          if (encounterUrl && encounterLabel) {
-            const encounterLink = document.createElement('a');
-            encounterLink.className = 'button secondary encounter-btn';
-            encounterLink.href = encounterUrl;
-            encounterLink.textContent = encounterLabel;
-            encounterLink.setAttribute('aria-label', encounterAriaLabel || getScopedAriaLabel(encounterLabel, patientName));
-            group.appendChild(encounterLink);
-          }
-
-          group.appendChild(buildTransitionForm(visitId, 'checkout', 'in_chair', 'button primary transition-btn', config.actionReadyForReception, patientName));
           return group;
         }
       }

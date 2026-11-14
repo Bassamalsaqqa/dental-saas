@@ -218,6 +218,134 @@ final class ClinicalEncounterActionResolverTest extends CIUnitTestCase
         $result = $this->resolver->resolve(0, $appointment, [], true, true, 'dashboard');
 
         $this->assertSame('fallback', $result['type']);
+        $this->assertNull($result['count']);
+        $this->assertSame('unverified_context', $result['state']);
+        $this->assertSame('appointmentActionView', $result['label_key']);
+    }
+
+    public function testNullAssociatedExaminationsFromLookupFailureReturnsFallbackWithNullCountAndUnavailableState(): void
+    {
+        $appointment = [
+            'id' => 105,
+            'clinic_id' => 1,
+            'patient_id' => 505,
+        ];
+
+        // Passing null simulates a database exception or lookup failure
+        $result = $this->resolver->resolve(1, $appointment, null, true, true, 'dashboard');
+
+        $this->assertSame('fallback', $result['type']);
+        $this->assertNull($result['count'], 'Unknown lookup failure must NOT be interpreted as count 0.');
+        $this->assertNull($result['examination_id']);
+        $this->assertSame('unavailable', $result['state']);
+        $this->assertSame('appointmentActionView', $result['label_key']);
+        $this->assertStringContainsString('appointment/105', $result['url']);
+        $this->assertStringNotContainsString('examination/create', $result['url'], 'Must not fabricate create action on lookup failure.');
+    }
+
+    public function testMissingAppointmentClinicIdDoesNotImputeClinicAndReturnsFallback(): void
+    {
+        // Appointment is missing the clinic_id field entirely
+        $appointment = [
+            'id' => 105,
+            'patient_id' => 505,
+        ];
+
+        $result = $this->resolver->resolve(1, $appointment, [], true, true, 'dashboard');
+
+        $this->assertSame('fallback', $result['type']);
+        $this->assertNull($result['count'], 'Unverified context must not fabricate count 0.');
+        $this->assertSame('unverified_context', $result['state']);
+        $this->assertSame('appointmentActionView', $result['label_key']);
+        $this->assertStringContainsString('appointment/105', $result['url']);
+    }
+
+    public function testVerifiedEmptyExaminationsWithCreatePermissionReturnsCreateWithVerifiedStateAndZeroCount(): void
+    {
+        $appointment = [
+            'id' => 105,
+            'clinic_id' => 1,
+            'patient_id' => 505,
+        ];
+
+        // Passing empty array [] represents a successful query that verified 0 examinations exist
+        $result = $this->resolver->resolve(1, $appointment, [], true, true, 'dashboard');
+
+        $this->assertSame('create', $result['type']);
+        $this->assertSame(0, $result['count'], 'Verified empty must be count 0.');
+        $this->assertSame('verified', $result['state']);
+        $this->assertSame('appointmentStartExamination', $result['label_key']);
+        $this->assertStringContainsString('examination/create', $result['url']);
+    }
+
+    public function testVerifiedEmptyExaminationsWithoutCreatePermissionReturnsFallbackWithUnauthorizedStateAndZeroCount(): void
+    {
+        $appointment = [
+            'id' => 105,
+            'clinic_id' => 1,
+            'patient_id' => 505,
+        ];
+
+        $result = $this->resolver->resolve(1, $appointment, [], true, false, 'dashboard');
+
+        $this->assertSame('fallback', $result['type']);
+        $this->assertSame(0, $result['count']);
+        $this->assertSame('unauthorized', $result['state']);
+        $this->assertSame('appointmentActionView', $result['label_key']);
+        $this->assertStringContainsString('appointment/105', $result['url']);
+    }
+
+    public function testSingleExamWithoutViewPermissionReturnsFallbackWithUnauthorizedStateAndCountOne(): void
+    {
+        $appointment = [
+            'id' => 105,
+            'clinic_id' => 1,
+            'patient_id' => 505,
+        ];
+        $associatedExams = [
+            [
+                'id' => 801,
+                'clinic_id' => 1,
+                'patient_id' => 505,
+                'appointment_id' => 105,
+            ],
+        ];
+
+        $result = $this->resolver->resolve(1, $appointment, $associatedExams, false, true, 'dashboard');
+
+        $this->assertSame('fallback', $result['type']);
+        $this->assertSame(1, $result['count']);
+        $this->assertSame('unauthorized', $result['state']);
+        $this->assertSame('appointmentActionView', $result['label_key']);
+    }
+
+    public function testMultipleExamsWithoutViewPermissionReturnsFallbackWithUnauthorizedStateAndMultipleCount(): void
+    {
+        $appointment = [
+            'id' => 105,
+            'clinic_id' => 1,
+            'patient_id' => 505,
+        ];
+        $associatedExams = [
+            [
+                'id' => 801,
+                'clinic_id' => 1,
+                'patient_id' => 505,
+                'appointment_id' => 105,
+            ],
+            [
+                'id' => 802,
+                'clinic_id' => 1,
+                'patient_id' => 505,
+                'appointment_id' => 105,
+            ],
+        ];
+
+        $result = $this->resolver->resolve(1, $appointment, $associatedExams, false, true, 'dashboard');
+
+        $this->assertSame('fallback', $result['type']);
+        $this->assertSame(2, $result['count']);
+        $this->assertSame('unauthorized', $result['state']);
         $this->assertSame('appointmentActionView', $result['label_key']);
     }
 }

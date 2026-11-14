@@ -21,7 +21,7 @@ This is the authoritative active document map for Denta+. Read only the document
 
 ## Current release and maintenance
 
-Production is installed commit `bc5dbaa6f67dd60f8a074496180a4421facd2ffb` (tree `8d9a18636a18f9634168f5ae100b3b8d8105a481`) with maintenance OFF. The immediate source-recovery baseline is `1b17d06587a07a473f714e296af27f977134208d` (tree `257f1661717e898a430c5bec0d7128af1568ead1`, PR #28). Repository HEAD on `release/production-20261017` contains docs-only updates following candidate `bc5dbaa6`. The GitHub default and deployment branch is `release/production-20261017`; historical `main` is not current application source.
+Production is installed commit `6ddc1fa717af12a99af70b9e22ae9c85c5d51421` (tree `01131d8b805533ea5ce298252e5d11ba57476d02`), verified via independent SSH; maintenance is OFF. The immediate source-recovery baseline is `bc5dbaa6f67dd60f8a074496180a4421facd2ffb` (tree `8d9a18636a18f9634168f5ae100b3b8d8105a481`); older `1b17d06587a07a473f714e296af27f977134208d` remains deeper history. Clinical handoff changes (`52c3dd4f` + corrections) are local and undeployed. The GitHub default and deployment branch is `release/production-20261017`; historical `main` is not current application source.
 
 See `PROJECT_STATE.md` for the exact release, two-migration inventory, preservation results, retired rehearsal environments, parent verified live state, and remaining limitations. Optional features remain OFF. Current Owner explicitly authorizes eventual commit/push/deploy; actual deployment execution remains bound to reviewed candidate and runbook preflight gates.
 

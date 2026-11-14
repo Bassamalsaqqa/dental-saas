@@ -5,6 +5,7 @@ define('APPPATH', dirname(__DIR__, 3).'/app/');
 $locale = ($argv[1] ?? 'en') === 'ar' ? 'ar' : 'en';
 $canEdit = ($argv[2] ?? 'allowed') === 'allowed';
 $scenario = $argv[3] ?? 'all_stages';
+$examPerm = $argv[4] ?? 'full_exam';
 
 $translations = [];
 foreach (['Studio', 'UI', 'Inventory', 'Finance', 'Treatment', 'Examination'] as $group) {
@@ -30,6 +31,18 @@ function esc($value, $context = null) {
 function has_permission($module, $action) {
     if ($module === 'appointments' && $action === 'edit') {
         return $GLOBALS['canEdit'];
+    }
+    if ($module === 'examinations') {
+        if ($GLOBALS['examPerm'] === 'none') {
+            return false;
+        }
+        if ($GLOBALS['examPerm'] === 'view_only') {
+            return $action === 'view';
+        }
+        if ($GLOBALS['examPerm'] === 'create_only') {
+            return $action === 'create';
+        }
+        return true;
     }
     return true;
 }
@@ -231,6 +244,7 @@ if ($scenario === 'all_stages') {
     $visits = [
         [
             'id' => 105,
+            'clinic_id' => 1,
             'patient_id' => 505,
             'first_name' => 'InChair',
             'last_name' => 'Patient',
@@ -247,6 +261,31 @@ if ($scenario === 'all_stages') {
                 'default_label' => 'Start examination',
                 'count' => 0,
                 'examination_id' => null,
+            ],
+        ],
+    ];
+} elseif ($scenario === 'encounter_fallback_no_permission') {
+    $visits = [
+        [
+            'id' => 105,
+            'clinic_id' => 1,
+            'patient_id' => 505,
+            'first_name' => 'InChair',
+            'last_name' => 'Patient',
+            'status' => 'in_chair',
+            'appointment_time' => '12:00:00',
+            'appointment_date' => date('Y-m-d'),
+            'duration' => 60,
+            'chair_name' => 'Chair 1',
+            'appointment_type' => 'treatment',
+            'encounter_action' => [
+                'type' => 'fallback',
+                'url' => base_url('appointment/105?return_to=dashboard'),
+                'label_key' => 'appointmentActionView',
+                'default_label' => 'View',
+                'count' => null,
+                'examination_id' => null,
+                'state' => 'unavailable',
             ],
         ],
     ];

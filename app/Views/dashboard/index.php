@@ -28,12 +28,14 @@ $patientId=(int)($visit['patient_id']??0);
 $name=trim(($visit['first_name']??'').' '.($visit['last_name']??''));
 $stage=(string)($visit['status']??'scheduled');
 $encounter=$visit['encounter_action']??null;
-$encounterUrl=$encounter['url']??'';
-$encounterLabelKey=$encounter['label_key']??'appointmentActionView';
-$encounterLabel=lang('UI.'.$encounterLabelKey);
-$encounterAccessibleLabel=$encounterLabel.($name!==''?' - '.$name:'');
+$encounterType=$encounter['type']??'fallback';
+$hasEncounterAction=$encounterType!=='fallback' && !empty($encounter['url']);
+$encounterUrl=$hasEncounterAction ? ($encounter['url']??'') : '';
+$encounterLabelKey=$hasEncounterAction ? ($encounter['label_key']??'') : '';
+$encounterLabel=$hasEncounterAction ? lang('UI.'.$encounterLabelKey) : '';
+$encounterAccessibleLabel=$hasEncounterAction ? ($encounterLabel.($name!==''?' - '.$name:'')) : '';
 ?>
-<tr class="visit-entry" data-stage="<?= esc($stage,'attr') ?>" data-visit-id="<?= $visitId ?>" data-patient-name="<?= esc($name,'attr') ?>" data-encounter-url="<?= esc($encounterUrl,'attr') ?>" data-encounter-label="<?= esc($encounterLabel,'attr') ?>" data-encounter-aria-label="<?= esc($encounterAccessibleLabel,'attr') ?>">
+<tr class="visit-entry" data-stage="<?= esc($stage,'attr') ?>" data-visit-id="<?= $visitId ?>" data-patient-name="<?= esc($name,'attr') ?>" data-encounter-type="<?= esc($encounterType,'attr') ?>" data-encounter-url="<?= esc($encounterUrl,'attr') ?>" data-encounter-label="<?= esc($encounterLabel,'attr') ?>" data-encounter-aria-label="<?= esc($encounterAccessibleLabel,'attr') ?>">
 <td class="visit-time"><a class="visit-link" href="<?= esc(workflow_context_url('appointment/'.$visitId,'dashboard')) ?>" aria-label="<?= esc(lang('Studio.details').' - '.$name,'attr') ?>"><strong dir="ltr"><?= esc(formatTime($visit['appointment_time']??'')) ?></strong><small><?= esc(formatDate($visit['appointment_date']??date('Y-m-d'))) ?></small></a></td>
 <td class="visit-identity"><a class="visit-person" href="<?= esc(workflow_context_url('patient/'.$patientId,'dashboard')) ?>"><span class="patient-avatar avatar-tone-<?= $i%4 ?>"><?= esc($studioInitials($name)) ?></span><span><strong><?= esc($name ?: lang('UI.patientUnknown')) ?></strong><small><?= esc($visit['patient_number']??$visit['patient_code']??lang('Studio.created')) ?></small><?php if(!empty($visit['phone'])): ?><small class="patient-phone" dir="ltr"><?= esc($visit['phone']) ?></small><?php endif; ?></span></a></td>
 <td class="visit-treatment"><strong><?= esc(lang('Studio.type_'.($visit['appointment_type']??'consultation'))) ?></strong></td>
@@ -41,7 +43,24 @@ $encounterAccessibleLabel=$encounterLabel.($name!==''?' - '.$name:'');
 <td class="visit-duration"><span><?= isset($visit['duration']) ? esc((string)(int)$visit['duration'].' '.lang('Studio.minutes')) : '-' ?></span></td>
 <td class="visit-status"><span class="status-badge status-<?= esc($stage,'attr') ?>"><span></span><span class="status-badge-text"><?= esc(lang('UI.'.($studioStageLabels[$stage]??'appointmentStageScheduled'))) ?></span></span></td>
 <td class="visit-action"><div class="visit-action-group">
-<?php if($tab==='today' && $studioCanEditVisits): ?>
+<?php if($tab==='today'): ?>
+<?php if($stage==='in_chair'): ?>
+<?php if($hasEncounterAction): ?>
+<a class="button secondary encounter-btn" href="<?= esc($encounterUrl,'attr') ?>" aria-label="<?= esc($encounterAccessibleLabel,'attr') ?>"><?= esc($encounterLabel) ?></a>
+<?php endif; ?>
+<?php if($studioCanEditVisits): ?>
+<form method="post" action="<?= base_url('appointment/'.$visitId.'/transition') ?>" class="inline-transition-form" data-appointment-transition>
+<?= csrf_field() ?>
+<input type="hidden" name="status" value="checkout">
+<input type="hidden" name="expected_status" value="in_chair">
+<input type="hidden" name="return_to" value="dashboard">
+<button type="submit" class="button primary transition-btn" aria-label="<?= esc(lang('UI.appointmentActionReadyForReception').($name!==''?' - '.$name:''),'attr') ?>"><?= esc(lang('UI.appointmentActionReadyForReception')) ?></button>
+</form>
+<?php endif; ?>
+<?php if(!$hasEncounterAction): ?>
+<a class="button secondary" href="<?= esc(workflow_context_url('appointment/'.$visitId,'dashboard')) ?>" aria-label="<?= esc(lang('UI.appointmentActionView').($name!==''?' - '.$name:''),'attr') ?>"><?= esc(lang('UI.appointmentActionView')) ?></a>
+<?php endif; ?>
+<?php elseif($studioCanEditVisits): ?>
 <?php if($stage==='scheduled'||$stage==='confirmed'): ?>
 <form method="post" action="<?= base_url('appointment/'.$visitId.'/transition') ?>" class="inline-transition-form" data-appointment-transition>
 <?= csrf_field() ?>
@@ -66,17 +85,9 @@ $encounterAccessibleLabel=$encounterLabel.($name!==''?' - '.$name:'');
 <input type="hidden" name="return_to" value="dashboard">
 <button type="submit" class="button primary transition-btn" aria-label="<?= esc(lang('UI.appointmentActionStartVisit').($name!==''?' - '.$name:''),'attr') ?>"><?= esc(lang('UI.appointmentActionStartVisit')) ?></button>
 </form>
-<?php elseif($stage==='in_chair'): ?>
-<?php if(!empty($encounterUrl)): ?>
-<a class="button secondary encounter-btn" href="<?= esc($encounterUrl,'attr') ?>" aria-label="<?= esc($encounterAccessibleLabel,'attr') ?>"><?= esc($encounterLabel) ?></a>
+<?php else: ?>
+<a class="button secondary" href="<?= esc(workflow_context_url('appointment/'.$visitId,'dashboard')) ?>" aria-label="<?= esc(lang('UI.appointmentActionView').($name!==''?' - '.$name:''),'attr') ?>"><?= esc(lang('UI.appointmentActionView')) ?></a>
 <?php endif; ?>
-<form method="post" action="<?= base_url('appointment/'.$visitId.'/transition') ?>" class="inline-transition-form" data-appointment-transition>
-<?= csrf_field() ?>
-<input type="hidden" name="status" value="checkout">
-<input type="hidden" name="expected_status" value="in_chair">
-<input type="hidden" name="return_to" value="dashboard">
-<button type="submit" class="button primary transition-btn" aria-label="<?= esc(lang('UI.appointmentActionReadyForReception').($name!==''?' - '.$name:''),'attr') ?>"><?= esc(lang('UI.appointmentActionReadyForReception')) ?></button>
-</form>
 <?php else: ?>
 <a class="button secondary" href="<?= esc(workflow_context_url('appointment/'.$visitId,'dashboard')) ?>" aria-label="<?= esc(lang('UI.appointmentActionView').($name!==''?' - '.$name:''),'attr') ?>"><?= esc(lang('UI.appointmentActionView')) ?></a>
 <?php endif; ?>

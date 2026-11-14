@@ -28,9 +28,9 @@ class ExaminationModel extends TenantAwareModel
      *
      * @param int $clinicId
      * @param array<int> $appointmentIds
-     * @return array<int, array<int, array>> Map of appointment_id => list of associated examination records
+     * @return array<int, array<int, array>>|null Map of appointment_id => list of associated examination records, or null if query failed
      */
-    public function getAssociatedByAppointmentIdsForClinic(int $clinicId, array $appointmentIds): array
+    public function getAssociatedByAppointmentIdsForClinic(int $clinicId, array $appointmentIds): ?array
     {
         if ($clinicId <= 0) {
             throw new \InvalidArgumentException('Active clinic required.');
@@ -42,13 +42,22 @@ class ExaminationModel extends TenantAwareModel
 
         $map = array_fill_keys($ids, []);
         foreach (array_chunk($ids, 500) as $chunk) {
-            $rows = $this->db->table('examinations')
+            $builder = $this->db->table('examinations')
                 ->select('id, examination_id, clinic_id, patient_id, appointment_id, status, examination_date, examination_type')
                 ->where('clinic_id', $clinicId)
                 ->whereIn('appointment_id', $chunk)
-                ->orderBy('id', 'ASC')
-                ->get()
-                ->getResultArray();
+                ->orderBy('id', 'ASC');
+
+            $query = $builder->get();
+            if ($query === false) {
+                log_message('error', 'Examination query failed in getAssociatedByAppointmentIdsForClinic');
+                return null;
+            }
+
+            $rows = $query->getResultArray();
+            if (!is_array($rows)) {
+                return null;
+            }
 
             foreach ($rows as $row) {
                 $aptId = (int) ($row['appointment_id'] ?? 0);

@@ -233,7 +233,7 @@ function setupHarness(fetchHandler, options = {}) {
       statusError: 'Unable to update status. Please review and refresh before trying again.',
       statusUncertain: 'Cannot confirm change. Please review or refresh before another change.',
       baseUrl: '/appointment/',
-      canEdit: '1',
+      canEdit: options.canEdit !== undefined ? String(options.canEdit) : '1',
       labelScheduled: 'Scheduled',
       labelConfirmed: 'Confirmed',
       labelArrived: 'Arrived',
@@ -275,6 +275,7 @@ function setupHarness(fetchHandler, options = {}) {
       visitId: '42',
       stage: initialStage,
       patientName: patientName1,
+      encounterType: options.encounterType !== undefined ? options.encounterType : 'view',
       encounterUrl: options.encounterUrl !== undefined ? options.encounterUrl : '/examination/801?return_to=dashboard',
       encounterLabel: options.encounterLabel !== undefined ? options.encounterLabel : 'Open examination',
       encounterAriaLabel: options.encounterAriaLabel !== undefined ? options.encounterAriaLabel : ('Open examination - ' + patientName1),
@@ -849,6 +850,178 @@ async function runTests() {
 
     const staleNotice = harness.actionCell.querySelector('.visit-stale-notice');
     assert.ok(staleNotice, 'Stale notice must be displayed');
+  }
+
+  // Test 11: Doctor role without appointments.edit (canEdit=0) can open owned examination at in_chair without mutation controls
+  {
+    const harness = setupHarness(async () => {
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          status: 'in_chair',
+          csrf_token: 'token-doctor-200'
+        })
+      };
+    }, {
+      canEdit: '0',
+      initialStage: 'ready',
+      initialTargetStatus: 'in_chair',
+      initialButtonText: 'Start visit',
+      patientName: 'Kareem Tahan',
+      encounterType: 'view',
+      encounterUrl: '/examination/909?return_to=dashboard',
+      encounterLabel: 'Open examination',
+      encounterAriaLabel: 'Open examination - Kareem Tahan',
+    });
+
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    assert.equal(harness.row.dataset.stage, 'in_chair');
+
+    // Doctor can open owned examination
+    const encounterLink = harness.actionCell.querySelector('a.encounter-btn');
+    assert.ok(encounterLink, 'Doctor without appointments.edit can open owned existing exam');
+    assert.equal(encounterLink.textContent, 'Open examination');
+    assert.equal(encounterLink.href, '/examination/909?return_to=dashboard');
+
+    // Doctor without appointments.edit must have zero mutation forms
+    const forms = harness.actionCell.querySelectorAll('form');
+    assert.equal(forms.length, 0, 'Doctor without appointments.edit must have zero mutation forms');
+
+    // No duplicate view link
+    const allLinks = harness.actionCell.querySelectorAll('a');
+    assert.equal(allLinks.length, 1, 'Only one link (the encounter action link) must be rendered');
+    const viewLinks = allLinks.filter(a => a.textContent === 'View');
+    assert.equal(viewLinks.length, 0, 'Must not duplicate generic View button when encounter link is present');
+  }
+
+  // Test 12: User with appointments.edit (canEdit=1) but WITHOUT examination permissions sees stage control + detail
+  {
+    const harness = setupHarness(async () => {
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          status: 'in_chair',
+          csrf_token: 'token-in-chair-no-exam'
+        })
+      };
+    }, {
+      canEdit: '1',
+      initialStage: 'ready',
+      initialTargetStatus: 'in_chair',
+      initialButtonText: 'Start visit',
+      patientName: 'Farah Zaid',
+      encounterType: 'fallback',
+      encounterUrl: '',
+      encounterLabel: '',
+      encounterAriaLabel: '',
+    });
+
+    // Submit Start visit -> transitions to in_chair
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    assert.equal(harness.row.dataset.stage, 'in_chair');
+
+    // Must NOT render encounter link
+    const encounterLink = harness.actionCell.querySelector('a.encounter-btn');
+    assert.equal(encounterLink, null, 'Must NOT render misleading Open examination when user lacks exam permission');
+
+    // Must render stage control (Ready for reception)
+    const checkoutBtn = harness.actionCell.querySelector('form button[type="submit"]');
+    assert.ok(checkoutBtn, 'Must render Ready for reception button for canEdit=1');
+    assert.equal(checkoutBtn.textContent, 'Ready for reception');
+
+    // Must render detail link (View)
+    const allLinks = harness.actionCell.querySelectorAll('a');
+    const viewLinks = allLinks.filter(a => a.textContent === 'View');
+    assert.equal(viewLinks.length, 1, 'Must render View detail link when lacking exam permission');
+  }
+
+  // Test 13: 409 conflict reconciliation to in_chair for user without exam permissions preserves SSR parity
+  {
+    const harness = setupHarness(async () => {
+      return {
+        ok: false,
+        status: 409,
+        json: async () => ({
+          error: 'CONFLICT',
+          message: 'The appointment status has changed.',
+          current_status: 'in_chair',
+          allowed_statuses: ['checkout', 'completed'],
+          csrf_token: 'token-409-no-exam'
+        })
+      };
+    }, {
+      canEdit: '1',
+      patientName: 'Rami Qasem',
+      encounterType: 'fallback',
+      encounterUrl: '',
+      encounterLabel: '',
+      encounterAriaLabel: '',
+    });
+
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    assert.equal(harness.row.dataset.stage, 'in_chair');
+
+    // Must NOT auto-create exams or render encounter link
+    const encounterLink = harness.actionCell.querySelector('a.encounter-btn');
+    assert.equal(encounterLink, null, '409 reconciliation must NOT auto-create or invent exam link without exam permissions');
+
+    // Must render Ready for reception button
+    const checkoutBtn = harness.actionCell.querySelector('form button[type="submit"]');
+    assert.ok(checkoutBtn);
+    assert.equal(checkoutBtn.textContent, 'Ready for reception');
+
+    // Must render View detail link
+    const allLinks = harness.actionCell.querySelectorAll('a');
+    const viewLinks = allLinks.filter(a => a.textContent === 'View');
+    assert.equal(viewLinks.length, 1, 'Must render View detail link');
+
+    // Stale notice displayed
+    const staleNotice = harness.actionCell.querySelector('.visit-stale-notice');
+    assert.ok(staleNotice);
+  }
+
+  // Test 14: Read-only user (canEdit=0) on 409 reconciliation to in_chair with exam permissions sees Open exam without mutation buttons
+  {
+    const harness = setupHarness(async () => {
+      return {
+        ok: false,
+        status: 409,
+        json: async () => ({
+          error: 'CONFLICT',
+          message: 'The appointment status has changed.',
+          current_status: 'in_chair',
+          allowed_statuses: ['checkout'],
+          csrf_token: 'token-409-doctor'
+        })
+      };
+    }, {
+      canEdit: '0',
+      patientName: 'Dr. Consultation Patient',
+      encounterType: 'view',
+      encounterUrl: '/examination/555?return_to=dashboard',
+      encounterLabel: 'Open examination',
+      encounterAriaLabel: 'Open examination - Dr. Consultation Patient',
+    });
+
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    assert.equal(harness.row.dataset.stage, 'in_chair');
+
+    const encounterLink = harness.actionCell.querySelector('a.encounter-btn');
+    assert.ok(encounterLink, 'Read-only doctor can open owned exam after 409 reconciliation to in_chair');
+    assert.equal(encounterLink.textContent, 'Open examination');
+
+    const forms = harness.actionCell.querySelectorAll('form');
+    assert.equal(forms.length, 0, 'No mutation forms rendered without canEdit');
   }
 
   console.log('All DashboardTodayTransitionsTest unit tests passed successfully.');

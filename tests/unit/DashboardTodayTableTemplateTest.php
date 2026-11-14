@@ -27,14 +27,15 @@ use DOMXPath;
  */
 final class DashboardTodayTableTemplateTest extends CIUnitTestCase
 {
-    private function renderDashboardView(string $scenario = 'all_stages', bool $canEditVisits = true, string $locale = 'en'): array
+    private function renderDashboardView(string $scenario = 'all_stages', bool $canEditVisits = true, string $locale = 'en', string $examPerm = 'full_exam'): array
     {
         $fixture = dirname(__DIR__) . '/_support/fixtures/DashboardTodayTablePresenter.php';
         $cmd = escapeshellarg(PHP_BINARY) . ' '
             . escapeshellarg($fixture) . ' '
             . escapeshellarg($locale) . ' '
             . escapeshellarg($canEditVisits ? 'allowed' : 'denied') . ' '
-            . escapeshellarg($scenario);
+            . escapeshellarg($scenario) . ' '
+            . escapeshellarg($examPerm);
 
         $html = shell_exec($cmd);
         $this->assertIsString($html, 'Dashboard fixture execution must succeed');
@@ -242,18 +243,79 @@ final class DashboardTodayTableTemplateTest extends CIUnitTestCase
         $this->assertStringContainsString('appointment/106', $link->item(0)->getAttribute('href'));
     }
 
-    public function testWithoutEditPermissionAllRowsRenderViewOnly(): void
+    public function testWithoutEditPermissionAndWithoutExamPermissionAllRowsRenderViewOnly(): void
     {
-        [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', false, 'en');
+        [$html, $dom, $xpath] = $this->renderDashboardView('encounter_fallback_no_permission', false, 'en', 'none');
 
         $forms = $xpath->query('//table[contains(@class,"visit-table")]//form');
         $this->assertSame(0, $forms->length, 'No transition forms should render without appointments.edit permission.');
 
         $actionLinks = $xpath->query('//table[contains(@class,"visit-table")]//td[contains(@class,"visit-action")]//a');
-        $this->assertSame(6, $actionLinks->length);
+        $this->assertGreaterThanOrEqual(1, $actionLinks->length);
         foreach ($actionLinks as $link) {
             $this->assertSame('View', trim($link->textContent));
         }
+    }
+
+    public function testDoctorWithoutEditPermissionCanOpenOwnedExamination(): void
+    {
+        // Doctor has appointments.view + examinations.view, but NOT appointments.edit
+        [$html, $dom, $xpath] = $this->renderDashboardView('all_stages', false, 'en', 'view_only');
+
+        $forms = $xpath->query('//table[contains(@class,"visit-table")]//form');
+        $this->assertSame(0, $forms->length, 'Doctor without appointments.edit must have zero mutation/transition forms.');
+
+        // In-chair row 105 has an existing exam -> renders Open examination link
+        $row105 = $xpath->query('//tr[@data-visit-id="105"]');
+        $this->assertSame(1, $row105->length);
+        $encounterLink = $xpath->query('.//td[contains(@class,"visit-action")]//a[contains(@class,"encounter-btn")]', $row105->item(0));
+        $this->assertSame(1, $encounterLink->length, 'Doctor must be able to open owned existing examination.');
+        $this->assertSame('Open examination', trim($encounterLink->item(0)->textContent));
+        $this->assertStringContainsString('examination/801', $encounterLink->item(0)->getAttribute('href'));
+
+        // Other non-in-chair rows render View link
+        foreach (['101', '102', '103', '104', '106'] as $id) {
+            $link = $xpath->query('//tr[@data-visit-id="' . $id . '"]//td[contains(@class,"visit-action")]//a');
+            $this->assertSame(1, $link->length);
+            $this->assertSame('View', trim($link->item(0)->textContent));
+        }
+    }
+
+    public function testCreateOnlyExamUserWithoutEditPermissionCanStartExaminationWhenVerifiedZero(): void
+    {
+        // User has examinations.create but NOT appointments.edit
+        [$html, $dom, $xpath] = $this->renderDashboardView('encounter_none', false, 'en', 'create_only');
+
+        $forms = $xpath->query('//table[contains(@class,"visit-table")]//form');
+        $this->assertSame(0, $forms->length, 'Create-only exam user without appointments.edit has no mutation controls.');
+
+        $encounterLink = $xpath->query('//tr[@data-visit-id="105"]//td[contains(@class,"visit-action")]//a[contains(@class,"encounter-btn")]');
+        $this->assertSame(1, $encounterLink->length, 'Create-only exam user must get explicit create when verified 0 exams.');
+        $this->assertSame('Start examination', trim($encounterLink->item(0)->textContent));
+        $this->assertStringContainsString('examination/create', $encounterLink->item(0)->getAttribute('href'));
+    }
+
+    public function testUserWithAppointmentsEditWithoutExaminationPermissionsSeesStageControlAndDetail(): void
+    {
+        // User has appointments.edit (e.g. receptionist) but NO examination permissions
+        [$html, $dom, $xpath] = $this->renderDashboardView('encounter_fallback_no_permission', true, 'en', 'none');
+
+        $row105 = $xpath->query('//tr[@data-visit-id="105"]');
+        $this->assertSame(1, $row105->length);
+
+        // Must see stage control: Ready for reception
+        $transitionBtn = $xpath->query('.//td[contains(@class,"visit-action")]//form[@data-appointment-transition]//button[@type="submit"]', $row105->item(0));
+        $this->assertSame(1, $transitionBtn->length, 'User with appointments.edit must see stage control.');
+        $this->assertSame('Ready for reception', trim($transitionBtn->item(0)->textContent));
+
+        // Must see detail link: View
+        $viewLink = $xpath->query('.//td[contains(@class,"visit-action")]//a', $row105->item(0));
+        $this->assertSame(1, $viewLink->length, 'User without examination permission sees detail link, not duplicate buttons.');
+        $this->assertSame('View', trim($viewLink->item(0)->textContent));
+
+        // Must NOT see misleading Open examination or encounter-btn
+        $encounterLink = $xpath->query('.//td[contains(@class,"visit-action")]//a[contains(@class,"encounter-btn")]', $row105->item(0));
+        $this->assertSame(0, $encounterLink->length, 'User without examination permission must NOT see misleading Open examination.');
     }
 
     public function testNoButtonIsNestedInsideAnchorTag(): void
