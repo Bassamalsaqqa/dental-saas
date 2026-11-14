@@ -41,7 +41,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
 
 <div class="dashboard-workspace">
   <!-- Page Header: Single compact H1, clinic date, primary Book + secondary Register actions -->
-  <div class="dashboard-header page-title-row studio-contour" role="banner">
+  <div class="dashboard-header page-title-row" role="banner">
     <div class="dashboard-title-group">
       <h1><?= esc(lang('Studio.clinicWork')) ?><span class="title-period">.</span></h1>
       <span class="dashboard-date-chip date-chip">
@@ -66,7 +66,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
   </div>
 
   <!-- 2-Column Operational Grid -->
-  <div class="dashboard-grid desk-layout">
+  <div class="dashboard-grid">
     <!-- Main Column: Today / Upcoming Schedule Desk -->
     <section class="appointment-desk" aria-labelledby="desk-title">
       <h2 id="desk-title" class="sr-only"><?= esc(lang('Studio.day')) ?></h2>
@@ -89,8 +89,8 @@ $studioAccepted = $accepted_treatment_queue ?? [];
         }
       ?>
       <!-- Toolbar: Navigation Tabs & Restrained Plain Filter Controls -->
-      <div class="dashboard-toolbar desk-controls">
-        <div class="dashboard-tabs segment" role="tablist" aria-label="<?= esc(lang('Studio.day')) ?>">
+      <div class="dashboard-toolbar">
+        <div class="dashboard-tabs" role="tablist" aria-label="<?= esc(lang('Studio.day')) ?>">
           <button type="button" id="tab-today" class="dashboard-tab-btn" role="tab" data-tab="today" aria-controls="panel-today" aria-selected="<?= $studioInitialTab === 'today' ? 'true' : 'false' ?>">
             <span><?= esc(lang('Studio.todayTab')) ?></span>
             <span class="dashboard-tab-badge" id="count-tab-today"><?= count($studioVisits) ?></span>
@@ -112,7 +112,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
               <span class="filter-count" dir="ltr">(<?= $countWaiting ?>)</span>
             </button>
             <button type="button" class="filter-btn" data-filter="in_chair" role="radio" aria-checked="false">
-              <span><?= esc(lang('UI.appointmentStageInChair')) ?></span>
+              <span><?= esc(lang('Studio.lane_care')) ?></span>
               <span class="filter-count" dir="ltr">(<?= $countInChair ?>)</span>
             </button>
             <button type="button" class="filter-btn" data-filter="other" role="radio" aria-checked="false" <?= $countOther === 0 ? 'hidden' : '' ?>>
@@ -152,7 +152,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
             <!-- Single Accessible Visit Deck: Desktop aligned rows -> Mobile flat cards -->
             <div class="visit-deck visit-table-scroll grid-scroll" tabindex="0" role="region" aria-label="<?= esc(lang('Studio.visits'), 'attr') ?>">
               <!-- Desktop Column Headers -->
-              <div class="visit-header-row hidden md:grid" aria-hidden="true">
+              <div class="visit-header-row" aria-hidden="true">
                 <div class="col-head col-head-time"><?= esc(lang('Studio.time')) ?> (<?= esc(lang('Studio.duration')) ?>)</div>
                 <div class="col-head col-head-identity"><?= esc(lang('Studio.name')) ?></div>
                 <div class="col-head col-head-resource"><?= esc(lang('Studio.resource')) ?></div>
@@ -185,7 +185,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
                   data-encounter-aria-label="<?= esc($encounterAccessibleLabel, 'attr') ?>">
 
                   <!-- Mobile Card Top: Identity + Resource & Status + Time -->
-                  <div class="visit-card-meta md:contents">
+                  <div class="visit-card-meta">
                     <!-- Column 1: Time + Duration Combined -->
                     <div class="visit-col visit-col-time">
                       <a class="visit-link" href="<?= esc(workflow_context_url('appointment/'.$visitId, 'dashboard')) ?>" aria-label="<?= esc(lang('Studio.details').' - '.$name, 'attr') ?>">
@@ -193,7 +193,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
                           <strong class="visit-time-val"><?= esc(formatTime($visit['appointment_time'] ?? '')) ?></strong>
                           <span class="visit-duration-val">(<?= isset($visit['duration']) ? esc((string)(int)$visit['duration'].' '.lang('Studio.minutes')) : '-' ?>)</span>
                         </span>
-                        <?php if ($tab === 'upcoming' || !empty($visit['appointment_date'])): ?>
+                        <?php if ($tab === 'upcoming'): ?>
                           <small class="visit-date-val"><?= esc(formatDate($visit['appointment_date'] ?? date('Y-m-d'))) ?></small>
                         <?php endif; ?>
                       </a>
@@ -331,9 +331,9 @@ $studioAccepted = $accepted_treatment_queue ?? [];
     </section>
 
     <!-- Side Column: 3 Canonical Attention Queues (Desktop Rail & Mobile Disclosure) + Recent Patients -->
-    <aside class="attention-panel" aria-labelledby="attention-title">
+    <aside class="dashboard-rail-panel" aria-labelledby="attention-title">
       <!-- Desktop Rail -->
-      <div class="attention-rail hidden md:block">
+      <div class="attention-rail">
         <h2 id="attention-title" class="attention-rail-heading"><?= esc(lang('Studio.attention')) ?></h2>
         <div class="attention-queue-list">
           <?php foreach ([
@@ -353,7 +353,7 @@ $studioAccepted = $accepted_treatment_queue ?? [];
       </div>
 
       <!-- Mobile Collapsible Disclosure -->
-      <details class="attention-disclosure md:hidden" open>
+      <details class="attention-disclosure" open>
         <summary class="attention-summary">
           <span class="flex items-center gap-2">
             <?= $studioIcon('chart') ?>
