@@ -26,7 +26,7 @@ class Appointment extends BaseController
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
     protected AppointmentVisitStageService $visitStageService;
     protected AppointmentCheckoutService $checkoutService;
-    protected $checkoutCompletionService;
+    protected AppointmentCheckoutCompletionService $checkoutCompletionService;
     protected ProviderDirectoryService $providerDirectoryService;
     protected AppointmentSchedulingService $schedulingService;
     protected $db;
@@ -44,42 +44,6 @@ class Appointment extends BaseController
         $this->checkoutCompletionService = new AppointmentCheckoutCompletionService($this->checkoutService);
         $this->providerDirectoryService = new ProviderDirectoryService($this->db);
         $this->schedulingService = new AppointmentSchedulingService($this->db);
-    }
-
-    public function setAppointmentModel(AppointmentModel $model): self
-    {
-        $this->appointmentModel = $model;
-        return $this;
-    }
-
-    public function setDb($db): self
-    {
-        $this->db = $db;
-        return $this;
-    }
-
-    public function setActivityLogger(ActivityLogger $logger): self
-    {
-        $this->activityLogger = $logger;
-        return $this;
-    }
-
-    public function setVisitStageService(AppointmentVisitStageService $service): self
-    {
-        $this->visitStageService = $service;
-        return $this;
-    }
-
-    public function setCheckoutCompletionService($service): self
-    {
-        $this->checkoutCompletionService = $service;
-        return $this;
-    }
-
-    public function setWhatsAppWorkflowService(WhatsAppWorkflowService $service): self
-    {
-        $this->whatsAppWorkflowService = $service;
-        return $this;
     }
 
     public function index()
@@ -767,20 +731,23 @@ class Appointment extends BaseController
 
     public function transition($id)
     {
-        return $this->transitionAppointment($id, (string) $this->request->getPost('status'));
+        $rawStatus = $this->request->getPost('status');
+        return $this->transitionAppointment($id, $rawStatus);
     }
 
-    public function transitionAppointment($id, string $targetStage)
+    private function transitionAppointment($id, $targetStage)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
-            }
-            return redirect()->to('/clinic/select');
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $targetStage = trim((string) $targetStage);
+        if (!is_string($targetStage) && !is_numeric($targetStage)) {
+            $targetStage = '';
+        } else {
+            $targetStage = trim((string) $targetStage);
+        }
+
         if (!$this->visitStageService->isKnown($targetStage)) {
             if (!$this->request->isAJAX()) {
                 return redirect()->back()->with('error', 'This visit stage change is not allowed.');
@@ -871,9 +838,9 @@ class Appointment extends BaseController
 
             $completionDecision = null;
             if ($targetStage === 'completed') {
-                $assessment = $this->checkoutCompletionService->assess((int) $clinicId, (int) $id);
+                $assessment = $this->assessCheckoutCompletion((int) $clinicId, (int) $id);
                 try {
-                    $completionDecision = $this->checkoutCompletionService->authorize(
+                    $completionDecision = $this->authorizeCheckoutCompletion(
                         $assessment,
                         in_array($this->request->getPost('checkout_override'), ['1', 1, true, 'on'], true),
                         $this->request->getPost('checkout_override_reason')
@@ -916,17 +883,39 @@ class Appointment extends BaseController
             }
 
             $activityDescription = "Appointment visit stage changed from {$actualCurrentStage} to {$targetStage}";
+            $auditMetadata = null;
             if (!empty($completionDecision['override'])) {
-                $activityDescription .= '; checkout acknowledged ['
+                $fullDescription = $activityDescription . '; checkout acknowledged ['
                     . implode(', ', $completionDecision['issue_codes'])
                     . ']; reason: ' . $completionDecision['reason'];
+
+                $auditMetadata = [
+                    'checkout_override' => true,
+                    'issue_codes' => $completionDecision['issue_codes'],
+                    'reason' => $completionDecision['reason'],
+                    'full_description' => $fullDescription,
+                ];
+
+                if (mb_strlen($fullDescription) > 255) {
+                    $prefix = "Appointment visit stage changed from {$actualCurrentStage} to {$targetStage}; checkout acknowledged ["
+                        . implode(', ', $completionDecision['issue_codes'])
+                        . ']; reason: ';
+                    $availableForReason = 255 - mb_strlen($prefix) - 3;
+                    if ($availableForReason > 0) {
+                        $activityDescription = $prefix . mb_substr($completionDecision['reason'], 0, $availableForReason) . '...';
+                    } else {
+                        $activityDescription = mb_substr($fullDescription, 0, 252) . '...';
+                    }
+                } else {
+                    $activityDescription = $fullDescription;
+                }
             }
-            $activityDescription = mb_substr($activityDescription, 0, 255);
 
             $auditResult = $this->activityLogger->logAppointmentActivity(
                 'status',
                 (int) $id,
-                $activityDescription
+                $activityDescription,
+                $auditMetadata
             );
 
             if (!$auditResult || $db->transStatus() === false) {
@@ -1232,5 +1221,15 @@ class Appointment extends BaseController
     private function getSchedulingIncrementMinutes(): int
     {
         return 15;
+    }
+
+    protected function assessCheckoutCompletion(int $clinicId, int $id): array
+    {
+        return $this->checkoutCompletionService->assess($clinicId, $id);
+    }
+
+    protected function authorizeCheckoutCompletion(array $assessment, bool $override, ?string $reason): array
+    {
+        return $this->checkoutCompletionService->authorize($assessment, $override, $reason);
     }
 }

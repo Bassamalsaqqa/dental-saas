@@ -467,7 +467,11 @@ class AppointmentModel extends TenantAwareModel
             [$id, $clinicId]
         );
 
-        $row = $query ? $query->getRowArray() : null;
+        if ($query === false) {
+            throw new \RuntimeException('Database query failed during row lock selection');
+        }
+
+        $row = $query->getRowArray();
         return is_array($row) ? $row : null;
     }
 
@@ -480,10 +484,14 @@ class AppointmentModel extends TenantAwareModel
             return false;
         }
 
-        $this->db->query(
+        $result = $this->db->query(
             "UPDATE {$this->table} SET status = ?, updated_at = ? WHERE id = ? AND clinic_id = ? AND status = ?",
             [$newStatus, date('Y-m-d H:i:s'), $id, $clinicId, $expectedStatus]
         );
+
+        if ($result === false) {
+            return false;
+        }
 
         return (int) $this->db->affectedRows() === 1;
     }

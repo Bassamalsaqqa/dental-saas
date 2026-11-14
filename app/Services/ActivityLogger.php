@@ -13,17 +13,6 @@ class ActivityLogger
         $this->activityLogModel = $activityLogModel ?? new ActivityLogModel();
     }
 
-    public function getActivityLogModel(): ActivityLogModel
-    {
-        return $this->activityLogModel;
-    }
-
-    public function setActivityLogModel(ActivityLogModel $model): self
-    {
-        $this->activityLogModel = $model;
-        return $this;
-    }
-
     /**
      * Log patient activities
      */
@@ -52,7 +41,7 @@ class ActivityLogger
     /**
      * Log appointment activities
      */
-    public function logAppointmentActivity($action, $appointmentId, $description = '')
+    public function logAppointmentActivity($action, $appointmentId, $description = '', $metadata = null)
     {
         $userId = session()->get('user_id');
         if (!$userId) return false;
@@ -71,7 +60,8 @@ class ActivityLogger
             $action,
             'appointment',
             $appointmentId,
-            $description
+            $description,
+            $metadata
         );
     }
 

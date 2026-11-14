@@ -1059,6 +1059,8 @@ return [
     'appointmentActionView' => 'عرض',
     'appointmentStatusStale' => 'تم تغيير حالة الموعد. يرجى مراجعة الحالة المحدثة.',
     'appointmentUpdating' => 'جاري التحديث...',
+    'appointmentTransitionError' => 'تعذر تحديث الحالة. يرجى مراجعة الصفحة وتحديثها قبل المحاولة مجدداً.',
+    'appointmentUncertainOutcome' => 'لا يمكن تأكيد التغيير. يرجى مراجعة الصفحة أو تحديثها قبل إجراء تغيير آخر.',
     'appointmentVisitClosed' => 'تم إغلاق هذه الزيارة.',
     'dashboardRoutingTitle' => 'حركة مرضى اليوم',
     'dashboardRoutingSubtitle' => 'اعرف مرحلة كل زيارة وانقلها إلى الخطوة التالية.',

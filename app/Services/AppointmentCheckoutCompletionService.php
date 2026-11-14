@@ -4,7 +4,7 @@ namespace App\Services;
 
 use DomainException;
 
-class AppointmentCheckoutCompletionService
+final class AppointmentCheckoutCompletionService
 {
     public function __construct(private ?AppointmentCheckoutService $checkout = null)
     {

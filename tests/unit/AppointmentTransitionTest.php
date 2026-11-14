@@ -7,7 +7,6 @@ namespace Tests\Unit;
 use App\Controllers\Appointment;
 use App\Models\AppointmentModel;
 use App\Services\ActivityLogger;
-use App\Services\AppointmentCheckoutCompletionService;
 use App\Services\AppointmentVisitStageService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\IncomingRequest;
@@ -20,19 +19,47 @@ use Config\App;
 use Config\Services;
 
 /**
- * DB-Free Unit Tests for Appointment::transitionAppointment
+ * Test-side subclass for DB-free unit testing of Appointment controller
+ */
+class TestableAppointment extends Appointment
+{
+    public ?array $mockAssessment = null;
+    public ?array $mockCompletionDecision = null;
+    public ?\Throwable $mockCompletionException = null;
+
+    protected function assessCheckoutCompletion(int $clinicId, int $id): array
+    {
+        return $this->mockAssessment ?? parent::assessCheckoutCompletion($clinicId, $id);
+    }
+
+    protected function authorizeCheckoutCompletion(array $assessment, bool $override, ?string $reason): array
+    {
+        if ($this->mockCompletionException !== null) {
+            throw $this->mockCompletionException;
+        }
+        return $this->mockCompletionDecision ?? parent::authorizeCheckoutCompletion($assessment, $override, $reason);
+    }
+}
+
+/**
+ * DB-Free Unit Tests for Appointment::transition
  *
  * Verifies concurrency safety, conditional writes, row locking contracts,
  * HTTP 409 conflict detection, audit atomicity, and legacy caller support.
  */
 final class AppointmentTransitionTest extends CIUnitTestCase
 {
-    private Appointment $controller;
+    private TestableAppointment $controller;
     private $mockDb;
     private $mockAppointmentModel;
     private $mockActivityLogger;
-    private $mockCheckoutCompletionService;
     private AppointmentVisitStageService $visitStageService;
+
+    private function setProtected(string $property, $value): void
+    {
+        $ref = new \ReflectionProperty(Appointment::class, $property);
+        $ref->setValue($this->controller, $value);
+    }
 
     protected function setUp(): void
     {
@@ -76,15 +103,13 @@ final class AppointmentTransitionTest extends CIUnitTestCase
 
         $this->mockAppointmentModel = $this->createMock(AppointmentModel::class);
         $this->mockActivityLogger = $this->createMock(ActivityLogger::class);
-        $this->mockCheckoutCompletionService = $this->createMock(AppointmentCheckoutCompletionService::class);
         $this->visitStageService = new AppointmentVisitStageService();
 
-        $this->controller = new Appointment();
-        $this->controller->setDb($this->mockDb);
-        $this->controller->setAppointmentModel($this->mockAppointmentModel);
-        $this->controller->setActivityLogger($this->mockActivityLogger);
-        $this->controller->setVisitStageService($this->visitStageService);
-        $this->controller->setCheckoutCompletionService($this->mockCheckoutCompletionService);
+        $this->controller = new TestableAppointment();
+        $this->setProtected('db', $this->mockDb);
+        $this->setProtected('appointmentModel', $this->mockAppointmentModel);
+        $this->setProtected('activityLogger', $this->mockActivityLogger);
+        $this->setProtected('visitStageService', $this->visitStageService);
 
         session()->set([
             'user_id' => 42,
@@ -134,7 +159,7 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         return $request;
     }
 
-    public function testMissingTenantContextRedirectsToLogin(): void
+    public function testMissingTenantContextReturns403ForBothAjaxAndNonAjax(): void
     {
         session()->remove('active_clinic_id');
         $this->setupRequest(['status' => 'arrived'], true);
@@ -143,6 +168,12 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         $this->assertSame(403, $response->getStatusCode());
         $body = json_decode($response->getBody(), true);
         $this->assertSame('TENANT_CONTEXT_REQUIRED', $body['error']);
+
+        $this->setupRequest(['status' => 'arrived'], false);
+        $responseNonAjax = $this->controller->transition(10);
+        $this->assertSame(403, $responseNonAjax->getStatusCode());
+        $bodyNonAjax = json_decode($responseNonAjax->getBody(), true);
+        $this->assertSame('TENANT_CONTEXT_REQUIRED', $bodyNonAjax['error']);
     }
 
     public function testConcealmentThrows404ForNonAjaxWhenNotFound(): void
@@ -179,9 +210,37 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         $this->assertTrue($this->mockDb->transRolledBack);
     }
 
+    public function testFindForUpdateDatabaseQueryFailureRollsBackAndReturns500(): void
+    {
+        $this->setupRequest(['status' => 'arrived'], true);
+
+        $this->mockAppointmentModel->expects($this->once())
+            ->method('findForUpdateByClinic')
+            ->with(7, 10)
+            ->willThrowException(new \RuntimeException('Database query failed during row lock selection'));
+
+        $response = $this->controller->transition(10);
+        $this->assertSame(500, $response->getStatusCode());
+        $body = json_decode($response->getBody(), true);
+        $this->assertFalse($body['success']);
+        $this->assertSame('An error occurred during visit stage transition.', $body['message']);
+        $this->assertTrue($this->mockDb->transRolledBack);
+    }
+
     public function testInvalidTargetStageReturns422(): void
     {
         $this->setupRequest(['status' => 'invalid_stage'], true);
+
+        $response = $this->controller->transition(10);
+        $this->assertSame(422, $response->getStatusCode());
+        $body = json_decode($response->getBody(), true);
+        $this->assertFalse($body['success']);
+        $this->assertSame('This visit stage change is not allowed.', $body['message']);
+    }
+
+    public function testNonScalarArrayTargetStatusReturns422WithoutNotice(): void
+    {
+        $this->setupRequest(['status' => ['invalid' => 'array']], true);
 
         $response = $this->controller->transition(10);
         $this->assertSame(422, $response->getStatusCode());
@@ -204,14 +263,14 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         $this->assertSame('Invalid expected stage.', $body['message']);
     }
 
-    public function testStaleExpectedStatusReturns409ConflictForAjax(): void
+    public function testStaleExpectedStatusReturns409ConflictWithAllowedNextStages(): void
     {
         $this->setupRequest([
             'status' => 'arrived',
             'expected_status' => 'scheduled',
         ], true);
 
-        // Database actual stage has moved to 'ready'
+        // Actual DB row is already 'arrived' (modified concurrently)
         $this->mockAppointmentModel->expects($this->once())
             ->method('findForUpdateByClinic')
             ->with(7, 10)
@@ -219,14 +278,12 @@ final class AppointmentTransitionTest extends CIUnitTestCase
                 'id' => 10,
                 'clinic_id' => 7,
                 'patient_id' => 55,
-                'status' => 'ready',
+                'status' => 'arrived',
             ]);
 
-        // conditionalStatusUpdate must NOT be called
+        // Must NOT attempt conditional update or audit log
         $this->mockAppointmentModel->expects($this->never())
             ->method('conditionalStatusUpdate');
-
-        // Audit logger must NOT be called on conflict
         $this->mockActivityLogger->expects($this->never())
             ->method('logAppointmentActivity');
 
@@ -236,14 +293,13 @@ final class AppointmentTransitionTest extends CIUnitTestCase
 
         $this->assertFalse($body['success']);
         $this->assertSame('CONFLICT', $body['error']);
-        $this->assertSame('ready', $body['current_status']);
-        $this->assertContains('in_chair', $body['allowed_statuses']);
-        $this->assertContains('cancelled', $body['allowed_statuses']);
+        $this->assertSame('The appointment status has changed since the page was loaded.', $body['message']);
+        $this->assertSame('arrived', $body['current_status']);
+        $this->assertSame(['ready', 'in_chair', 'cancelled'], $body['allowed_statuses']);
         $this->assertTrue($this->mockDb->transRolledBack);
-        $this->assertFalse($this->mockDb->transCommitted);
     }
 
-    public function testDisallowedTransitionReturns422(): void
+    public function testIllegalTransitionReturns422(): void
     {
         $this->setupRequest([
             'status' => 'completed',
@@ -269,14 +325,16 @@ final class AppointmentTransitionTest extends CIUnitTestCase
 
         $this->assertFalse($body['success']);
         $this->assertSame('This visit stage change is not allowed.', $body['message']);
+        $this->assertSame('scheduled', $body['current_status']);
+        $this->assertSame(['confirmed', 'arrived', 'cancelled', 'no_show'], $body['allowed_statuses']);
         $this->assertTrue($this->mockDb->transRolledBack);
     }
 
-    public function testAllowedTransitionCommitsAndLogsAudit(): void
+    public function testLegacyCallerWithoutExpectedStatusUsesActualDbStatusConditionally(): void
     {
         $this->setupRequest([
             'status' => 'arrived',
-            'expected_status' => 'scheduled',
+            // No expected_status parameter
         ], true);
 
         $this->mockAppointmentModel->expects($this->once())
@@ -296,11 +354,7 @@ final class AppointmentTransitionTest extends CIUnitTestCase
 
         $this->mockActivityLogger->expects($this->once())
             ->method('logAppointmentActivity')
-            ->with(
-                'status',
-                10,
-                $this->stringContains('Appointment visit stage changed from scheduled to arrived')
-            )
+            ->with('status', 10, 'Appointment visit stage changed from scheduled to arrived', null)
             ->willReturn(true);
 
         $response = $this->controller->transition(10);
@@ -308,17 +362,17 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         $body = json_decode($response->getBody(), true);
 
         $this->assertTrue($body['success']);
+        $this->assertSame('arrived', $body['status']);
         $this->assertSame('arrived', $body['current_status']);
-        $this->assertContains('ready', $body['allowed_statuses']);
+        $this->assertSame(['ready', 'in_chair', 'cancelled'], $body['allowed_statuses']);
         $this->assertTrue($this->mockDb->transCommitted);
-        $this->assertFalse($this->mockDb->transRolledBack);
     }
 
-    public function testLegacyCallerWithoutExpectedStatusSucceeds(): void
+    public function testSuccessfulTransitionCommitsAtomically(): void
     {
-        // expected_status is omitted
         $this->setupRequest([
-            'status' => 'arrived',
+            'status' => 'ready',
+            'expected_status' => 'arrived',
         ], true);
 
         $this->mockAppointmentModel->expects($this->once())
@@ -328,16 +382,17 @@ final class AppointmentTransitionTest extends CIUnitTestCase
                 'id' => 10,
                 'clinic_id' => 7,
                 'patient_id' => 55,
-                'status' => 'scheduled',
+                'status' => 'arrived',
             ]);
 
         $this->mockAppointmentModel->expects($this->once())
             ->method('conditionalStatusUpdate')
-            ->with(7, 10, 'scheduled', 'arrived')
+            ->with(7, 10, 'arrived', 'ready')
             ->willReturn(true);
 
         $this->mockActivityLogger->expects($this->once())
             ->method('logAppointmentActivity')
+            ->with('status', 10, 'Appointment visit stage changed from arrived to ready', null)
             ->willReturn(true);
 
         $response = $this->controller->transition(10);
@@ -345,15 +400,15 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         $body = json_decode($response->getBody(), true);
 
         $this->assertTrue($body['success']);
-        $this->assertSame('arrived', $body['current_status']);
+        $this->assertSame('ready', $body['status']);
         $this->assertTrue($this->mockDb->transCommitted);
     }
 
-    public function testConditionalStatusUpdateFailureCausesRollbackAnd500(): void
+    public function testConditionalUpdateFailureRollsBackTransaction(): void
     {
         $this->setupRequest([
-            'status' => 'arrived',
-            'expected_status' => 'scheduled',
+            'status' => 'ready',
+            'expected_status' => 'arrived',
         ], true);
 
         $this->mockAppointmentModel->expects($this->once())
@@ -363,12 +418,13 @@ final class AppointmentTransitionTest extends CIUnitTestCase
                 'id' => 10,
                 'clinic_id' => 7,
                 'patient_id' => 55,
-                'status' => 'scheduled',
+                'status' => 'arrived',
             ]);
 
-        // Concurrent modification caused conditionalStatusUpdate to affect 0 rows
+        // Simulating conditionalStatusUpdate returning false (e.g. 0 affected rows or query failure)
         $this->mockAppointmentModel->expects($this->once())
             ->method('conditionalStatusUpdate')
+            ->with(7, 10, 'arrived', 'ready')
             ->willReturn(false);
 
         $this->mockActivityLogger->expects($this->never())
@@ -380,11 +436,11 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         $this->assertFalse($this->mockDb->transCommitted);
     }
 
-    public function testAuditLogFailureCausesRollbackAnd500(): void
+    public function testAuditLogFailureRollsBackTransaction(): void
     {
         $this->setupRequest([
-            'status' => 'arrived',
-            'expected_status' => 'scheduled',
+            'status' => 'ready',
+            'expected_status' => 'arrived',
         ], true);
 
         $this->mockAppointmentModel->expects($this->once())
@@ -394,14 +450,14 @@ final class AppointmentTransitionTest extends CIUnitTestCase
                 'id' => 10,
                 'clinic_id' => 7,
                 'patient_id' => 55,
-                'status' => 'scheduled',
+                'status' => 'arrived',
             ]);
 
         $this->mockAppointmentModel->expects($this->once())
             ->method('conditionalStatusUpdate')
+            ->with(7, 10, 'arrived', 'ready')
             ->willReturn(true);
 
-        // Audit logger returns false/null indicating failure
         $this->mockActivityLogger->expects($this->once())
             ->method('logAppointmentActivity')
             ->willReturn(false);
@@ -412,7 +468,7 @@ final class AppointmentTransitionTest extends CIUnitTestCase
         $this->assertFalse($this->mockDb->transCommitted);
     }
 
-    public function testCheckoutCompletionOverrideRequiredForCompleted(): void
+    public function testCheckoutCompletionWithoutRequiredOverrideFails(): void
     {
         $this->setupRequest([
             'status' => 'completed',
@@ -429,17 +485,11 @@ final class AppointmentTransitionTest extends CIUnitTestCase
                 'status' => 'checkout',
             ]);
 
-        $this->mockCheckoutCompletionService->expects($this->once())
-            ->method('assess')
-            ->with(7, 10)
-            ->willReturn([
-                'requires_override' => true,
-                'issue_codes' => ['balance_due'],
-            ]);
-
-        $this->mockCheckoutCompletionService->expects($this->once())
-            ->method('authorize')
-            ->willThrowException(new \DomainException('Override required to complete appointment.'));
+        $this->controller->mockAssessment = [
+            'requires_override' => true,
+            'issue_codes' => ['balance_due'],
+        ];
+        $this->controller->mockCompletionException = new \DomainException('Override required to complete appointment.');
 
         $this->mockAppointmentModel->expects($this->never())
             ->method('conditionalStatusUpdate');
@@ -473,21 +523,15 @@ final class AppointmentTransitionTest extends CIUnitTestCase
                 'status' => 'checkout',
             ]);
 
-        $this->mockCheckoutCompletionService->expects($this->once())
-            ->method('assess')
-            ->with(7, 10)
-            ->willReturn([
-                'requires_override' => true,
-                'issue_codes' => ['balance_due'],
-            ]);
-
-        $this->mockCheckoutCompletionService->expects($this->once())
-            ->method('authorize')
-            ->willReturn([
-                'override' => true,
-                'reason' => 'Patient promised to pay tomorrow',
-                'issue_codes' => ['balance_due'],
-            ]);
+        $this->controller->mockAssessment = [
+            'requires_override' => true,
+            'issue_codes' => ['balance_due'],
+        ];
+        $this->controller->mockCompletionDecision = [
+            'override' => true,
+            'reason' => 'Patient promised to pay tomorrow',
+            'issue_codes' => ['balance_due'],
+        ];
 
         $this->mockAppointmentModel->expects($this->once())
             ->method('conditionalStatusUpdate')
@@ -499,7 +543,78 @@ final class AppointmentTransitionTest extends CIUnitTestCase
             ->with(
                 'status',
                 10,
-                $this->stringContains('checkout acknowledged [balance_due]')
+                $this->stringContains('checkout acknowledged [balance_due]'),
+                $this->callback(function ($metadata): bool {
+                    $this->assertIsArray($metadata);
+                    $this->assertTrue($metadata['checkout_override']);
+                    $this->assertSame('Patient promised to pay tomorrow', $metadata['reason']);
+                    return true;
+                })
+            )
+            ->willReturn(true);
+
+        $response = $this->controller->transition(10);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertTrue($this->mockDb->transCommitted);
+    }
+
+    public function testLongCheckoutOverrideReasonPreservedInAuditMetadataAndSummaryWithoutLosingIssues(): void
+    {
+        $longReason = str_repeat('Clinical treatment plan verified with patient; payment scheduled. ', 5); // 325 characters
+        $this->assertGreaterThan(255, mb_strlen($longReason));
+        $this->assertLessThanOrEqual(500, mb_strlen($longReason));
+
+        $this->setupRequest([
+            'status' => 'completed',
+            'expected_status' => 'checkout',
+            'checkout_override' => '1',
+            'checkout_override_reason' => $longReason,
+        ], true);
+
+        $this->mockAppointmentModel->expects($this->once())
+            ->method('findForUpdateByClinic')
+            ->with(7, 10)
+            ->willReturn([
+                'id' => 10,
+                'clinic_id' => 7,
+                'patient_id' => 55,
+                'status' => 'checkout',
+            ]);
+
+        $this->controller->mockAssessment = [
+            'requires_override' => true,
+            'issue_codes' => ['balance_due'],
+        ];
+        $this->controller->mockCompletionDecision = [
+            'override' => true,
+            'reason' => $longReason,
+            'issue_codes' => ['balance_due'],
+        ];
+
+        $this->mockAppointmentModel->expects($this->once())
+            ->method('conditionalStatusUpdate')
+            ->with(7, 10, 'checkout', 'completed')
+            ->willReturn(true);
+
+        $this->mockActivityLogger->expects($this->once())
+            ->method('logAppointmentActivity')
+            ->with(
+                'status',
+                10,
+                $this->callback(function (string $description): bool {
+                    $this->assertLessThanOrEqual(255, mb_strlen($description), 'Description must not exceed 255 chars');
+                    $this->assertStringContainsString('checkout acknowledged [balance_due]', $description);
+                    $this->assertStringEndsWith('...', $description);
+                    return true;
+                }),
+                $this->callback(function ($metadata) use ($longReason): bool {
+                    $this->assertIsArray($metadata);
+                    $this->assertTrue($metadata['checkout_override']);
+                    $this->assertSame(['balance_due'], $metadata['issue_codes']);
+                    $this->assertSame($longReason, $metadata['reason'], 'Full long reason must be preserved in metadata');
+                    $this->assertStringContainsString($longReason, $metadata['full_description']);
+                    return true;
+                })
             )
             ->willReturn(true);
 

@@ -1065,6 +1065,8 @@ return [
     'appointmentActionView' => 'View',
     'appointmentStatusStale' => 'The appointment status has changed. Please review the updated status.',
     'appointmentUpdating' => 'Updating...',
+    'appointmentTransitionError' => 'Unable to update status. Please review and refresh before trying again.',
+    'appointmentUncertainOutcome' => 'Cannot confirm change. Please review or refresh before another change.',
     'appointmentVisitClosed' => 'This visit is closed.',
     'dashboardRoutingTitle' => "Today's patient flow",
     'dashboardRoutingSubtitle' => 'See where every visit is and move the next handoff forward.',

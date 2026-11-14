@@ -11,8 +11,9 @@
     "build-css": "tailwindcss -i ./src/input.css -o ./public/assets/css/tailwind.css",
     "build-css-prod": "tailwindcss -i ./src/input.css -o ./public/assets/css/tailwind.css --minify",
     "release:hostinger": "powershell -ExecutionPolicy Bypass -File ./scripts/release-hostinger.ps1",
-    "test": "npm run test:unit",
-    "test:unit": "php vendor/phpunit/phpunit/phpunit --no-coverage --no-logging --do-not-cache-result tests/unit/FinanceArabicIntegrityTest.php tests/unit/BookingResourcePresenterTest.php tests/unit/FinanceSalaryProviderAccountingTest.php tests/unit/FinanceSettlementProviderCurrencyTest.php tests/unit/FinanceSettlementServiceTest.php tests/unit/FinanceSettlementInputGuardTest.php tests/unit/FinanceTreasuryServiceTest.php tests/unit/SafeTestConnectionBootstrapTest.php tests/unit/HostingerContainmentHelperTest.php tests/unit/PatientWorkflowBoundaryTest.php tests/unit/PatientNavigationHarnessSecurityTest.php tests/unit/DeveloperSandboxPreflightTest.php tests/unit/DeveloperSandboxTrialControllerTest.php",
+    "test": "npm run test:unit && npm run test:js",
+    "test:unit": "php vendor/phpunit/phpunit/phpunit --no-coverage --no-logging --do-not-cache-result tests/unit/FinanceArabicIntegrityTest.php tests/unit/BookingResourcePresenterTest.php tests/unit/FinanceSalaryProviderAccountingTest.php tests/unit/FinanceSettlementProviderCurrencyTest.php tests/unit/FinanceSettlementServiceTest.php tests/unit/FinanceSettlementInputGuardTest.php tests/unit/FinanceTreasuryServiceTest.php tests/unit/SafeTestConnectionBootstrapTest.php tests/unit/HostingerContainmentHelperTest.php tests/unit/PatientWorkflowBoundaryTest.php tests/unit/PatientNavigationHarnessSecurityTest.php tests/unit/DeveloperSandboxPreflightTest.php tests/unit/DeveloperSandboxTrialControllerTest.php tests/unit/AppointmentTransitionTest.php tests/unit/DashboardTodayTableTemplateTest.php",
+    "test:js": "node tests/js/DashboardTodayTransitionsTest.cjs",
     "test:finance:http": "php scripts/safe_test_runner.php --no-coverage --no-logging --do-not-cache-result tests/unit/FinanceSalaryWorkflowHttpTest.php"
   },
   "repository": {

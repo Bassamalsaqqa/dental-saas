@@ -81,6 +81,8 @@ $studioDocs=$clinical_documentation_queue??[];$studioRecovery=$appointment_recov
   data-action-view="<?= esc(lang('UI.appointmentActionView'),'attr') ?>"
   data-status-updating="<?= esc(lang('UI.appointmentUpdating'),'attr') ?>"
   data-status-stale="<?= esc(lang('UI.appointmentStatusStale'),'attr') ?>"
+  data-status-error="<?= esc(lang('UI.appointmentTransitionError'),'attr') ?>"
+  data-status-uncertain="<?= esc(lang('UI.appointmentUncertainOutcome'),'attr') ?>"
   data-base-url="<?= esc(base_url('appointment/'),'attr') ?>"
   data-can-edit="<?= $studioCanEditVisits ? '1' : '0' ?>"
   <?php foreach($studioStageLabels as $s=>$lbl): ?>
