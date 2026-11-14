@@ -5,7 +5,7 @@
  */
 
 /* Hidden elements safeguard against grid/flex display overrides */
-[hidden] {
+.dashboard-workspace [hidden] {
   display: none !important;
 }
 

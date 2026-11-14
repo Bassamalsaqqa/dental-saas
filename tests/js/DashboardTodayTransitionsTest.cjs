@@ -1294,6 +1294,50 @@ async function runTests() {
     assert.ok(!studioJsSource.includes("row.dataset.stage!==value"), 'studio.js must NOT use naive exact comparison that hides all rows on waiting');
   }
 
+  // Test 20: Other button zero-count behavior when selected vs not selected and scoped [hidden] stylesheet rule
+  {
+    // Part A: Other button remains visible if currently active even if count drops to 0
+    const harness = setupHarness(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        success: true,
+        status: 'arrived',
+        current_status: 'arrived',
+        csrf_token: 'tok-other-to-arrived'
+      })
+    }), {
+      initialStage: 'scheduled', // initially counts as 'other'
+    });
+
+    const otherBtn = harness.container.querySelector('.filter-btn[data-filter="other"]');
+    const allBtn = harness.container.querySelector('.filter-btn[data-filter="all"]');
+
+    // User switches to 'other' filter
+    otherBtn.click();
+    assert.equal(otherBtn.classList.contains('active'), true);
+    assert.equal(otherBtn.hidden, false);
+
+    // Row transitions scheduled -> arrived
+    harness.submitForm();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    // countOther is now 0, but otherBtn is currently active/selected -> must NOT be hidden
+    const otherCount = otherBtn.querySelector('.filter-count');
+    assert.equal(otherCount.textContent, '(0)');
+    assert.equal(otherBtn.hidden, false, 'Other button must remain visible when active even if count is 0');
+
+    // User clicks 'all' filter -> now otherBtn should hide because count is 0 and it is no longer active
+    allBtn.click();
+    assert.equal(otherBtn.hidden, true, 'Other button must hide once deactivated if count is 0');
+
+    // Part B: Scoped [hidden] stylesheet authority check
+    const cssPath = path.join(__dirname, '../../public/assets/css/studio-dashboard.css');
+    const cssSource = fs.readFileSync(cssPath, 'utf8');
+    assert.ok(cssSource.includes('.dashboard-workspace [hidden]'), 'Stylesheet must scope [hidden] to .dashboard-workspace');
+    assert.ok(!cssSource.match(/(?:^|\n)\[hidden\]\s*\{/), 'Stylesheet must not declare unscoped global [hidden] override');
+  }
+
   console.log('All DashboardTodayTransitionsTest unit tests passed successfully.');
 }
 

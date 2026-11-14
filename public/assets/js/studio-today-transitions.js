@@ -324,9 +324,7 @@
           const cnt = otherBtn.querySelector('.filter-count');
           if (cnt) cnt.textContent = '(' + countOther + ')';
           // Make Other available when checkout or other appears after transition even if initial 0
-          if (countOther > 0 || currentFilter === 'other') {
-            otherBtn.hidden = false;
-          }
+          otherBtn.hidden = countOther === 0 && currentFilter !== 'other';
         }
       }
 
