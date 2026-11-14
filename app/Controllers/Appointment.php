@@ -26,17 +26,17 @@ class Appointment extends BaseController
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
     protected AppointmentVisitStageService $visitStageService;
     protected AppointmentCheckoutService $checkoutService;
-    protected AppointmentCheckoutCompletionService $checkoutCompletionService;
+    protected $checkoutCompletionService;
     protected ProviderDirectoryService $providerDirectoryService;
     protected AppointmentSchedulingService $schedulingService;
     protected $db;
 
     public function __construct() 
     {
-        $this->appointmentModel = new AppointmentModel();
         $this->db = \Config\Database::connect();
-        $this->patientModel = new PatientModel();
-        $this->activityLogger = new ActivityLogger();
+        $this->appointmentModel = new AppointmentModel($this->db);
+        $this->patientModel = new PatientModel($this->db);
+        $this->activityLogger = new ActivityLogger(new \App\Models\ActivityLogModel($this->db));
         $this->storageService = new \App\Services\StorageService();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
         $this->visitStageService = new AppointmentVisitStageService();
@@ -44,6 +44,42 @@ class Appointment extends BaseController
         $this->checkoutCompletionService = new AppointmentCheckoutCompletionService($this->checkoutService);
         $this->providerDirectoryService = new ProviderDirectoryService($this->db);
         $this->schedulingService = new AppointmentSchedulingService($this->db);
+    }
+
+    public function setAppointmentModel(AppointmentModel $model): self
+    {
+        $this->appointmentModel = $model;
+        return $this;
+    }
+
+    public function setDb($db): self
+    {
+        $this->db = $db;
+        return $this;
+    }
+
+    public function setActivityLogger(ActivityLogger $logger): self
+    {
+        $this->activityLogger = $logger;
+        return $this;
+    }
+
+    public function setVisitStageService(AppointmentVisitStageService $service): self
+    {
+        $this->visitStageService = $service;
+        return $this;
+    }
+
+    public function setCheckoutCompletionService($service): self
+    {
+        $this->checkoutCompletionService = $service;
+        return $this;
+    }
+
+    public function setWhatsAppWorkflowService(WhatsAppWorkflowService $service): self
+    {
+        $this->whatsAppWorkflowService = $service;
+        return $this;
     }
 
     public function index()
@@ -734,76 +770,217 @@ class Appointment extends BaseController
         return $this->transitionAppointment($id, (string) $this->request->getPost('status'));
     }
 
-    private function transitionAppointment($id, string $targetStage)
+    public function transitionAppointment($id, string $targetStage)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+            return redirect()->to('/clinic/select');
         }
 
-        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
-        
-        if (!$appointment) {
-            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
-        }
-
-        $currentStage = (string) ($appointment['status'] ?? 'scheduled');
-        if (!$this->visitStageService->canTransition($currentStage, $targetStage)) {
+        $targetStage = trim((string) $targetStage);
+        if (!$this->visitStageService->isKnown($targetStage)) {
             if (!$this->request->isAJAX()) {
                 return redirect()->back()->with('error', 'This visit stage change is not allowed.');
             }
             return $this->response->setStatusCode(422)->setJSON([
                 'success' => false,
                 'message' => 'This visit stage change is not allowed.',
-                'current_status' => $currentStage,
-                'allowed_statuses' => $this->visitStageService->allowedNext($currentStage),
+                'csrf_token' => csrf_hash(),
             ]);
         }
 
-        $completionDecision = null;
-        if ($targetStage === 'completed') {
-            $assessment = $this->checkoutCompletionService->assess((int) $clinicId, (int) $id);
-            try {
-                $completionDecision = $this->checkoutCompletionService->authorize(
-                    $assessment,
-                    in_array($this->request->getPost('checkout_override'), ['1', 1, true, 'on'], true),
-                    $this->request->getPost('checkout_override_reason')
-                );
-            } catch (\DomainException $e) {
+        $rawExpectedStatus = $this->request->getPost('expected_status');
+        $hasExpectedStatus = ($rawExpectedStatus !== null && $rawExpectedStatus !== '');
+        $expectedStatus = null;
+        if ($hasExpectedStatus) {
+            if (!is_string($rawExpectedStatus) || !$this->visitStageService->isKnown(trim($rawExpectedStatus))) {
                 if (!$this->request->isAJAX()) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('checkout_completion_issues', $assessment['issue_codes'])
-                        ->with('error', $e->getMessage());
+                    return redirect()->back()->with('error', 'Invalid expected stage.');
                 }
                 return $this->response->setStatusCode(422)->setJSON([
                     'success' => false,
-                    'message' => $e->getMessage(),
-                    'checkout_issues' => $assessment['issue_codes'],
-                    'requires_override' => true,
+                    'message' => 'Invalid expected stage.',
+                    'csrf_token' => csrf_hash(),
                 ]);
             }
+            $expectedStatus = trim($rawExpectedStatus);
         }
 
-        if (!$this->appointmentModel->update($id, ['status' => $targetStage])) {
+        $db = $this->db ?? $this->appointmentModel->db ?? \Config\Database::connect();
+        if (!$db->transBegin()) {
             if (!$this->request->isAJAX()) {
-                return redirect()->back()->with('error', 'Failed to update visit stage');
+                return redirect()->back()->with('error', 'Database transaction start failed.');
             }
-            return $this->response->setStatusCode(500)
-                ->setJSON(['success' => false, 'message' => 'Failed to update visit stage']);
+            return $this->response->setStatusCode(500)->setJSON([
+                'success' => false,
+                'message' => 'Database transaction start failed.',
+                'csrf_token' => csrf_hash(),
+            ]);
         }
 
-        $activityDescription = "Appointment visit stage changed from {$currentStage} to {$targetStage}";
-        if (!empty($completionDecision['override'])) {
-            $activityDescription .= '; checkout acknowledged ['
-                . implode(', ', $completionDecision['issue_codes'])
-                . ']; reason: ' . $completionDecision['reason'];
+        try {
+            $appointment = $this->appointmentModel->findForUpdateByClinic((int) $clinicId, (int) $id);
+
+            if (!$appointment) {
+                $db->transRollback();
+                if (!$this->request->isAJAX()) {
+                    throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Appointment not found');
+                }
+                return $this->response->setStatusCode(404)->setJSON([
+                    'success' => false,
+                    'message' => 'Appointment not found',
+                    'csrf_token' => csrf_hash(),
+                ]);
+            }
+
+            $actualCurrentStage = (string) ($appointment['status'] ?? 'scheduled');
+
+            if ($hasExpectedStatus && $expectedStatus !== $actualCurrentStage) {
+                $db->transRollback();
+                $allowedStatuses = $this->visitStageService->allowedNext($actualCurrentStage);
+                if (!$this->request->isAJAX()) {
+                    return redirect()->back()->withInput()->with('error', 'The appointment status has changed. Please review the updated status.')->with('conflict', true);
+                }
+                return $this->response->setStatusCode(409)->setJSON([
+                    'success' => false,
+                    'error' => 'CONFLICT',
+                    'message' => 'The appointment status has changed since the page was loaded.',
+                    'current_status' => $actualCurrentStage,
+                    'allowed_statuses' => $allowedStatuses,
+                    'csrf_token' => csrf_hash(),
+                ]);
+            }
+
+            if (!$this->visitStageService->canTransition($actualCurrentStage, $targetStage)) {
+                $db->transRollback();
+                $allowedStatuses = $this->visitStageService->allowedNext($actualCurrentStage);
+                if (!$this->request->isAJAX()) {
+                    return redirect()->back()->with('error', 'This visit stage change is not allowed.');
+                }
+                return $this->response->setStatusCode(422)->setJSON([
+                    'success' => false,
+                    'message' => 'This visit stage change is not allowed.',
+                    'current_status' => $actualCurrentStage,
+                    'allowed_statuses' => $allowedStatuses,
+                    'csrf_token' => csrf_hash(),
+                ]);
+            }
+
+            $completionDecision = null;
+            if ($targetStage === 'completed') {
+                $assessment = $this->checkoutCompletionService->assess((int) $clinicId, (int) $id);
+                try {
+                    $completionDecision = $this->checkoutCompletionService->authorize(
+                        $assessment,
+                        in_array($this->request->getPost('checkout_override'), ['1', 1, true, 'on'], true),
+                        $this->request->getPost('checkout_override_reason')
+                    );
+                } catch (\DomainException $e) {
+                    $db->transRollback();
+                    if (!$this->request->isAJAX()) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('checkout_completion_issues', $assessment['issue_codes'])
+                            ->with('error', $e->getMessage());
+                    }
+                    return $this->response->setStatusCode(422)->setJSON([
+                        'success' => false,
+                        'message' => $e->getMessage(),
+                        'checkout_issues' => $assessment['issue_codes'],
+                        'requires_override' => true,
+                        'csrf_token' => csrf_hash(),
+                    ]);
+                }
+            }
+
+            $updateSuccess = $this->appointmentModel->conditionalStatusUpdate(
+                (int) $clinicId,
+                (int) $id,
+                $actualCurrentStage,
+                $targetStage
+            );
+
+            if (!$updateSuccess) {
+                $db->transRollback();
+                if (!$this->request->isAJAX()) {
+                    return redirect()->back()->with('error', 'Failed to update visit stage');
+                }
+                return $this->response->setStatusCode(500)->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to update visit stage',
+                    'csrf_token' => csrf_hash(),
+                ]);
+            }
+
+            $activityDescription = "Appointment visit stage changed from {$actualCurrentStage} to {$targetStage}";
+            if (!empty($completionDecision['override'])) {
+                $activityDescription .= '; checkout acknowledged ['
+                    . implode(', ', $completionDecision['issue_codes'])
+                    . ']; reason: ' . $completionDecision['reason'];
+            }
+            $activityDescription = mb_substr($activityDescription, 0, 255);
+
+            $auditResult = $this->activityLogger->logAppointmentActivity(
+                'status',
+                (int) $id,
+                $activityDescription
+            );
+
+            if (!$auditResult || $db->transStatus() === false) {
+                $db->transRollback();
+                if (!$this->request->isAJAX()) {
+                    return redirect()->back()->with('error', 'Failed to record audit log for visit stage update.');
+                }
+                return $this->response->setStatusCode(500)->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to record audit log for visit stage update.',
+                    'csrf_token' => csrf_hash(),
+                ]);
+            }
+
+            if ($db->transStatus() === false || (int) $db->transDepth !== 1) {
+                $db->transRollback();
+                if (!$this->request->isAJAX()) {
+                    return redirect()->back()->with('error', 'Transaction status invalid.');
+                }
+                return $this->response->setStatusCode(500)->setJSON([
+                    'success' => false,
+                    'message' => 'Transaction status invalid.',
+                    'csrf_token' => csrf_hash(),
+                ]);
+            }
+
+            if (!$db->transCommit()) {
+                $db->transRollback();
+                if (!$this->request->isAJAX()) {
+                    return redirect()->back()->with('error', 'Failed to commit visit stage update.');
+                }
+                return $this->response->setStatusCode(500)->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to commit visit stage update.',
+                    'csrf_token' => csrf_hash(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            if ((int) ($db->transDepth ?? 0) > 0) {
+                $db->transRollback();
+            }
+            if ($e instanceof \CodeIgniter\Exceptions\PageNotFoundException) {
+                throw $e;
+            }
+            log_message('error', 'Appointment transition exception: ' . $e->getMessage());
+            if (!$this->request->isAJAX()) {
+                return redirect()->back()->with('error', 'An error occurred during visit stage transition.');
+            }
+            return $this->response->setStatusCode(500)->setJSON([
+                'success' => false,
+                'message' => 'An error occurred during visit stage transition.',
+                'csrf_token' => csrf_hash(),
+            ]);
         }
-        $this->activityLogger->logAppointmentActivity(
-            'status',
-            (int) $id,
-            $activityDescription
-        );
 
         if ($targetStage === 'no_show') {
             try {
@@ -822,12 +999,15 @@ class Appointment extends BaseController
                 'success' => true,
                 'message' => 'Visit stage updated',
                 'status' => $targetStage,
+                'current_status' => $targetStage,
+                'allowed_statuses' => $this->visitStageService->allowedNext($targetStage),
+                'csrf_token' => csrf_hash(),
             ]);
         }
 
         $returnTo = $this->sanitizeInternalReturnTo(
             (string) $this->request->getPost('return_to'),
-            ['patient', 'patients', 'examination', 'appointment', 'appointments']
+            ['patient', 'patients', 'examination', 'appointment', 'appointments', 'dashboard']
         );
 
         return redirect()

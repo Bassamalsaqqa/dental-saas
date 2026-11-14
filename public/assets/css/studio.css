@@ -76,6 +76,13 @@
 .visit-link:focus-visible{outline:none}
 .visit-link:focus-visible::after{outline:3px solid var(--color-focus);outline-offset:-3px}
 .visit-person{position:relative;z-index:1}
+.visit-table .visit-action{position:relative;z-index:1;white-space:nowrap;text-align:end}
+.visit-action-group{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.inline-transition-form{display:inline-flex;margin:0;padding:0}
+.visit-table .visit-action .button{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:8px;font-size:var(--studio-font-15,15px);font-weight:700;line-height:1.4;cursor:pointer;border:0;text-decoration:none;box-sizing:border-box}
+.visit-table .visit-action .button:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+.visit-table .visit-action .button[aria-busy="true"],.visit-table .visit-action .button:disabled{opacity:0.65;cursor:not-allowed}
+.visit-stale-notice{display:block;color:var(--color-danger);font-size:var(--studio-font-14,14px);margin:4px 0 0;font-weight:600}
 .visit-table tr:focus-within td{background:var(--color-surface-tonal)}
 .status-filter select{appearance:none;background-image:none;padding-inline:3px}
 @media(max-width:1450px) and (min-width:801px){.attention-item{margin:17px 0 0;padding:18px}}

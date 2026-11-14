@@ -452,4 +452,39 @@ class AppointmentModel extends TenantAwareModel
 
         return $overlapCount;
     }
+
+    /**
+     * Find an appointment by ID and clinic with a row lock (FOR UPDATE).
+     */
+    public function findForUpdateByClinic(int $clinicId, int $id): ?array
+    {
+        if ($clinicId <= 0 || $id <= 0) {
+            return null;
+        }
+
+        $query = $this->db->query(
+            "SELECT id, clinic_id, patient_id, status FROM {$this->table} WHERE id = ? AND clinic_id = ? FOR UPDATE",
+            [$id, $clinicId]
+        );
+
+        $row = $query ? $query->getRowArray() : null;
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Atomically update appointment status with current-stage conditional predicate.
+     */
+    public function conditionalStatusUpdate(int $clinicId, int $id, string $expectedStatus, string $newStatus): bool
+    {
+        if ($clinicId <= 0 || $id <= 0 || $expectedStatus === '' || $newStatus === '') {
+            return false;
+        }
+
+        $this->db->query(
+            "UPDATE {$this->table} SET status = ?, updated_at = ? WHERE id = ? AND clinic_id = ? AND status = ?",
+            [$newStatus, date('Y-m-d H:i:s'), $id, $clinicId, $expectedStatus]
+        );
+
+        return (int) $this->db->affectedRows() === 1;
+    }
 }

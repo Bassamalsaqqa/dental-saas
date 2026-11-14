@@ -8,10 +8,11 @@ usort($studioVisits,static fn($a,$b)=>strcmp((string)($a['appointment_time']??''
 $studioUpcoming=$upcoming_appointments??[];
 $studioInitialTab=empty($studioVisits)&&!empty($studioUpcoming)?'upcoming':'today';
 $studioCanVisits=!empty($can_route_appointments);
+$studioCanEditVisits=$studioCanVisits && $v4Can('appointments','edit');
 $studioStageLabels=['scheduled'=>'appointmentStageScheduled','confirmed'=>'appointmentStageConfirmed','arrived'=>'appointmentStageArrived','ready'=>'appointmentStageReady','in_chair'=>'appointmentStageInChair','checkout'=>'appointmentStageCheckout','completed'=>'appointmentStageCompleted','cancelled'=>'appointmentStageCancelled','no_show'=>'appointmentStageNoShow'];
 $studioDocs=$clinical_documentation_queue??[];$studioRecovery=$appointment_recovery_queue??[];$studioAccepted=$accepted_treatment_queue??[];
 ?>
-<div class="page-title-row studio-contour"><div><h1><?= esc(lang('Studio.overview')) ?><span class="title-period">.</span></h1><p><?= esc(lang('Studio.subtitle')) ?></p></div><div class="heading-actions"><span class="date-chip"><?= $studioIcon('calendar') ?><span><?= esc(formatDate(date('Y-m-d'))) ?></span></span><?php if($v4Can('patients','create')): ?><a class="button secondary" data-patient-create-open href="<?= base_url('patient/create?return_to=dashboard') ?>"><?= $studioIcon('plus') ?><?= esc(lang('Studio.register')) ?></a><?php endif ?><?php if($v4Can('appointments','create')): ?><a class="button primary" data-booking-create-open href="<?= base_url('appointment/create?return_to=dashboard') ?>"><?= $studioIcon('calendar') ?><?= esc(lang('Studio.book')) ?></a><?php endif ?></div></div>
+<div class="page-title-row studio-contour"><div><h1><?= esc(lang('Studio.overview')) ?><span class="title-period">.</span></h1></div><div class="heading-actions"><span class="date-chip"><?= $studioIcon('calendar') ?><span><?= esc(formatDate(date('Y-m-d'))) ?></span></span><?php if($v4Can('patients','create')): ?><a class="button secondary" data-patient-create-open href="<?= base_url('patient/create?return_to=dashboard') ?>"><?= $studioIcon('plus') ?><?= esc(lang('Studio.register')) ?></a><?php endif ?><?php if($v4Can('appointments','create')): ?><a class="button primary" data-booking-create-open href="<?= base_url('appointment/create?return_to=dashboard') ?>"><?= $studioIcon('calendar') ?><?= esc(lang('Studio.book')) ?></a><?php endif ?></div></div>
 <div class="desk-layout">
 <section class="appointment-desk" aria-labelledby="desk-title">
 <div class="desk-heading"><div><h2 id="desk-title"><?= esc(lang('Studio.day')) ?></h2><div class="day-summary"><span class="summary-dot"></span><strong><?= (int)($stats['today_appointments']??0) ?></strong> <?= esc(lang('Studio.visits')) ?><span class="summary-divider"></span><span><?= (int)($today_routing['completed_count']??0) ?> <?= esc(lang('Studio.completed')) ?></span></div></div><?php if($studioCanVisits): ?><a href="<?= base_url('appointment/calendar') ?>" class="button secondary"><?= $studioIcon('calendar') ?><span><?= esc(lang('Studio.calendar')) ?></span></a><?php endif; ?></div>
@@ -20,15 +21,40 @@ $studioDocs=$clinical_documentation_queue??[];$studioRecovery=$appointment_recov
 <?php foreach(['today'=>$studioVisits,'upcoming'=>$studioUpcoming] as $tab=>$rows): ?>
 <div role="tabpanel" id="panel-<?= $tab ?>" aria-labelledby="tab-<?= $tab ?>" <?= $tab!==$studioInitialTab?'hidden':'' ?>>
 <?php if(!$rows): ?><div class="empty-agenda"><div class="empty-calendar"><?= $studioIcon('calendar') ?></div><h3><?= esc(lang('Studio.'.($tab==='today'?'noToday':'noUpcoming'))) ?></h3><p><?= esc(lang('Studio.'.($tab==='today'?'noTodayHelp':'noUpcomingHelp'))) ?></p><?php if($v4Can('appointments','create')): ?><a class="button secondary" href="<?= base_url('appointment/create') ?>"><?= $studioIcon('plus') ?><?= esc(lang('Studio.book')) ?></a><?php endif; ?></div><?php else: ?>
-<div class="visit-table-scroll"><table data-grid-widths="13,29,17,17,10,14" class="visit-table studio-grid"><thead><tr><th scope="col"><?= esc(lang('Studio.time')) ?></th><th scope="col"><?= esc(lang('Studio.name')) ?></th><th scope="col"><?= esc(lang('Studio.visit')) ?></th><th scope="col"><?= esc(lang('Studio.resource')) ?></th><th scope="col"><?= esc(lang('Studio.duration')) ?></th><th scope="col"><?= esc(lang('Studio.status')) ?></th></tr></thead><tbody>
+<div class="visit-table-scroll"><table data-grid-widths="12,24,14,14,10,12,14" class="visit-table studio-grid"><thead><tr><th scope="col"><?= esc(lang('Studio.time')) ?></th><th scope="col"><?= esc(lang('Studio.name')) ?></th><th scope="col"><?= esc(lang('Studio.visit')) ?></th><th scope="col"><?= esc(lang('Studio.resource')) ?></th><th scope="col"><?= esc(lang('Studio.duration')) ?></th><th scope="col"><?= esc(lang('Studio.status')) ?></th><th scope="col" class="visit-action-head"><?= esc(lang('Studio.actions')) ?></th></tr></thead><tbody>
 <?php foreach($rows as $i=>$visit): $visitId=(int)$visit['id'];$patientId=(int)($visit['patient_id']??0);$name=trim(($visit['first_name']??'').' '.($visit['last_name']??''));$stage=(string)($visit['status']??'scheduled'); ?>
-<tr class="visit-entry" data-stage="<?= esc($stage,'attr') ?>">
+<tr class="visit-entry" data-stage="<?= esc($stage,'attr') ?>" data-visit-id="<?= $visitId ?>">
 <td class="visit-time"><a class="visit-link" href="<?= esc(workflow_context_url('appointment/'.$visitId,'dashboard')) ?>" aria-label="<?= esc(lang('Studio.details').' - '.$name,'attr') ?>"><strong dir="ltr"><?= esc(formatTime($visit['appointment_time']??'')) ?></strong><small><?= esc(formatDate($visit['appointment_date']??date('Y-m-d'))) ?></small></a></td>
 <td class="visit-identity"><a class="visit-person" href="<?= esc(workflow_context_url('patient/'.$patientId,'dashboard')) ?>"><span class="patient-avatar avatar-tone-<?= $i%4 ?>"><?= esc($studioInitials($name)) ?></span><span><strong><?= esc($name ?: lang('UI.patientUnknown')) ?></strong><small><?= esc($visit['patient_number']??$visit['patient_code']??lang('Studio.created')) ?></small><?php if(!empty($visit['phone'])): ?><small class="patient-phone" dir="ltr"><?= esc($visit['phone']) ?></small><?php endif; ?></span></a></td>
 <td class="visit-treatment"><strong><?= esc(lang('Studio.type_'.($visit['appointment_type']??'consultation'))) ?></strong></td>
 <td class="visit-resource"><span><?= esc(trim((string)($visit['chair_name']??'')) ?: lang('Studio.notAssigned')) ?></span></td>
 <td class="visit-duration"><span><?= isset($visit['duration']) ? esc((string)(int)$visit['duration'].' '.lang('Studio.minutes')) : '-' ?></span></td>
-<td class="visit-status"><span class="status-badge status-<?= esc($stage,'attr') ?>"><span></span><?= esc(lang('UI.'.($studioStageLabels[$stage]??'appointmentStageScheduled'))) ?></span></td>
+<td class="visit-status"><span class="status-badge status-<?= esc($stage,'attr') ?>"><span></span><span class="status-badge-text"><?= esc(lang('UI.'.($studioStageLabels[$stage]??'appointmentStageScheduled'))) ?></span></span></td>
+<td class="visit-action"><div class="visit-action-group">
+<?php if($tab==='today' && $studioCanEditVisits): ?>
+<?php if($stage==='scheduled'||$stage==='confirmed'): ?>
+<form method="post" action="<?= base_url('appointment/'.$visitId.'/transition') ?>" class="inline-transition-form" data-appointment-transition>
+<?= csrf_field() ?>
+<input type="hidden" name="status" value="arrived">
+<input type="hidden" name="expected_status" value="<?= esc($stage,'attr') ?>">
+<input type="hidden" name="return_to" value="dashboard">
+<button type="submit" class="button primary transition-btn" aria-label="<?= esc(lang('UI.appointmentActionArrival').' - '.$name,'attr') ?>"><?= esc(lang('UI.appointmentActionArrival')) ?></button>
+</form>
+<?php elseif($stage==='arrived'): ?>
+<form method="post" action="<?= base_url('appointment/'.$visitId.'/transition') ?>" class="inline-transition-form" data-appointment-transition>
+<?= csrf_field() ?>
+<input type="hidden" name="status" value="ready">
+<input type="hidden" name="expected_status" value="arrived">
+<input type="hidden" name="return_to" value="dashboard">
+<button type="submit" class="button secondary transition-btn" aria-label="<?= esc(lang('UI.appointmentActionReady').' - '.$name,'attr') ?>"><?= esc(lang('UI.appointmentActionReady')) ?></button>
+</form>
+<?php else: ?>
+<a class="button secondary" href="<?= esc(workflow_context_url('appointment/'.$visitId,'dashboard')) ?>"><?= esc(lang('UI.appointmentActionView')) ?></a>
+<?php endif; ?>
+<?php else: ?>
+<a class="button secondary" href="<?= esc(workflow_context_url('appointment/'.$visitId,'dashboard')) ?>"><?= esc(lang('UI.appointmentActionView')) ?></a>
+<?php endif; ?>
+</div></td>
 </tr>
 <?php endforeach; ?></tbody></table></div><p class="filter-empty" hidden><?= esc(lang('Studio.noUpcoming')) ?></p>
 <?php endif; ?></div>
@@ -47,4 +73,19 @@ $studioDocs=$clinical_documentation_queue??[];$studioRecovery=$appointment_recov
 
 <?php if($v4Can('patients','create')): ?><?= view('patient/partials/studio_intake_dialog',['studioIcon'=>$studioIcon,'intakeReturn'=>'dashboard','studioCanCreatePatient'=>true]) ?><?php endif ?>
 <?php if($v4Can('appointments','create')): ?><?= view('appointment/partials/studio_create_dialog',array_merge($this->getData(),['studioIcon'=>$studioIcon,'bookingReturnTo'=>'dashboard','studioCanCreateAppointment'=>true])) ?><?php endif ?>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<div id="today-transitions-config" hidden
+  data-action-arrival="<?= esc(lang('UI.appointmentActionArrival'),'attr') ?>"
+  data-action-ready="<?= esc(lang('UI.appointmentActionReady'),'attr') ?>"
+  data-action-view="<?= esc(lang('UI.appointmentActionView'),'attr') ?>"
+  data-status-updating="<?= esc(lang('UI.appointmentUpdating'),'attr') ?>"
+  data-status-stale="<?= esc(lang('UI.appointmentStatusStale'),'attr') ?>"
+  data-base-url="<?= esc(base_url('appointment/'),'attr') ?>"
+  data-can-edit="<?= $studioCanEditVisits ? '1' : '0' ?>"
+  <?php foreach($studioStageLabels as $s=>$lbl): ?>
+  data-label-<?= esc($s,'attr') ?>="<?= esc(lang('UI.'.$lbl),'attr') ?>"
+  <?php endforeach; ?>
+></div>
+<script src="<?= base_url('assets/js/studio-today-transitions.js') ?>?v=<?= esc(asset_version('assets/js/studio-today-transitions.js')) ?>" defer></script>
 <?= $this->endSection() ?>

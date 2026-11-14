@@ -8,9 +8,20 @@ class ActivityLogger
 {
     protected $activityLogModel;
 
-    public function __construct()
+    public function __construct(?ActivityLogModel $activityLogModel = null)
     {
-        $this->activityLogModel = new ActivityLogModel();
+        $this->activityLogModel = $activityLogModel ?? new ActivityLogModel();
+    }
+
+    public function getActivityLogModel(): ActivityLogModel
+    {
+        return $this->activityLogModel;
+    }
+
+    public function setActivityLogModel(ActivityLogModel $model): self
+    {
+        $this->activityLogModel = $model;
+        return $this;
     }
 
     /**
