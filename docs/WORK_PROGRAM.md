@@ -55,8 +55,13 @@ Deployed production baseline remains `1b17d06587a07a473f714e296af27f977134208d` 
     * Graceful teardown: Gracefully terminated PHP and MariaDB processes; confirmed port 3307 is FREE, port 3306 is OFF, ephemeral HTTP port is FREED, and repo `writable/` hashes match baseline exactly.
     * Candidate deployment baseline: Fixed at EXACT pushed candidate `9aa89680` (tree `58faf4ad595bd419f693fb70fec9d132e17ceca7`). Runtime application diff vs installed `1b17d065` is confined strictly to `app/Views/patient/show.php` (all other diffs are docs/offline tools).
 - **Next bounded task / release gate:**
-  1. Supervisor review of candidate `9aa89680` and verification receipts.
-  2. Issue #29 remains OPEN pending final supervisor sign-off; stopped developer harness (360MB) and 0600 credentials retained.
+  1. Release deployment helper status: `helperNOTREADY` for production cutover; prior helper `59ee...` rejected for incomplete source integration (omitted git ff-only, skipped offline tools/docs), lack of CLI auth flag / checkpoint gate, unchecked rollback, and synthetic mock classes. Concrete replacement release helper (`denta_release_helper_9aa89680.php`) and rigorous offline test suite completed in scratch with full 35-file git diff manifest, real ff-only integration, private 0700 vault / 0600 preimages, in-memory AEAD checkpoint gate, and source-only recovery commit object prepared; NO production deployment executed.
+  2. Runtime verification caveats retained in ledger:
+     * Browser claims provisional / unverified: `preview_status.available: false`, no raw DOM snapshots or screenshots preserved; multi-viewport claims remain uncertified.
+     * Auth contracts: doctor and assistant returned HTTP 200 on settings in raw receipts (`AuthHTTP200noproofdenial`), which did not test or prove denied settings access.
+     * Relational metadata: 26 FK rows inventoried represents an inventory row count, not an exhaustive constraint comparison against the entire codebase/schema specification (`FK26inventory11checks limited`); only 11 specific orphan relational queries were checked.
+  3. Encrypted checkpoint receipt: verified in memory (38,430,763 bytes, SHA256 `3a69bee9...`); receipt file permissions corrected to mode 0600; factual disclosure of exporter timestamp anomaly (`20261114T233959Z` generated while physical creation was `2026-11-13 23:39:59 GMT` / ~01:40 local) recorded without altering original archive or rotating keys.
+  4. Repository commit policy: docs committed locally only; no automatic push of local doc commits to remote origin unless reviewed. Production baseline remains unchanged candidate `9aa89680`. Issue #29 remains OPEN.
 
 ## Working rules
 
